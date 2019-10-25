@@ -1,0 +1,147 @@
+---
+title: "SpatioTemporal Model for Abundance Prediction"
+header-includes:
+   - \usepackage{bm} 
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Suppose that we would like to predict animal abundance from surveys in multiple years. We expect that observations will be correlated across both space and time. First, let's assume that we have a separable model and no covariates for predicting abundance. The underlying spatio-temporal surface is
+
+\begin{equation}
+Y(\mathbf{s}_{i}, \mathbf{t}_j) = \beta_0 + \epsilon(\mathbf{s}_i, \mathbf{t}_j),
+\end{equation}
+
+where $\mathbf{s}_i$ references the $i^{th}$ spatial location and $\mathbf{t}_j$ references the $j^{th}$ time point. Then, we assume the errors 
+
+\begin{equation}
+\bm{\epsilon} \sim \text{N}(\mathbf{0}, \bm{\Sigma}),
+\end{equation}
+
+where $\bm{\Sigma}_{i, j} = \sigma^2 \rho_1 (\vert\vert \mathbf{s}_i - \mathbf{s}_{i'} \vert \vert) \rho_2 (\vert\vert \mathbf{t}_j - \mathbf{t}_{j'} \vert \vert)$.
+
+At first, let's assume an exponential covariance structure for the spatial model and an AR(1) model for the time series model.
+
+\begin{equation}
+\rho_1 (\vert\vert \mathbf{s}_i - \mathbf{s}_{i'} \vert \vert) = \text{exp}(-h_{ii'} / \phi),
+\end{equation}
+
+where $h_{ii'}$ is the Euclidean distance between locations $\mathbf{s}_i$ and $\mathbf{s}_{i'}$ and $\phi$ is the range parameter.
+
+Also,
+
+\begin{equation}
+\rho_2 (\vert\vert \mathbf{t}_j - \mathbf{t}_{j'} \vert \vert) = \psi^{k_{jj'}},
+\end{equation}
+
+where $k_{jj'}$ is the number of time points between $j$ and $j'$ and $\psi$ is the autocorrelation parameter. For surveys done yearly, $j$ indexes the year, assuming that we have a survey every year and equally spaced time points.
+
+## The Model
+
+Next step: consider how much the kriging equations would change. We would use all of the data from surveys of previous years and just need to predict the unobserved locations of the survey of the current year. For the prediction of the total, we want to use __ALL__ sampled points, past and present, for the prediction. Then, we only want to consider the points in the present for the reduction of the variance due to finite sampling. 
+
+We can then proceed similarly as we have with the model without different time points. We do need to be cautious about the correction for a finite population since we now have unobserved values of two different types. The first type of unobserved value is something that we are interested in predicting for in the current time. The second is something that we don't really care about predicting for (it's an unobserved value in the past) that therefore should not go into correcting for a finite population.
+
+First, our prediction for the sampled (observed) sites is simply what we observed:
+
+$$
+\hat{z}_s = z_s,
+$$
+
+where $s$ denotes a site that was sampled.
+
+Our predictions for the unsampled sites come from the usual block kriging formulae:
+
+$$
+\mathbf{\hat{z}}_{ucurr} = \bm{\Sigma}_{ucurr,s} \bm{\Sigma}_{ss}^{-1}(\mathbf{z}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_{ucurr},
+$$
+
+
+where $\bm{\Sigma}_{us}$ denotes the matrix of covariances between unsampled sites and sampled sites, $\bm{\Sigma}_{ss}$ denotes the covariance matrix of the sampled sites only, $\bm{\hat{\mu}}_s = \mathbf{X}_s \bm{\hat{\beta}}_{GLS}$, $\bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}_{GLS}$, and $\bm{\hat{\beta}}_{GLS}$ is the usual generalized least squares estimator. 
+
+
+#####Unbiasedness Condition
+
+The linear model for $\mathbf{z}$ is 
+
+$$
+\mathbf{z} = \mathbf{X} \bm{\beta} + \bm{\delta},
+$$
+
+denoting $\mathbf{X} \bm{\beta} = \bm{\mu}$ as the mean and $\bm{\delta}$ as the error with spatio-temporal covariance structure. Then, we want the prediction weights to be uniformly unbiased:
+
+\begin{align*}
+E(\mathbf{a}'\mathbf{z}_s) &= E(\mathbf{b}'\mathbf{z}_{curr}) \forall \bm{\beta} \\
+\leftrightarrow \mathbf{a}'\mathbf{X}_s &= \mathbf{b}_{curr}'\mathbf{X}_{curr}\\ \leftrightarrow \mathbf{a}'\mathbf{X}_s &= \mathbf{b}_{scurr}'\mathbf{X}_{scurr} + \mathbf{b}_{ucurr}'\mathbf{X}_{ucurr},
+\end{align*}
+
+where $scurr$ denotes only sampled sites in the current year, $ucurr$ denotes only unsampled sites in the current year, and $s$ denotes all sampled sites (current year and past years).
+
+Then, the "kriging" equations are:
+
+$$
+\begin{pmatrix}
+\bm{\Sigma}_{ss} & \mathbf{X}_s \\
+\mathbf{X}_s' & 0
+\end{pmatrix} 
+\begin{pmatrix}
+\bm{\lambda} \\
+m
+\end{pmatrix} = 
+\begin{pmatrix}
+\bm{\Sigma}_{s, scurr} & \bm{\Sigma}_{s, ucurr} \\
+\mathbf{X}_{scurr}' & \mathbf{X}_{ucurr}'
+\end{pmatrix} 
+\begin{pmatrix}
+\mathbf{b}_{scurr} \\
+\mathbf{b}_{ucurr}
+\end{pmatrix},
+$$
+
+where $s$ denotes the sampled sites (past and present), $scurr$ denotes the current sampled sites, and $ucurr$ denotes the current unsampled sites. $\bm{\lambda}$ is an $n$ by 1 vector, where $n$ denotes the number of sampled sites (both past and present). 
+
+Then, we can solve for the prediction weights as
+
+$$
+\bm{\lambda}_s = \mathbf{b}_{sall}' + \mathbf{b}_{ucurr}' (\bm{\Sigma}_{ucurr, s}\bm{\Sigma}_{ss}^{-1}) - \mathbf{b}'_{ucurr}(\bm{\Sigma}_{ucurr, s} \bm{\Sigma}_{ss}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1} + \mathbf{X}_{ucurr}(\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{ss}^{-1}
+$$
+
+where $\mathbf{b}_{sall}$ is a vector of 1's and 0's, with 1's for the sampled sites in the current year and 0's for the sampled sites in the past.
+
+Our prediction is then:
+
+$$
+\bm{\lambda}_s \mathbf{z}_s
+$$
+
+which has a prediction variance that can be found by solving
+
+$$
+E((\bm{\lambda}_s'\mathbf{z}_s - \mathbf{b}_{curr}'\mathbf{z}_{curr})(\bm{\lambda}_s'\mathbf{z}_s - \mathbf{b}'\mathbf{z}_{curr})) =
+$$
+
+$$
+\bm{\lambda}'\bm{\Sigma}_{ss}\bm{\lambda} - 2 \mathbf{b}_{c} \bm{\Sigma}_{cs} \bm{\lambda} + \mathbf{b}'_{c} \bm{\Sigma}_{cc}\mathbf{b}_c,
+$$
+
+where $c$ denotes the current year (both past and present) and $\bm{\Sigma}_{cs}$ denotes the covariance matrix of all of the current spatial sites with the sites that were sampled.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
