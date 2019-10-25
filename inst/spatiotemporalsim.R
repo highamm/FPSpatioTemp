@@ -138,3 +138,5 @@ sum(counts[1601:2000])
 
 ## next step: translate the above zhatu to lambda and find bsall and bu
 ## so that the prediction comes out accurately 
+## next step 2: code this function so that it is within the body of the package
+## and then document this function appropriately
