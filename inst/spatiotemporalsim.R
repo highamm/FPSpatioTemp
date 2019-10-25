@@ -90,23 +90,51 @@ betahat <- beta_hat
 
 ## estimator for the mean vector
 
+
+
+ntotal - nspat
+yearind <- rep(0, ntotal)
+yearind[(ntotal - nspat + 1):ntotal] <- 1
+
+
+bsall <- yearind[is.na(countswithna) == FALSE]
+bucurr <- rep(1, length(yearind[is.na(countswithna) == TRUE & 
+    yearind == 1]))
+
+p1 <- bsall
+
+sampind <- matrix(is.na(countswithna) == FALSE)
+ucurrind <- matrix(yearind == 1 & sampind == 0)
+
+Sigma.ucurrs <- Sigmaest[ucurrind, indxkeep]
+Sigma.ssi <- solve(Sigmaest[indxkeep, indxkeep])
+
+p2 <- t(bucurr) %*% Sigma.ucurrs %*% Sigma.ssi
+
 Xs <- matrix(1, length(counts[indxkeep]))
-Xu <- matrix(1, length(counts[-indxkeep]))
+Xucurr <- matrix(1, length(counts[ucurrind]))
 
-muhats <- Xs %*% beta_hat
-muhatu <- Xu %*% beta_hat
+p3 <- t(bucurr) %*% (Sigma.ucurrs %*% Sigma.ssi %*% Xs %*% solve(t(Xs) %*%
+    Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi + 
+    Xucurr %*% solve(t(Xs) %*%
+        Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi)
+(p1 + p2 + p3) %*% countssamp
+sum(counts[1601:2000])
+ 
+(Sigma.ucurrs %*% Sigma.ssi + (Sigma.ucurrs %*% Sigma.ssi %*% Xs %*% solve(t(Xs) %*%
+    Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi + 
+    Xucurr %*% solve(t(Xs) %*%
+        Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi)) %*% matrix(countssamp)
 
-muhat <- rep(NA, length(counts))
-muhat[indxkeep] <- muhats
-muhat[-indxkeep] <- muhatu
 
-
-
-Cmat <- Sigma.ss %*% as.matrix(Bs) +
-  Sigma.su %*% as.matrix(Bu)
-Dmat <- t(X) %*% matrix(B) - t(Xs) %*% Sigma.ssi %*% Cmat
-Vmat <- solve(t(Xs) %*% Sigma.ssi %*% Xs)
-
+## this is right but something is off with the above equation...
+muhats <- Xs %*% betahat; muhatu <- Xucurr %*% betahat
 ## the predicted values for the sites that were not sampled
-zhatu <- Sigma.us %*% Sigma.ssi %*% (countssamp -
+zhatu <- Sigma.ucurrs %*% Sigma.ssi %*% (countssamp -
     muhats) + muhatu
+
+sum(zhatu) + sum(countswithna[sampind == 1 & yearind == 1])
+sum(counts[1601:2000])
+
+## next step: translate the above zhatu to lambda and find bsall and bu
+## so that the prediction comes out accurately 
