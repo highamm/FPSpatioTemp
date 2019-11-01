@@ -17,13 +17,11 @@ Suppose that we would like to predict animal abundance from surveys in multiple 
 Y(\mathbf{s}_{i}, \mathbf{t}_j) = \beta_0 + \epsilon(\mathbf{s}_i, \mathbf{t}_j),
 \end{equation}
 
-where $\mathbf{s}_i$ references the $i^{th}$ spatial location and $\mathbf{t}_j$ references the $j^{th}$ time point. Then, we assume the errors 
+where $\mathbf{s}_i$ references the $i^{th}$ spatial location and $\mathbf{t}_j$ references the $j^{th}$ time point. Then, we assume the errors $\bm{\epsilon}$ have mean $\mathbf{0}$ and spatiotemporal covariance matrix $\bm{\Sigma}$ with element $i, j$ of $\bm{\Sigma}$ as
 
-\begin{equation}
-\bm{\epsilon} \sim \text{N}(\mathbf{0}, \bm{\Sigma}),
-\end{equation}
-
-where $\bm{\Sigma}_{i, j} = \sigma^2 \rho_1 (\vert\vert \mathbf{s}_i - \mathbf{s}_{i'} \vert \vert) \rho_2 (\vert\vert \mathbf{t}_j - \mathbf{t}_{j'} \vert \vert)$.
+$$
+\bm{\Sigma}_{i, j} = \sigma^2 \rho_1 (\vert\vert \mathbf{s}_i - \mathbf{s}_{i'} \vert \vert) \rho_2 (\vert\vert \mathbf{t}_j - \mathbf{t}_{j'} \vert \vert).
+$$
 
 At first, let's assume an exponential covariance structure for the spatial model and an AR(1) model for the time series model.
 
@@ -94,39 +92,45 @@ $$
 m
 \end{pmatrix} = 
 \begin{pmatrix}
-\bm{\Sigma}_{s, scurr} & \bm{\Sigma}_{s, ucurr} \\
-\mathbf{X}_{scurr}' & \mathbf{X}_{ucurr}'
+\bm{\Sigma}_{s, s} & \bm{\Sigma}_{s, ucurr} \\
+\mathbf{X}_{s}' & \mathbf{X}_{ucurr}'
 \end{pmatrix} 
 \begin{pmatrix}
-\mathbf{b}_{scurr} \\
+\mathbf{b}_{s} \\
 \mathbf{b}_{ucurr}
 \end{pmatrix},
 $$
 
-where $s$ denotes the sampled sites (past and present), $scurr$ denotes the current sampled sites, and $ucurr$ denotes the current unsampled sites. $\bm{\lambda}$ is an $n$ by 1 vector, where $n$ denotes the number of sampled sites (both past and present). 
+where $s$ denotes the sampled sites (past and present), $scurr$ denotes the current sampled sites, and $ucurr$ denotes the current unsampled sites. $\bm{\lambda}$ is an $n$ by 1 vector, where $n$ denotes the number of sampled sites (both past and present). The vector $\mathbf{b}_{s}$ is a vector of 1's and 0's, with 1's for the sampled sites in the current year and 0's for the sampled sites in the past.
 
 Then, we can solve for the prediction weights as
 
 $$
-\bm{\lambda}_s = \mathbf{b}_{sall}' + \mathbf{b}_{ucurr}' (\bm{\Sigma}_{ucurr, s}\bm{\Sigma}_{ss}^{-1}) - \mathbf{b}'_{ucurr}(\bm{\Sigma}_{ucurr, s} \bm{\Sigma}_{ss}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1} + \mathbf{X}_{ucurr}(\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{ss}^{-1}
+\bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{ucurr}' (\bm{\Sigma}_{ucurr, s}\bm{\Sigma}_{ss}^{-1}) - \mathbf{b}'_{ucurr}(\bm{\Sigma}_{ucurr, s} \bm{\Sigma}_{ss}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1} + \mathbf{b}_{ucurr}' \mathbf{X}_{ucurr}'(\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{ss}^{-1}.
 $$
-
-where $\mathbf{b}_{sall}$ is a vector of 1's and 0's, with 1's for the sampled sites in the current year and 0's for the sampled sites in the past.
 
 Our prediction is then:
 
 $$
-\bm{\lambda}_s \mathbf{z}_s
+\bm{\lambda}_s' \mathbf{z}_s,
 $$
 
-which has a prediction variance that can be found by solving
+which is equivalent to 
+
+$$
+\mathbf{b}_{scurr}'\mathbf{z}_{scurr} + \mathbf{b}_{ucurr}' \mathbf{\hat{z}}_{ucurr},
+$$
+
+where $\mathbf{\hat{z}}_{ucurr} = \bm{\Sigma}_{ucurr, s} \Sigma_{ss}^{-1} (\mathbf{z}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_u$ with $\bm{\hat{\mu}}_s = \mathbf{X}_s \bm{\hat{\beta}}_{GLS}, \bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}_{GLS}$. $\bm{\hat{\beta}}_{GLS}$ is the generalized least squares estimator $(\mathbf{X}_s' \bm{\Sigma}_{ss}^{-1} \mathbf{X}_s)^{-1} \mathbf{X}_s' \bm{\Sigma}_{ss}^{-1} \mathbf{z}_s$.
+
+Our prediction has a prediction variance that can be found as
 
 $$
 E((\bm{\lambda}_s'\mathbf{z}_s - \mathbf{b}_{curr}'\mathbf{z}_{curr})(\bm{\lambda}_s'\mathbf{z}_s - \mathbf{b}'\mathbf{z}_{curr})) =
 $$
 
 $$
-\bm{\lambda}'\bm{\Sigma}_{ss}\bm{\lambda} - 2 \mathbf{b}_{c} \bm{\Sigma}_{cs} \bm{\lambda} + \mathbf{b}'_{c} \bm{\Sigma}_{cc}\mathbf{b}_c,
+\bm{\lambda}'\bm{\Sigma}_{ss}\bm{\lambda} - 2 \mathbf{b}'_{c} \bm{\Sigma}_{cs} \bm{\lambda} + \mathbf{b}'_{c} \bm{\Sigma}_{cc}\mathbf{b}_c,
 $$
 
 where $c$ denotes the current year (both past and present) and $\bm{\Sigma}_{cs}$ denotes the covariance matrix of all of the current spatial sites with the sites that were sampled.

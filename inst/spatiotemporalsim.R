@@ -50,15 +50,15 @@ Sigmaallnew_compold <- Sigmaboth[c(countswithna[1:((ntime - 1) * nspat)][!is.na(
   c(countswithna[1:((ntime - 1) * nspat)][!is.na(countswithna[1:((ntime - 1) * nspat)])], countswithna[((ntime - 1) * nspat + 1): ntotal])]
 nrow(Sigmaallnew_compold)
 
-source("m2ll.spatiotemp.ml.R")
+source("/Desktop/FPSpatioTemp/R/m2ll.spatiotemp.ml.R")
 source("mginv.R")
 
-m2LL.spatiotemp.ML(theta = c(1, 1, 1, 2, 1), zcol = countswithna,
+m2LL.spatiotemp.ML(theta = c(1, 1, 1, 1), zcol = countswithna,
   XDesign = matrix(1, nrow = length(counts)), xcoord = allcoords[ ,1],
   ycoord = allcoords[ ,2],
   timepoints = 1:5, CorModel = "Exponential")
 
-parmest <- optim(c(1, 1, 1, 2, 1), m2LL.spatiotemp.ML,
+parmest <- optim(c(1, 1, 1, 1), m2LL.spatiotemp.ML,
   zcol = countswithna,
   XDesign = matrix(1, nrow = length(counts)), xcoord = allcoords[ ,1],
   ycoord = allcoords[ ,2],
@@ -67,8 +67,7 @@ parmest <- optim(c(1, 1, 1, 2, 1), m2LL.spatiotemp.ML,
 nugget_hat <- exp(parmest$par[1])
 parsil_hat <- exp(parmest$par[2])
 range_hat <- exp(parmest$par[3])
-beta_hat <- parmest$par[4]
-rho_hat <- exp(parmest$par[5]) / (1 + exp(parmest$par[5]))
+rho_hat <- exp(parmest$par[4]) / (1 + exp(parmest$par[4]))
 
 
 Sigmaspatest <- diag(nugget_hat, nrow = nrow(distancemat)) +
@@ -85,9 +84,11 @@ Sigma.uu <- Sigma[-indxkeep, -indxkeep]
 
 Sigma.ssi <- solve(Sigma.ss)
 
-## the generalized least squares regression coefficient estimates
-betahat <- beta_hat
+Xs <- matrix(1, length(counts[indxkeep]))
+Xucurr <- matrix(1, length(counts[ucurrind]))
 
+## the generalized least squares regression coefficient estimates
+betahat <- solve(t(Xs) %*% Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi %*% countssamp
 ## estimator for the mean vector
 
 
@@ -96,12 +97,15 @@ ntotal - nspat
 yearind <- rep(0, ntotal)
 yearind[(ntotal - nspat + 1):ntotal] <- 1
 
+Sigma.cs <- Sigmaest[yearind == 1, indxkeep]
+Sigma.cc <- Sigmaest[yearind == 1, yearind == 1]
 
 bsall <- yearind[is.na(countswithna) == FALSE]
+bs <- bsall[bsall == 1]
 bucurr <- rep(1, length(yearind[is.na(countswithna) == TRUE & 
     yearind == 1]))
 
-p1 <- bsall
+p1 <- bsall 
 
 sampind <- matrix(is.na(countswithna) == FALSE)
 ucurrind <- matrix(yearind == 1 & sampind == 0)
@@ -111,20 +115,20 @@ Sigma.ssi <- solve(Sigmaest[indxkeep, indxkeep])
 
 p2 <- t(bucurr) %*% Sigma.ucurrs %*% Sigma.ssi
 
-Xs <- matrix(1, length(counts[indxkeep]))
-Xucurr <- matrix(1, length(counts[ucurrind]))
 
-p3 <- t(bucurr) %*% (Sigma.ucurrs %*% Sigma.ssi %*% Xs %*% solve(t(Xs) %*%
-    Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi + 
-    Xucurr %*% solve(t(Xs) %*%
-        Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi)
-(p1 + p2 + p3) %*% countssamp
+
+p3 <- -t(bucurr) %*% (Sigma.ucurrs %*% Sigma.ssi %*% Xs %*%  solve(t(Xs) %*% Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi)
+p4 <- t(bucurr) %*% (Xucurr %*%  solve(t(Xs) %*% Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi)
+tlambda <- (p1 + p2 + p3 + p4)
+tlambda %*% countssamp
+
+bc <- c(bs, bucurr)
+predvar <- tlambda %*% Sigma.ss %*% t(tlambda) - 2 * t(bc) %*% Sigma.cs %*% bc +
+  t(bc) %*% Sigma.cc %*% bc
+sqrt(predvar)
+
 sum(counts[1601:2000])
  
-(Sigma.ucurrs %*% Sigma.ssi + (Sigma.ucurrs %*% Sigma.ssi %*% Xs %*% solve(t(Xs) %*%
-    Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi + 
-    Xucurr %*% solve(t(Xs) %*%
-        Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi)) %*% matrix(countssamp)
 
 
 ## this is right but something is off with the above equation...
@@ -133,10 +137,15 @@ muhats <- Xs %*% betahat; muhatu <- Xucurr %*% betahat
 zhatu <- Sigma.ucurrs %*% Sigma.ssi %*% (countssamp -
     muhats) + muhatu
 
-sum(zhatu) + sum(countswithna[sampind == 1 & yearind == 1])
+
+
+bucurr %*% Sigma.ucurrs %*% Sigma.ssi %*% countssamp -
+  bucurr %*% Sigma.ucurrs %*% Sigma.ssi %*% muhats +
+  bucurr %*% muhatu +
+  sum(countssamp[yearind[is.na(countswithna) == FALSE] == 1])
+sum(zhatu) + sum(countssamp[indxkeep == TRUE])
 sum(counts[1601:2000])
 
-## next step: translate the above zhatu to lambda and find bsall and bu
-## so that the prediction comes out accurately 
-## next step 2: code this function so that it is within the body of the package
+## next step: code this function so that it is within the body of the package
 ## and then document this function appropriately
+## clean up the function so that it reads better and isn't just awful

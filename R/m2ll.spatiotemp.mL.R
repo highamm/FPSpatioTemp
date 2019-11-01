@@ -26,7 +26,7 @@ m2LL.spatiotemp.ML <- function(theta, zcol, XDesign, xcoord, ycoord,
   nugget <- as.numeric(exp(theta[1]))
   parsil <- as.numeric(exp(theta[2]))
   range <- as.numeric(exp(theta[3]))
-  beta <- matrix(as.numeric(theta[4:(length(theta) - 1)]))
+  ##beta <- matrix(as.numeric(theta[4:(length(theta) - 1)]))
 
   DM <- matrix(0, nspat, nspat)
   DM[lower.tri(DM)] <- stats::dist(as.matrix(cbind(xcoord, ycoord)))
@@ -50,7 +50,7 @@ m2LL.spatiotemp.ML <- function(theta, zcol, XDesign, xcoord, ycoord,
   
   Sigmatime <- matrix(0, nrow = ntime, ncol = ntime)
 
-  rhotime <- exp(theta[5]) / (1 + exp(theta[5]))
+  rhotime <- exp(theta[4]) / (1 + exp(theta[4]))
   
   Sigmatime <- 1 * rhotime ^ H 
   
@@ -62,6 +62,7 @@ m2LL.spatiotemp.ML <- function(theta, zcol, XDesign, xcoord, ycoord,
 
   zcolsamp <- zcol[sampindx]
   
+  beta <- matrix(mginv(t(XDesign[sampindx, ]) %*% Ci %*% XDesign[sampindx, ]) %*% t(XDesign[sampindx, ]) %*% Ci %*% as.matrix(zcolsamp))
   minus2loglik <- log(det(Cmat.nodet)) +
     (t(as.matrix(zcolsamp) - as.matrix(XDesign[sampindx, ] %*% beta))) %*%
     Ci %*%
