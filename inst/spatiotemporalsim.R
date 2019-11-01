@@ -148,4 +148,5 @@ sum(counts[1601:2000])
 
 ## next step: code this function so that it is within the body of the package
 ## and then document this function appropriately
-## clean up the function so that it reads better and isn't just awful
+## next step: clean up notation in write-up 
+## next step: clean up the function so that it reads better and isn't just awful
