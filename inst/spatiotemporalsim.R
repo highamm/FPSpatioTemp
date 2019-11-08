@@ -4,36 +4,16 @@
 ## Suppose that we have a separable model and we have data on a 20 x 20
 ## grid over 5 years (for 2000 observations)
 
-library(MASS)
 
-beta0 <- 10
 
-xcoords <- 1:20; ycoords <- 1:20
-allcoords <- expand.grid(xcoords, ycoords)
-distancemat <- as.matrix(dist(allcoords))
-nspat <- nrow(distancemat)
-range <- 10; parsil <- 4
-Sigma <- parsil * exp(-distancemat / range)
 
-ntime <- 5
-times <- 1:ntime
 
-Sigmatime <- matrix(0, nrow = ntime, ncol = ntime)
-H <- abs(outer(times, times, "-")) 
-##assume sigma is 1: we have a separable model
-rhotime <- 0.7; sigmatime <- 1
 
-Sigmatime <- sigmatime * rhotime ^ H 
-Sigmaboth <- kronecker(Sigma, Sigmatime)
-Sigmaboth[1:5, 1:5]
 
-ntotal <- ntime * nspat
-epsilon <- mvrnorm(n = 1, mu = rep(0, ntotal), Sigma = Sigmaboth)
 
-counts <- round(beta0 + epsilon, 0)
 
 ## get rid of some of the observations
-nsamp <- 400
+nsamp <- 500
 indxkeep <- sample(1:ntotal, nsamp, replace = FALSE)
 
 countswithna <- counts
