@@ -26,7 +26,7 @@ sim.spat.temp <- function(coords_times, spatvec, rho, betavec, XDesign) {
   H <- abs(outer(times, times, "-")) 
   
   Sigmatime <- rho ^ H 
-  Sigmaboth <- kronecker(Sigma, Sigmatime)
+  Sigmaboth <- kronecker(Sigmatime, Sigma)
   
   ntotal <- nrow(coords_times)
 
