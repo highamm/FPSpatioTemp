@@ -11,14 +11,16 @@
 
 
 give.nas <- function(sim_obj, nsamp, method) {
-  index <- sample(1:nrow(sim_obj), size = nsamp, replace = FALSE)
-  sim_obj$obscounts <- sim_obj$counts
-  sim_obj$obscounts[-index] <- NA
-  sim_obj$sampind <- as.integer(is.na(sim_obj$obscounts) == FALSE)
   
-  pred_index <- sim_obj$ts == max(sim_obj$ts)
-  sim_obj$predind <- as.integer(pred_index)
+  simdf <- sim_obj$df
   
-  return(sim_obj)
-
+  index <- sample(1:nrow(simdf), size = nsamp, replace = FALSE)
+  simdf$obscounts <- simdf$counts
+  simdf$obscounts[-index] <- NA
+  simdf$sampind <- as.integer(is.na(simdf$obscounts) == FALSE)
+  
+  pred_index <- simdf$ts == max(simdf$ts)
+  simdf$predind <- as.integer(pred_index)
+  
+  return(simdf)
 }

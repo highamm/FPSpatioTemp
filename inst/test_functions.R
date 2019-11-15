@@ -19,8 +19,11 @@ res <- sim.spat.temp(coords_times, spatvec, rhotime, betavec, XDesign)
 res$df
 
 
-sim_obj <- sim.spat.temp(coords_times, spatvec, rhotime, betavec, XDesign)$df
+sim_obj <- sim.spat.temp(coords_times, spatvec, rhotime, betavec, XDesign)
 nsamp <- 500
 method <- "Random"
 
-give.nas(sim_obj, nsamp, method)
+give_obj <- give.nas(sim_obj, nsamp, method)
+
+fp.predict(give_obj)
+
