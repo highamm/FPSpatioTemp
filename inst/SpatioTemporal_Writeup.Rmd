@@ -9,19 +9,24 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+## Basic Idea
 
-Suppose that we would like to predict animal abundance from surveys in multiple years. We expect that observations will be correlated across both space and time. First, let's assume that we have a separable model and no covariates for predicting abundance. The underlying spatio-temporal surface is
+Suppose that we would like to predict animal abundance from surveys in multiple years. We expect that observations will be correlated across both space and time. First, let's assume that we have a separable model, no covariates for predicting abundance, and that we have perfect detection in our surveys of sampled sites. Let $Y(\mathbf{s}_{ij}, \mathbf{t}_j)$, $i = 1 \ldots n_{sp}$ and $j = 1 \ldots n_{t}$ be a latent, unobserved spatiotemporal surface with $n_{sp}$ as the number of spatial sites and $n_t$ as the number of time points. The underlying spatio-temporal surface is
 
 \begin{equation}
-Y(\mathbf{s}_{i}, \mathbf{t}_j) = \beta_0 + \epsilon(\mathbf{s}_i, \mathbf{t}_j),
+Y(\mathbf{s}_{ij}, \mathbf{t}_j) = \bm{\beta}_0 + \bm{\epsilon}(\mathbf{s}_{ij}, \mathbf{t}_j),
 \end{equation}
 
-where $\mathbf{s}_i$ references the $i^{th}$ spatial location and $\mathbf{t}_j$ references the $j^{th}$ time point. Then, we assume the errors $\bm{\epsilon}$ have mean $\mathbf{0}$ and spatiotemporal covariance matrix $\bm{\Sigma}$ with element $i, j$ of $\bm{\Sigma}$ as
+where $\mathbf{s}_{ij}$ references the $i^{th}$ spatial location at tike $j$, $\mathbf{t}_j$ references the $j^{th}$ time point, and $\beta_0$ is the overall mean. Then, we assume the errors $\bm{\epsilon}$ have mean $\mathbf{0}$ and covariance
 
-$$
-\bm{\Sigma}_{i, j} = \sigma^2 \rho_1 (\vert\vert \mathbf{s}_i - \mathbf{s}_{i'} \vert \vert) \rho_2 (\vert\vert \mathbf{t}_j - \mathbf{t}_{j'} \vert \vert).
-$$
+<!-- and spatiotemporal covariance matrix $\bm{\Sigma}$ with element $i, j$ of $\bm{\Sigma}$ as -->
+
+\begin{equation}
+\label{equation:covariancemat}
+\bm{\Sigma}_{n_{sp}(j - 1) + i, n_{sp}(j' - 1) + i'} = \sigma^2 \rho_1 (\vert\vert \mathbf{s}_i - \mathbf{s}_{i'} \vert \vert) \rho_2 (\vert\vert \mathbf{t}_j - \mathbf{t}_{j'} \vert \vert). 
+\end{equation}
+
+at spatial location $i$ and time point $j$. __Note__: this took me a while to think through the indexing and it's still quite clumsy.
 
 At first, let's assume an exponential covariance structure for the spatial model and an AR(1) model for the time series model.
 
@@ -39,11 +44,39 @@ Also,
 
 where $k_{jj'}$ is the number of time points between $j$ and $j'$ and $\psi$ is the autocorrelation parameter. For surveys done yearly, $j$ indexes the year, assuming that we have a survey every year and equally spaced time points.
 
+Then, let $\bm{\Sigma}$ (\ref{equation:covariancemat}) be the spatiotemporal covariance matrix.
+
+$Z(\mathbf{s}_{ij}, \mathbf{t}_j)$, $i = 1 \ldots n_{sp}$ and $j = 1 \ldots n_{t}$ is our observed animal count at spatial location $i$ and time point $j$. Then, give $Z(\mathbf{s}_{ij}, \mathbf{t}_j)$ the following conditional moments:
+
+$$
+\text{E}(Z(\mathbf{s}_{ij}, \mathbf{t}_j) \vert Y(\mathbf{s}_{ij}, \mathbf{t}_j)) = Y(\mathbf{s}_{ij}, \mathbf{t}_j)
+$$
+and
+
+$$
+\text{var}(Z(\mathbf{s}_{ij}, \mathbf{t}_j) \vert Y(\mathbf{s}_{ij}, \mathbf{t}_j)) = \tau^2,
+$$
+
+where $\tau^2$ is a nugget effect. We also assume that $Z(\mathbf{s}_{ij}, \mathbf{t}_j) \vert Y(\mathbf{s}_{ij}, \mathbf{t}_j)$ is independent of all  $Z(\mathbf{s}_{i'j'}, \mathbf{t}_{j'}) \vert Y(\mathbf{s}_{i'j'}, \mathbf{t}_{j'})$ as long as $i \neq i'$ or $j \neq j'$. 
+
+Using laws of conditional expectation and conditional covariance,
+
+$$
+\text{E}(Z(\mathbf{s}_{ij}, \mathbf{t}_j)) = \mathbf{\beta}_0
+$$
+
+and 
+
+$$
+\text{cov}(Z(\mathbf{s}_{ij}, \mathbf{t}_j), Z(\mathbf{s}_{i'j'}, \mathbf{t}_{j'})) = (\bm{\Sigma} + \text{diag}(\tau^2))_{n_{sp}(j - 1) + i, n_{sp}(j' - 1) + i'}
+$$
+
+## Bringing in the Unsampled Sites
+
+Resume with $D$ matrix and some of the equations involving unsampled sites of the current year.
+
 ## The Model
 
-Next step: consider how much the kriging equations would change. We would use all of the data from surveys of previous years and just need to predict the unobserved locations of the survey of the current year. For the prediction of the total, we want to use __ALL__ sampled points, past and present, for the prediction. Then, we only want to consider the points in the present for the reduction of the variance due to finite sampling. 
-
-We can then proceed similarly as we have with the model without different time points. We do need to be cautious about the correction for a finite population since we now have unobserved values of two different types. The first type of unobserved value is something that we are interested in predicting for in the current time. The second is something that we don't really care about predicting for (it's an unobserved value in the past) that therefore should not go into correcting for a finite population.
 
 First, our prediction for the sampled (observed) sites is simply what we observed:
 
