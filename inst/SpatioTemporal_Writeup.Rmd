@@ -75,6 +75,8 @@ $$
 
 Resume with $D$ matrix and some of the equations involving unsampled sites of the current year.
 
+Reorder the rows so that it's unsampled past, sampled past, unsampled present, sampled present. Can pretty much ignore the rows that were unsampled past.
+
 ## The Model
 
 
