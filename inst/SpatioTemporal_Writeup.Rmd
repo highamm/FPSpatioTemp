@@ -73,6 +73,10 @@ $$
 
 ## Bringing in the Unsampled Sites
 
+Reference:
+
+<http://faculty.missouri.edu/~wiklec/ST_3_wikle_Boston_Descriptive.pdf>
+
 Resume with $D$ matrix and some of the equations involving unsampled sites of the current year.
 
 Reorder the rows so that it's unsampled past, sampled past, unsampled present, sampled present. Can pretty much ignore the rows that were unsampled past.

@@ -1,0 +1,284 @@
+---
+title: "Moose Example Analysis 2014 through 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For this example, we have moose abundance data from the TOK region of Alaska. Abundance surveys were performed annually from 2014 through 2018, except for the year 2016, in which no survey was done. Therefore, the data set has five years of data, but 2016 has counts that are all `NA`. The goal is to obtain an abundance prediction for the total number of moose in the region in the year 2018, the most recent year of the survey. The prediction should be able to leverage both spatial correlation across sites and temporal correlation across years.
+
+There are 182 unique spatial locations (sites) and 5 time points. There is a row in the data set for each space-time point combination for a total of 910 rows. The sites are stratified into a `HIGH` stratum and a `LOW` stratum. Throughout the five years, there are a small number of sites (~ 10) that changed stratum. Either a site that was classified as `LOW` was changed to `HIGH`, or, vice versa. For this preliminary, we use the classification for all sites __from the most recent year__, 2018. Therefore, a site that was classified as `LOW` in 2015 but changed to `HIGH` in 2018 is a `HIGH` strata site for this analysis. Strata are analyzed separately, and are allowed to have different means, spatial covariances, and temporal covariances.
+
+## The `HIGH` Stratum
+
+We start with an analysis for the `HIGH` stratum. The model fit with `stlmfit()` is a sum with error linear mixed model.
+
+```{r}
+library(tidyverse)
+moose_temp_high <- read_csv("inst/moose_high_2014_2018.csv")
+
+## keep only variables that are necessary for analysis
+moose_df_high <- moose_temp_high %>%
+  select(totalmoosena, SurveyID, Surveyyear, ID,
+         Stratname, xcoords, ycoords)
+
+## n unique spatial points and n unique time points.
+nspat <- nrow(moose_df_high) / length(unique(moose_df_high$Surveyyear))
+ntime <- nrow(moose_df_high) / nrow(unique(cbind(moose_df_high$xcoords, moose_df_high$ycoords)))
+
+## create a variable for what values we want added up for
+## abundance
+moose_df_high <- moose_df_high %>%
+  mutate(yearind = if_else(Surveyyear == 2018, true = 1, false = 0))
+```
+
+```{r}
+fit_obj <- stlmfit(formula = totalmoosena ~ 1, data = moose_df_high,
+                   xcoordcol = "xcoords", ycoordcol = "ycoords",
+                   tcol = "Surveyyear", wtscol = "yearind")
+```
+
+We can grab the prediction, standard error, and 90% prediction interval from the output:
+
+```{r}
+prediction <- fit_obj[[1]]
+predvar <- fit_obj[[2]]
+lb <- fit_obj[[3]]
+ub <- fit_obj[[4]]
+tab_stlmfit <- cbind(prediction, sqrt(predvar), lb, ub)
+tab_stlmfit
+```
+
+We might also want to examine the spatial and temporal covariance parameters:
+
+```{r}
+fit_obj[[7]]
+```
+
+We see that there is a fairly large independent error component (`$sigma_nugget_spacetime`). The spatial model is exponential: the spatial nugget is contributes much more to the overall variability than the spatial partial sill does. The temporal model is AR(1): the temporal partial sill is approximately equal to the temporal nugget, and the temporal correlation parameter `$rho` is weak to moderate.
+
+#### Comparison to `sptotal`
+
+We might be interested in comparing this analysis with an analysis on the 2018 data only with the `sptotal` package.
+
+```{r}
+moose_df_high_2018 <- moose_df_high %>% filter(Surveyyear == 2018)
+
+library(sptotal)
+fit_obj_2018 <- slmfit(formula = totalmoosena ~ 1,
+                       data = moose_df_high_2018,
+                       xcoordcol = "xcoords", ycoordcol = "ycoords",
+                       estmethod = "ML")
+
+pred_obj <- predict(fit_obj_2018)
+tab_sptotal <- cbind(pred_obj$FPBK_Prediction, sqrt(pred_obj$PredVar),
+                     pred_obj$conf_bounds[1], pred_obj$conf_bounds[2])
+tab_combined <- rbind(tab_stlmfit, tab_sptotal)
+row.names(tab_combined) <- c("stlmfit", "sptotal")
+colnames(tab_combined) <- c("prediction", "se", "90% lb", "90% ub")
+tab_combined
+```
+
+We see that the predictions for the analyses are fairly similar. But, the analysis that incorporates time has a much smaller standard error and, therefore, a more narrow prediction interval.
+
+```{r}
+summary(fit_obj_2018)
+```
+
+We also see that, though the partial sill is much larger than the nugget in the `sptotal` analysis, the range is quite small compared to the scale of the x and y coordinates. Therefore, there is effectively very little estimated spatial autocorrelation for sites that are moderately far apart:
+
+```{r}
+plot(fit_obj_2018)
+```
+
+#### Comparison to `stlmfit()` with Added `NA`
+
+Finally, as a small check to make sure that `stlmfit()` iw "working" correctly, we might want to compare the prediction from `sptotal` on the 2018 data only to the prediction from using `stlmfit()` but making all counts before 2018 `NA`. The predictions should be very close, possibly differing slightly because of the different method that parameters are optimized.
+
+```{r}
+moose_df_high_2018 <- moose_df_high %>% filter(Surveyyear == 2018)
+moose_df_high_before2018 <- moose_df_high %>% filter(Surveyyear < 2018)
+moose_df_high_before2018$totalmoosena <- NA
+moose_df_high_fakemiss <- bind_rows(moose_df_high_before2018,
+                                    moose_df_high_2018)
+
+fit_obj_fake <- stlmfit(formula = totalmoosena ~ 1,
+                        data = moose_df_high_fakemiss,
+                        xcoordcol = "xcoords", ycoordcol = "ycoords",
+                        tcol = "Surveyyear", wtscol = "yearind")
+```
+
+```{r}
+prediction_fake <- fit_obj_fake[[1]]
+predvar_fake <- fit_obj_fake[[2]]
+lb_fake <- fit_obj_fake[[3]]
+ub_fake <- fit_obj_fake[[4]]
+tab_stlmfit_fake <- cbind(prediction_fake, sqrt(predvar_fake),
+                          lb_fake, ub_fake)
+tab_all <- rbind(tab_combined, tab_stlmfit_fake)
+tab_all
+```
+
+The predictions from `sptotal` and `stlmfit()` with the missing data are very close and the standard errors are fairly close as well. 
+
+#### Differences in Predictions between `stlmfit()` and `sptotal`.
+
+We might be interested in which sites seem to have a large difference in predicted abundance between `stlmfit()` and `sptotal`. To do so, we can first `arrange()` the prediction data set from `sptotal` so that sites have the same order as the data set used in `stlmfit()`, which orders the observations by year, then xcoordinates, then y coordinates:
+
+```{r}
+sptotal_df <- pred_obj$Pred_df
+## drop sites that were sampled
+sptotal_df_unsamp <- sptotal_df %>% filter(totalmoosena_sampind == 0) %>%
+  arrange(xcoordsTM_, ycoordsTM_)
+```
+
+Then, we compare the sitewise predictions for each method:
+
+```{r, results = "hide"}
+cbind(fit_obj[[5]], sptotal_df_unsamp$totalmoosena_pred_count)
+```
+
+We see that most sites have similar predicted abundance for the two methods. For example, site 784 (the sites are identified by the rownumbers) has a prediction of 21.4 moose using `stlmfit()` and a prediction of 9.7 moose using `sptotal`. Why are these predictions so drastically different?
+
+```{r}
+test_df <- moose_df_high %>% slice(784) %>% select(ID)
+semi_join(moose_df_high, test_df)
+```
+
+We see that, in the year 2017, site 784 was surveyed and there were found to be 42 moose in that year. In 2018, the site was not surveyed, but, the temporal autocorrelation is likely the reason that the prediction is much higher in `stlmfit()` than it is with `sptotal`, which ignores data from previous years completely. 
+
+Similarly, site 765 has a much higher prediction in `stlmfit()` than `sptotal`:
+
+```{r}
+test_df <- moose_df_high %>% slice(765) %>% select(ID)
+semi_join(moose_df_high, test_df)
+```
+
+and the reason seems for this difference seems similar to the reason for site 784. 
+
+Note that the reverse also holds: for site 743, `sptotal` predicts an abundance of 27.6 moose while `stlmfit()` predicts an abundance of 12.5 moose. 
+
+```{r}
+test_df <- moose_df_high %>% slice(743) %>% select(ID)
+semi_join(moose_df_high, test_df)
+```
+
+`stlmfit()`'s prediction is closer to the actual observed count in 2014. 
+
+## The `LOW` Stratum
+
+We can repeat this analysis for the `LOW` stratum, but, we won't use the fake data set to compare to `sptotal` in the code below.
+
+Fit model with `stlmfit()`:
+
+```{r}
+library(tidyverse)
+moose_df_low <- read_csv("inst/moose_low_2014_2018.csv")
+
+moose_df_low <- moose_df_low %>%
+  mutate(yearind = if_else(Surveyyear == 2018, true = 1, false = 0))
+
+fit_obj_low <- stlmfit(formula = totalmoosena ~ 1, data = moose_df_low,
+                       xcoordcol = "xcoords", ycoordcol = "ycoords",
+                       tcol = "Surveyyear", wtscol = "yearind")
+```
+
+Fit model with `sptotal`:
+
+```{r}
+moose_df_low_2018 <- moose_df_low %>% filter(Surveyyear == 2018)
+library(sptotal)
+
+fit_obj_low_2018 <- slmfit(formula = totalmoosena ~ 1,
+                       data = moose_df_low_2018,
+                       xcoordcol = "xcoords", ycoordcol = "ycoords",
+                       estmethod = "ML")
+pred_obj_low <- predict(fit_obj_low_2018)
+```
+
+```{r, echo = FALSE, eval = FALSE}
+moose_df_low_2018 <- moose_df_low %>% filter(Surveyyear == 2018)
+moose_df_low_before2018 <- moose_df_low %>% filter(Surveyyear < 2018)
+moose_df_low_before2018$totalmoosena <- NA
+
+fit_obj_fake_low <- stlmfit(formula = totalmoosena ~ 1,
+                        data = moose_df_low_fakemiss,
+                        xcoordcol = "xcoords", ycoordcol = "ycoords",
+                        tcol = "Surveyyear", wtscol = "yearind")
+```
+
+## Comparing the Totals Across Strata
+
+We can then add up our predictors and prediction variances across the strata for each method, assuming no cross-covariance across strata:
+
+```{r}
+pred_obj$FPBK_Prediction + pred_obj_low$FPBK_Prediction ## sptotal 2018
+fit_obj[[1]] + fit_obj_low[[1]] ## stlmfit
+
+sqrt(pred_obj$PredVar + pred_obj_low$PredVar) ## sptotal 2018
+sqrt(fit_obj[[2]] + fit_obj_low[[2]]) ## stlmfit
+```
+
+## Moose Analysis 2004 to 2006
+
+As a second data set, we'll use data from 2004 to 2006 on different sites in the TOK region in Alaska. The data are older, but the primary purpose of this example is just to show that the function can be used on a different real data set. 
+
+Comments for this analysis are omitted.
+
+```{r}
+library(tidyverse)
+moose_df <- read_csv("inst/moose_04_06.csv")
+
+tm_obj <- sptotal::LLtoTM(mean(moose_df$centrlon),
+                          lat = moose_df$centrlat,
+                          lon = moose_df$centrlon)
+
+moose_df$xTM <- tm_obj$xy[ ,1]
+moose_df$yTM <- tm_obj$xy[ ,2]
+
+
+moose_df <- moose_df %>%
+  mutate(yearind = if_else(Surveyyear == 2006, true = 1, false = 0))
+
+moose_04_06 <- stlmfit(formula = totalmoosena ~ 1, data = moose_df,
+                       xcoordcol = "xTM", ycoordcol = "yTM",
+                       tcol = "Surveyyear", wtscol = "yearind",
+                       areacol = NULL)
+moose_04_06[[1]] ## pred
+sqrt(moose_04_06[[2]]) ## se
+
+## compare to sptotal
+moose_2006 <- moose_df %>% filter(Surveyyear == 2006)
+moose_06 <- slmfit(formula = totalmoosena ~ 1, data = moose_2006,
+                       xcoordcol = "xTM", ycoordcol = "yTM",
+                       areacol = NULL)
+predict(moose_06)
+```
+
+Finally, just want to make sure things don't change from re-ordering the data set.
+
+```{r}
+moose_df2 <- moose_df %>% sample_n(nrow(moose_df))
+
+moose_04_06_reorder <- stlmfit(formula = totalmoosena ~ 1,
+                               data = moose_df2,
+                               xcoordcol = "xTM", ycoordcol = "yTM",
+                               tcol = "Surveyyear", wtscol = "yearind",
+                               areacol = NULL)
+moose_04_06[[1]]; moose_04_06_reorder[[1]] ## pred
+sqrt(moose_04_06[[2]]); moose_04_06_reorder[[2]] ## se
+
+```
+
+
+
+
+
+
+
+
+
+
+
