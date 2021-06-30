@@ -269,16 +269,5 @@ moose_04_06_reorder <- stlmfit(formula = totalmoosena ~ 1,
                                areacol = NULL)
 moose_04_06[[1]]; moose_04_06_reorder[[1]] ## pred
 sqrt(moose_04_06[[2]]); moose_04_06_reorder[[2]] ## se
-
 ```
-
-
-
-
-
-
-
-
-
-
 
