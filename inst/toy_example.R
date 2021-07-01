@@ -1,22 +1,26 @@
+source("R/stlmfit.R")
+source("R/m2LL.spatiotemp.ML.R")
+source("R/mginv.R")
+
 set.seed(06302021)
 
 response_year1 <- rnorm(100, 10, 5)
-response_year2 <- response_year1 + rnorm(100, 0, 1)
-response_year3 <- response_year2 + rnorm(100, 0, 1)
+response_year2 <- response_year1 + rnorm(100, 0, 3)
+response_year3 <- response_year2 + rnorm(100, 0, 3)
 x <- 1:10; y <- 1:10
 coords <- expand.grid(x, y)
 allcoords <- rbind(coords, coords, coords)
 times <- c(rep(1, 100), rep(2, 100), rep(3, 100))
 
-sampindx <- sample(1:100, size = 30, replace = FALSE)
+sampindx <- sample(1:100, size = 40, replace = FALSE)
 response_year1_na <- response_year1
 response_year1_na[-sampindx] <- NA
 
-sampindx2 <- sample(1:100, size = 25, replace = FALSE)
+sampindx2 <- sample(1:100, size = 35, replace = FALSE)
 response_year2_na <- response_year2
 response_year2_na[-sampindx2] <- NA
 
-sampindx3 <- sample(1:100, size = 40, replace = FALSE)
+sampindx3 <- sample(1:100, size = 45, replace = FALSE)
 response_year3_na <- response_year3
 response_year3_na[-sampindx3] <- NA
 

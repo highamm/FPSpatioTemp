@@ -1,4 +1,6 @@
-#' Covariance Parameter Estimation Function through RestrictedMaximum Likelihood.
+#' Covariance Parameter Estimation Function through Restricted Maximum
+#'Likelihood. NOTE: Function has not been updated and does not currently
+#' work
 #'
 #' The primary purpose of \code{m2LL.spatiotemp.REML.R} is to estimate the spatial
 #' covariance parameters and fixed effects through maximum likelihood.
