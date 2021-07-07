@@ -39,46 +39,40 @@
 #' and predict.stlmfit(), in much the same way that sptotal is split.
 #' @import stats
 #' @import dplyr
-#' @export slmfit
-
-## write up 2004 through 2006 analysis
-
-## 2004 through 2006 data, HIGH stratum
+#' @export stlmfit
 
 
-
-
-
-moose_df2 <- moose_df %>% sample_n(nrow(moose_df))
-formula <- totalmoosena ~ 1
-data <- moose_df2
-xcoordcol <- "xTM"
-ycoordcol <- "yTM"
-tcol <- "Surveyyear"
-wtscol <- "yearind"
-
-
-## 2004 through 2012 data
-moose_df <- readr::read_csv("inst/moose_04_12_all.csv")
-
-tm_obj <- sptotal::LLtoTM(mean(moose_df$centrlon),
-                          lat = moose_df$centrlat,
-                          lon = moose_df$centrlon)
-moose_df$xTM <- tm_obj$xy[ ,1]
-moose_df$yTM <- tm_obj$xy[ ,2]
-
-moose_df <- moose_df %>%
-  mutate(yearind = if_else(Surveyyear == 2012, true = 1, false = 0))
-
-formula <- totalmoosena ~ 1
-data <- moose_df2
-xcoordcol <- "xTM"
-ycoordcol <- "yTM"
-tcol <- "Surveyyear"
-wtscol <- "yearind"
+# moose_df2 <- moose_df %>% sample_n(nrow(moose_df))
+# formula <- totalmoosena ~ 1
+# data <- moose_df2
+# xcoordcol <- "xTM"
+# ycoordcol <- "yTM"
+# tcol <- "Surveyyear"
+# wtscol <- "yearind"
+# 
+# 
+# ## 2004 through 2012 data
+# moose_df <- readr::read_csv("inst/moose_04_12_all.csv")
+# 
+# tm_obj <- sptotal::LLtoTM(mean(moose_df$centrlon),
+#                           lat = moose_df$centrlat,
+#                           lon = moose_df$centrlon)
+# moose_df$xTM <- tm_obj$xy[ ,1]
+# moose_df$yTM <- tm_obj$xy[ ,2]
+# 
+# moose_df <- moose_df %>%
+#   mutate(yearind = if_else(Surveyyear == 2012, true = 1, false = 0))
+# 
+# formula <- totalmoosena ~ 1
+# data <- moose_df2
+# xcoordcol <- "xTM"
+# ycoordcol <- "yTM"
+# tcol <- "Surveyyear"
+# wtscol <- "yearind"
 
 stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
-                    wtscol, areacol = NULL) {
+                    wtscol, areacol = NULL,
+                    CorModel = "Exponential") {
   
   ## order the data so that sites are in the same order within each time
   

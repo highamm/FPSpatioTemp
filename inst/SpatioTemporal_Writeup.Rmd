@@ -1,129 +1,112 @@
 ---
-title: "SpatioTemporal Model for Abundance Prediction"
+title: "Spatiotemporal Abundance Prediction"
 header-includes:
    - \usepackage{bm} 
-output: pdf_document
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Basic Idea
+<!-- Reference: <http://faculty.missouri.edu/~wiklec/ST_3_wikle_Boston_Descriptive.pdf> -->
 
-Suppose that we would like to predict animal abundance from surveys in multiple years. We expect that observations will be correlated across both space and time. First, let's assume that we have a separable model, no covariates for predicting abundance, and that we have perfect detection in our surveys of sampled sites. Let $Y(\mathbf{s}_{ij}, \mathbf{t}_j)$, $i = 1 \ldots n_{sp}$ and $j = 1 \ldots n_{t}$ be a latent, unobserved spatiotemporal surface with $n_{sp}$ as the number of spatial sites and $n_t$ as the number of time points. The underlying spatio-temporal surface is
+## Motivation
 
-\begin{equation}
-Y(\mathbf{s}_{ij}, \mathbf{t}_j) = \bm{\beta}_0 + \bm{\epsilon}(\mathbf{s}_{ij}, \mathbf{t}_j),
-\end{equation}
+Moose surveys in Alaska and western Canada are often performed annually in many regions. The primary goal of these surveys is to predict moose abundance, the total number of moose, in the region. Because of time and money constraints, only some areas (sites) in the region of interest are selected to be in the survey. Biologists fly to these selected sites, count the number of moose, and use a spatial statistical model to find a prediction for the total abundance.
 
-where $\mathbf{s}_{ij}$ references the $i^{th}$ spatial location at tike $j$, $\mathbf{t}_j$ references the $j^{th}$ time point, and $\beta_0$ is the overall mean. Then, we assume the errors $\bm{\epsilon}$ have mean $\mathbf{0}$ and covariance
+Though these surveys are annual, each survey is analysed completely independently of surveys from previous years. For example, a survey conducted in the year 2019 only uses counts on sites that were sampled in that year. All data from previous years is ignored by the model.
 
-<!-- and spatiotemporal covariance matrix $\bm{\Sigma}$ with element $i, j$ of $\bm{\Sigma}$ as -->
+However, using counts from previous years in a model that incorporates both spatial and temporal correlation (spatiotemporal) could result in a prediction that is more precise than predictions from a spatial model using only counts from the most recent survey year. 
 
-\begin{equation}
-\label{equation:covariancemat}
-\bm{\Sigma}_{n_{sp}(j - 1) + i, n_{sp}(j' - 1) + i'} = \sigma^2 \rho_1 (\vert\vert \mathbf{s}_i - \mathbf{s}_{i'} \vert \vert) \rho_2 (\vert\vert \mathbf{t}_j - \mathbf{t}_{j'} \vert \vert). 
-\end{equation}
+Though the framework of the motivation is given with an example on moose surveys, this type of analysis could be useful for many examples involving prediction in a finite region with sites that are surveyed annually.
 
-at spatial location $i$ and time point $j$. __Note__: this took me a while to think through the indexing and it's still quite clumsy.
+## Model Development
 
-At first, let's assume an exponential covariance structure for the spatial model and an AR(1) model for the time series model.
+The development of the following model combines standard spatiotemporal kriging with finite population block kriging. 
 
-\begin{equation}
-\rho_1 (\vert\vert \mathbf{s}_i - \mathbf{s}_{i'} \vert \vert) = \text{exp}(-h_{ii'} / \phi),
-\end{equation}
+#### Spatiotemporal Model
 
-where $h_{ii'}$ is the Euclidean distance between locations $\mathbf{s}_i$ and $\mathbf{s}_{i'}$ and $\phi$ is the range parameter.
-
-Also,
+Let $Y(\mathbf{s}_{i}, \mathbf{t}_j)$, $i = 1, 2, \ldots, n_{sp}$ and $j = 1, 2, \ldots, n_{t}$ be a latent, unobserved spatiotemporal surface with $n_{sp}$ as the number of spatial sites and $n_t$ as the number of time points. With each spatial location at each time point, the total number of data points (observed and unobserved) is $n_{sp}n_{t} \equiv N$. The underlying spatiotemporal surface is
 
 \begin{equation}
-\rho_2 (\vert\vert \mathbf{t}_j - \mathbf{t}_{j'} \vert \vert) = \psi^{k_{jj'}},
+\mathbf{y}(\mathbf{s}_{i}, \mathbf{t}_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, \mathbf{t}_j),
 \end{equation}
 
-where $k_{jj'}$ is the number of time points between $j$ and $j'$ and $\psi$ is the autocorrelation parameter. For surveys done yearly, $j$ indexes the year, assuming that we have a survey every year and equally spaced time points.
+where $\mathbf{y}$ is a vector of the response indexed at the $i^{th}$ spatial location $\mathbf{s}_{i}$ and $j^{th}$ time point $\mathbf{t}_j$, $\mathbf{X}$ is a design matrix for fixed effects, and $\bm{\beta}$ is a parameter vector of fixed effects. 
 
-Then, let $\bm{\Sigma}$ (\ref{equation:covariancemat}) be the spatiotemporal covariance matrix.
+The error $\bm{\epsilon}(\mathbf{s}_{i}, \mathbf{t}_j)$ can be decomposed into spatial and temporal components, as in Dumelle et al. (2021). In particular, a sum-with-error linear mixed model for response vector $\mathbf{y}(\mathbf{s}_{i}, \mathbf{t}_j)$ is
 
-$Z(\mathbf{s}_{ij}, \mathbf{t}_j)$, $i = 1 \ldots n_{sp}$ and $j = 1 \ldots n_{t}$ is our observed animal count at spatial location $i$ and time point $j$. Then, give $Z(\mathbf{s}_{ij}, \mathbf{t}_j)$ the following conditional moments:
+\begin{equation}
+\mathbf{y}(\mathbf{s}_{i}, \mathbf{t}_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{sp} \bm{\delta} + \mathbf{Z}_{sp} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\nu}.
+\end{equation}
 
-$$
-\text{E}(Z(\mathbf{s}_{ij}, \mathbf{t}_j) \vert Y(\mathbf{s}_{ij}, \mathbf{t}_j)) = Y(\mathbf{s}_{ij}, \mathbf{t}_j)
-$$
-and
-
-$$
-\text{var}(Z(\mathbf{s}_{ij}, \mathbf{t}_j) \vert Y(\mathbf{s}_{ij}, \mathbf{t}_j)) = \tau^2,
-$$
-
-where $\tau^2$ is a nugget effect. We also assume that $Z(\mathbf{s}_{ij}, \mathbf{t}_j) \vert Y(\mathbf{s}_{ij}, \mathbf{t}_j)$ is independent of all  $Z(\mathbf{s}_{i'j'}, \mathbf{t}_{j'}) \vert Y(\mathbf{s}_{i'j'}, \mathbf{t}_{j'})$ as long as $i \neq i'$ or $j \neq j'$. 
-
-Using laws of conditional expectation and conditional covariance,
-
-$$
-\text{E}(Z(\mathbf{s}_{ij}, \mathbf{t}_j)) = \mathbf{\beta}_0
-$$
-
-and 
-
-$$
-\text{cov}(Z(\mathbf{s}_{ij}, \mathbf{t}_j), Z(\mathbf{s}_{i'j'}, \mathbf{t}_{j'})) = (\bm{\Sigma} + \text{diag}(\tau^2))_{n_{sp}(j - 1) + i, n_{sp}(j' - 1) + i'}
-$$
-
-## Bringing in the Unsampled Sites
-
-Reference:
-
-<http://faculty.missouri.edu/~wiklec/ST_3_wikle_Boston_Descriptive.pdf>
-
-Resume with $D$ matrix and some of the equations involving unsampled sites of the current year.
-
-Reorder the rows so that it's unsampled past, sampled past, unsampled present, sampled present. Can pretty much ignore the rows that were unsampled past.
-
-## The Model
-
-
-First, our prediction for the sampled (observed) sites is simply what we observed:
-
-$$
-\hat{z}_s = z_s,
-$$
-
-where $s$ denotes a site that was sampled.
-
-Our predictions for the unsampled sites come from the usual block kriging formulae:
-
-$$
-\mathbf{\hat{z}}_{ucurr} = \bm{\Sigma}_{ucurr,s} \bm{\Sigma}_{ss}^{-1}(\mathbf{z}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_{ucurr},
-$$
-
-
-where $\bm{\Sigma}_{us}$ denotes the matrix of covariances between unsampled sites and sampled sites, $\bm{\Sigma}_{ss}$ denotes the covariance matrix of the sampled sites only, $\bm{\hat{\mu}}_s = \mathbf{X}_s \bm{\hat{\beta}}_{GLS}$, $\bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}_{GLS}$, and $\bm{\hat{\beta}}_{GLS}$ is the usual generalized least squares estimator. 
-
-
-#####Unbiasedness Condition
-
-The linear model for $\mathbf{z}$ is 
-
-$$
-\mathbf{z} = \mathbf{X} \bm{\beta} + \bm{\delta},
-$$
-
-denoting $\mathbf{X} \bm{\beta} = \bm{\mu}$ as the mean and $\bm{\delta}$ as the error with spatio-temporal covariance structure. Then, we want the prediction weights to be uniformly unbiased:
+$\mathbf{Z}_{sp}$ is an $N \times n_{sp}$ matrix where the values in a general row $k$ in $\mathbf{Z}_{sp}$ at location $\mathbf{s}_{i}$ are a $1$ in the $i^{th}$ column and 0's in all other columns. Similarly, $\mathbf{Z}_t$ is an $N \times n_{t}$ matrix where the values in a general row $k$ in $\mathbf{Z}_t$ at time point $\mathbf{t}_j$ are a $1$ in the $j^{th}$ column and 0's in all other columns. We assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{eta}$, and $\bm{\nu}$ all are all mean $\mathbf{0}$ vectors of length $n_{sp}$, $n_{sp}$, $n_t$, $n_t$, and $N$, respectively, with the covariances
 
 \begin{align*}
-E(\mathbf{a}'\mathbf{z}_s) &= E(\mathbf{b}'\mathbf{z}_{curr}) \forall \bm{\beta} \\
-\leftrightarrow \mathbf{a}'\mathbf{X}_s &= \mathbf{b}_{curr}'\mathbf{X}_{curr}\\ \leftrightarrow \mathbf{a}'\mathbf{X}_s &= \mathbf{b}_{scurr}'\mathbf{X}_{scurr} + \mathbf{b}_{ucurr}'\mathbf{X}_{ucurr},
+cov(\bm{\delta}) &= \sigma^2_{\delta} \mathbf{R}_{sp} \\
+cov(\bm{\gamma}) &= \sigma^2_{\gamma} \mathbf{I}_{sp} \\
+cov(\bm{\tau}) &= \sigma^2_{\tau} \mathbf{R}_t \\
+cov(\bm{\eta}) &= \sigma^2_{\eta} \mathbf{I}_t \\
+cov(\bm{\nu}) &= \sigma^2_{\nu} \mathbf{I}_N,
 \end{align*}
 
-where $scurr$ denotes only sampled sites in the current year, $ucurr$ denotes only unsampled sites in the current year, and $s$ denotes all sampled sites (current year and past years).
+where $\mathbf{R}_{sp}$ is a spatial correlation matrix and $\mathbf{R}_t$ is a temporal correlation matrix. $\sigma^2_{\delta}$ and $\sigma^2_{\gamma}$ are the spatial partial sill and spatial nugget, $\sigma^2_{\tau}$ and $\sigma^2_{\eta}$ are the temporal partial sill and temporal nugget, and $\sigma^2_{\nu}$ is spatiotemporal independent error variance parameter.
 
-Then, the "kriging" equations are:
+If we assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, and $\bm{\nu}$ are mutually independent of each other, then 
+
+\begin{equation}
+var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{R}_{sp} + \sigma^2_{\gamma} \mathbf{I}_{sp} + \sigma^2_{\tau} \mathbf{R}_t + \sigma^2_{\eta} \mathbf{I}_t + \sigma^2_{\nu} \mathbf{I}_N.
+\end{equation}
+
+A common form of $\mathbf{R}_{sp}$ is exponential. For observations at locations $i$ and $i'$ at $h_{ii'}$ distance apart,
+
+\begin{equation}
+\mathbf{R}_{sp, ii'} = \text{exp}(-h_{ii'} / \phi),
+\end{equation}
+
+where $\phi$ is the range parameter.
+
+A common form of $\mathbf{R}_t$ is also exponential, or, AR(1). For observations at time points $j$ and $j'$ that are $m_{jj'}$ units apart,
+
+\begin{equation}
+\mathbf{R}_{t, jj'} = \text{exp}(-m_{jj'} / \rho),
+\end{equation}
+
+where $\rho$ is the autocorrelation parameter.
+
+If we assume that $\mathbf{y}$ is multivariate normal with mean $\mathbf{X} \bm{\beta} \equiv \bm{\mu}$ and variance $\bm{\Sigma}$, then all parameters can be estimated with Maximum Likelihood or Restricted Maximum Likelihood.
+
+#### Finite Population Block Kriging
+
+The above model for $\mathbf{Y}$ is a model for $N$ observations at $n_{sp}$ sites and $n_t$ time points. But, we typically do not have the resources to sample every site in every year. Additionally, we are often most interested in prediction of the abundance at unsampled sites in the most current year of the survey.
+
+Let the subscript $s$ denote observations that were sampled (both past and present), and let the subscript $u$ denote observations that were unsampled. Let the subscript $c$ denote observations in the current year that we are interested in predicting, and let the subscript $p$ denote observations in the past that we are not interested in predicting. Finally, let the subscript $a$ denote all of the observations. Then we can partition $\mathbf{y}_a$ into 
+
+$$
+\mathbf{y}_a = [\mathbf{y}_{up}', \mathbf{y}_{sp}', \mathbf{y}_{uc}', \mathbf{y}_{sc}']'.
+$$
+
+so that $\mathbf{y}_{up}$ is the response vector at unsampled sites in the past, $\mathbf{y}_{sp}$ is the response vector at sampled sites in the past, $\mathbf{y}_{uc}$ is the response vector at unsampled sites in the current year, and $\mathbf{y}_{sc}$ is the response vector at sampled sites in the current year.
+
+Our primary goal is to use the model developed in the previous section to predict values for $\mathbf{\tilde{y}}_{uc}$ from the observed data in $\mathbf{\tilde{y}}_{sp}$ and $\mathbf{\tilde{y}}_{sc}$, where $\mathbf{\tilde{y}_{uc}}$, $\mathbf{\tilde{y}}_{sp}$, and $\mathbf{\tilde{y}}_{sc}$ denote the realized values from the spatiotemporal process generating the response vector in the unsampled current sites, sampled past sites, and sampled current sites, respectively. 
+
+We are commonly interested in predicting the total abundance for the most recent year in the set of surveys. That is, we want to find optimal weights $\mathbf{a}'$ to apply to the sampled data $\mathbf{a}' \mathbf{\tilde{y}}_s$, where  $\mathbf{\tilde{y}}_s \equiv [\mathbf{\tilde{y}}_{sp}', \mathbf{\tilde{y}}_{sc}']'$, such that $\mathbf{a}' \mathbf{y}_s$ is the Best Linear Unbiased Predictor (BLUP) for $\mathbf{b}_c' \mathbf{\tilde{y}}_c$. If we are interested in the total abundance in the current year, then $\mathbf{b}_c$ is a vector of 1's, $\mathbf{b}_p$ is a vector of 0's, and $\mathbf{b}_a = [\mathbf{b}_p', \mathbf{b}_c']'$, so that we are adding up all values of $\mathbf{y}_c$ for our predictor. 
+
+Unbiasedness implies that $E(\mathbf{a'}\mathbf{y}_s) = E(\mathbf{b}_a'\mathbf{y}_a)$ for all $\bm{\beta}$. So, denoting $\mathbf{X}_s$ as the design matrix for sampled sites, $\mathbf{a'} \mathbf{X}_s \bm{\beta}$ = $\mathbf{b'} \mathbf{X} \bm{\beta}$ for every $\bm{\beta}$, implying that $\mathbf{a'} \mathbf{X}_s = \mathbf{b'}_a \mathbf{X}$.
+
+The kriging weights are then found by finding $\bm{\lambda}$ such that
+
+$$
+E\{(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\} - E\{(\bm{\lambda'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)(\bm{\lambda}'\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\}
+$$
+
+is greater than 0 for all $\mathbf{a'}$. The prediction equations are
 
 $$
 \begin{pmatrix}
-\bm{\Sigma}_{ss} & \mathbf{X}_s \\
+\bm{\Sigma}_{s, s} & \mathbf{X}_s \\
 \mathbf{X}_s' & 0
 \end{pmatrix} 
 \begin{pmatrix}
@@ -131,58 +114,67 @@ $$
 m
 \end{pmatrix} = 
 \begin{pmatrix}
-\bm{\Sigma}_{s, s} & \bm{\Sigma}_{s, ucurr} \\
-\mathbf{X}_{s}' & \mathbf{X}_{ucurr}'
+\bm{\Sigma}_{s, s} & \bm{\Sigma}_{s, u} \\
+\mathbf{X}_{s}' & \mathbf{X}_{u}'
 \end{pmatrix} 
 \begin{pmatrix}
 \mathbf{b}_{s} \\
-\mathbf{b}_{ucurr}
+\mathbf{b}_{u}
 \end{pmatrix},
 $$
 
-where $s$ denotes the sampled sites (past and present), $scurr$ denotes the current sampled sites, and $ucurr$ denotes the current unsampled sites. $\bm{\lambda}$ is an $n$ by 1 vector, where $n$ denotes the number of sampled sites (both past and present). The vector $\mathbf{b}_{s}$ is a vector of 1's and 0's, with 1's for the sampled sites in the current year and 0's for the sampled sites in the past.
+where again the subscripts $s$ and $u$ denote sampled and unsampled observations. For example, letting $n$ denote the number of sampled observations, $\bm{\Sigma}_{s, s}$ denotes the $n \times n$ submatrix of $\bm{\Sigma}$ corresponding only to rows and columns of sampled observations and $\bm{\Sigma}_{u, s}$ denotes the $(N - n) \times n$ submatrix of $\bm{\Sigma}$ corresponding to rows of observations that were not sampled and columns of observations that were sampled.
+
+Then, $\bm{\lambda}$ is an $n \times 1$ vector. If we are interested in predicting the abundance in the most current year, the vector $\mathbf{b}_{s}$ is a vector of 1's and 0's, with 1's for the sampled sites in the current year and 0's for the sampled sites in the past years. The vector $\mathbf{b}_u$ is a also a vector of 1's and 0's, with 1's for the unsampled sites in the current year and 0's for the unsampled sites in the past years.
 
 Then, we can solve for the prediction weights as
 
 $$
-\bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{ucurr}' (\bm{\Sigma}_{ucurr, s}\bm{\Sigma}_{ss}^{-1}) - \mathbf{b}'_{ucurr}(\bm{\Sigma}_{ucurr, s} \bm{\Sigma}_{ss}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1} + \mathbf{b}_{ucurr}' \mathbf{X}_{ucurr}'(\mathbf{X}_s'\bm{\Sigma}_{ss}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{ss}^{-1}.
+\bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, s}\bm{\Sigma}_{s, s}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, s} \bm{\Sigma}_{s, s}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1} + \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{s, s}^{-1}.
 $$
 
-Our prediction is then:
+Our prediction for the total abundance in the current year of the survey is then
 
 $$
-\bm{\lambda}_s' \mathbf{z}_s,
+\bm{\lambda}_s' \mathbf{\tilde{y}}_s,
 $$
 
 which is equivalent to 
 
 $$
-\mathbf{b}_{scurr}'\mathbf{z}_{scurr} + \mathbf{b}_{ucurr}' \mathbf{\hat{z}}_{ucurr},
+\mathbf{b}_{s}'\mathbf{\tilde{y}}_{s} + \mathbf{b}_{u}' \mathbf{\hat{y}}_{u},
 $$
 
-where $\mathbf{\hat{z}}_{ucurr} = \bm{\Sigma}_{ucurr, s} \Sigma_{ss}^{-1} (\mathbf{z}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_u$ with $\bm{\hat{\mu}}_s = \mathbf{X}_s \bm{\hat{\beta}}_{GLS}, \bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}_{GLS}$. $\bm{\hat{\beta}}_{GLS}$ is the generalized least squares estimator $(\mathbf{X}_s' \bm{\Sigma}_{ss}^{-1} \mathbf{X}_s)^{-1} \mathbf{X}_s' \bm{\Sigma}_{ss}^{-1} \mathbf{z}_s$.
+where $\mathbf{\hat{y}}_{u} = \bm{\Sigma}_{u, s} \Sigma_{s, s}^{-1} (\mathbf{\tilde{y}}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_u$ with $\bm{\hat{\mu}}_s = \mathbf{X}_s \bm{\hat{\beta}}_{GLS}, \bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}_{GLS}$. $\bm{\hat{\beta}}_{GLS}$ is the generalized least squares estimator $(\mathbf{X}_s' \bm{\Sigma}_{s, s}^{-1} \mathbf{X}_s)^{-1} \mathbf{X}_s' \bm{\Sigma}_{s, s}^{-1} \mathbf{y}_s$.
 
-Our prediction has a prediction variance that can be found as
-
-$$
-E((\bm{\lambda}_s'\mathbf{z}_s - \mathbf{b}_{curr}'\mathbf{z}_{curr})(\bm{\lambda}_s'\mathbf{z}_s - \mathbf{b}'\mathbf{z}_{curr})) =
-$$
+The prediction has a prediction variance
 
 $$
-\bm{\lambda}'\bm{\Sigma}_{ss}\bm{\lambda} - 2 \mathbf{b}'_{c} \bm{\Sigma}_{cs} \bm{\lambda} + \mathbf{b}'_{c} \bm{\Sigma}_{cc}\mathbf{b}_c,
+E((\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b}_a'\mathbf{y}_a)) =
 $$
 
-where $c$ denotes the current year (both past and present) and $\bm{\Sigma}_{cs}$ denotes the covariance matrix of all of the current spatial sites with the sites that were sampled.
+$$
+\bm{\lambda}_s'\bm{\Sigma}_{s, s}\bm{\lambda}_s - 2 \mathbf{b}_a' \bm{\Sigma}_{a ,s} \bm{\lambda}_s + \mathbf{b}_a' \bm{\Sigma}\mathbf{b}_a,
+$$
+
+Note that, again, if we are only interested in the total abundance in the current year, then unsampled sites in the past do not contribute to $\bm{\lambda}_s$ nor to the prediction variance because $\mathbf{b}_{up}$ is $\mathbf{0}$. Therefore, $\bm{\lambda}_s$ can be rewritten as
+
+$$
+\bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{uc}' (\bm{\Sigma}_{uc, s}\bm{\Sigma}_{s, s}^{-1}) - \mathbf{b}'_{uc}(\bm{\Sigma}_{uc, s} \bm{\Sigma}_{s, s}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1} + \mathbf{b}_{uc}' \mathbf{X}_{uc}'(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{s, s}^{-1}.
+$$
+
+Additionally, sampled sites in the past do not contribute to the prediction variance in the second and third terms in the prediction variance because $\mathbf{b}_{sp}$ is $\mathbf{0}$. The prediction variance can then be rewritten as
+
+$$
+\bm{\lambda}_s'\bm{\Sigma}_{s, s}\bm{\lambda}_s - 2 \mathbf{b}_{c}' \bm{\Sigma}_{c, s} \bm{\lambda}_s + \mathbf{b}_{c}' \bm{\Sigma_{c, c}} \mathbf{b}_{c},
+$$
 
 
+Finally, our site-by-site predictions for the unsampled sites in both the past and the present come from the usual block kriging formulae:
 
-
-
-
-
-
-
-
+$$
+\mathbf{\hat{y}}_{u} = \bm{\Sigma}_{u, s} \bm{\Sigma}_{s, s}^{-1}(\mathbf{y}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_{u},
+$$
 
 
 

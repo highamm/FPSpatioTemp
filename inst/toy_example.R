@@ -1,6 +1,4 @@
-source("R/stlmfit.R")
-source("R/m2LL.spatiotemp.ML.R")
-source("R/mginv.R")
+library(FPSpatioTemp)
 
 set.seed(06302021)
 

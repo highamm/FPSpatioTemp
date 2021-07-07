@@ -4,8 +4,19 @@
 \alias{m2LL.spatiotemp.ML}
 \title{Covariance Parameter and Mean Estimation Function through Maximum Likelihood.}
 \usage{
-m2LL.spatiotemp.ML(theta, zcol, XDesign, xcoord, ycoord, timepoints,
-  CorModel)
+m2LL.spatiotemp.ML(
+  theta,
+  zcol,
+  XDesign,
+  xcoord,
+  ycoord,
+  timepoints,
+  CorModel,
+  Zs,
+  Zt,
+  H,
+  Dismat
+)
 }
 \arguments{
 \item{theta}{is the parameter vector of (nugget, partialsill, range,
@@ -26,6 +37,14 @@ sites at all time points..}
 \item{timepoints}{is a vector of timepoints for the model}
 
 \item{CorModel}{is the geostatistical spatial correlation model to be used. See the \code{corModels} documentation for possible models to use.}
+
+\item{Zs}{is the design matrix of spatial random effects.}
+
+\item{Zt}{is the design matrix of temporal random effects.}
+
+\item{H}{is a matrix used to generate Rt.}
+
+\item{Dismat}{is the spatial distance matrix for unique spatial coordinates.}
 }
 \value{
 A numeric output of minus 2 times the restricted log likelihood to be minimized by `optim` to obtain spatial parameter estimates.

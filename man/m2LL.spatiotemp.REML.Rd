@@ -2,10 +2,19 @@
 % Please edit documentation in R/m2LL.spatiotemp.REML.R
 \name{m2LL.spatiotemp.REML}
 \alias{m2LL.spatiotemp.REML}
-\title{Covariance Parameter Estimation Function through RestrictedMaximum Likelihood.}
+\title{Covariance Parameter Estimation Function through Restricted Maximum
+Likelihood. NOTE: Function has not been updated and does not currently
+work}
 \usage{
-m2LL.spatiotemp.REML(theta, zcol, XDesign, xcoord, ycoord, timepoints,
-  CorModel)
+m2LL.spatiotemp.REML(
+  theta,
+  zcol,
+  XDesign,
+  xcoord,
+  ycoord,
+  timepoints,
+  CorModel
+)
 }
 \arguments{
 \item{theta}{is the parameter vector of (nugget, partialsill, range,
