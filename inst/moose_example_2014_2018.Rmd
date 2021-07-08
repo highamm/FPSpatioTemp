@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 For this example, we have moose abundance data from the TOK region of Alaska. Abundance surveys were performed annually from 2014 through 2018, except for the year 2016, in which no survey was done. Therefore, the data set has five years of data, but 2016 has counts that are all `NA`. The goal is to obtain an abundance prediction for the total number of moose in the region in the year 2018, the most recent year of the survey. The prediction should be able to leverage both spatial correlation across sites and temporal correlation across years.
@@ -36,6 +36,8 @@ moose_df_high <- moose_df_high %>%
   mutate(yearind = if_else(Surveyyear == 2018, true = 1, false = 0))
 ```
 
+The model is then fit with `stlmfit()`, assuming a sum-with-error covariance with an exponential spatial correlation structure and an AR(1) temporal correlation structure.
+
 ```{r}
 fit_obj <- stlmfit(formula = totalmoosena ~ 1, data = moose_df_high,
                    xcoordcol = "xcoords", ycoordcol = "ycoords",
@@ -45,12 +47,13 @@ fit_obj <- stlmfit(formula = totalmoosena ~ 1, data = moose_df_high,
 We can grab the prediction, standard error, and 90% prediction interval from the output:
 
 ```{r}
+library(knitr)
 prediction <- fit_obj[[1]]
 predvar <- fit_obj[[2]]
 lb <- fit_obj[[3]]
 ub <- fit_obj[[4]]
 tab_stlmfit <- cbind(prediction, sqrt(predvar), lb, ub)
-tab_stlmfit
+kable(tab_stlmfit)
 ```
 
 We might also want to examine the spatial and temporal covariance parameters:
@@ -59,7 +62,11 @@ We might also want to examine the spatial and temporal covariance parameters:
 fit_obj[[7]]
 ```
 
-We see that there is a fairly large independent error component (`$sigma_nugget_spacetime`). The spatial model is exponential: the spatial nugget is contributes much more to the overall variability than the spatial partial sill does. The temporal model is AR(1): the temporal partial sill is approximately equal to the temporal nugget, and the temporal correlation parameter `$rho` is weak to moderate.
+We see that there is a fairly large independent error component (`$sigma_nugget_spacetime`). The spatial nugget (4.43) is slightly smaller than the spatial partial sill (6.35), though the range for the correlation is very small (0.27). The temporal partial sill (0.20) is approximately equal to the temporal nugget (0.24), and the temporal correlation parameter `$rho` is weak to moderate (0.34).
+
+<br>
+
+<br>
 
 #### Comparison to `sptotal`
 
@@ -80,24 +87,30 @@ tab_sptotal <- cbind(pred_obj$FPBK_Prediction, sqrt(pred_obj$PredVar),
 tab_combined <- rbind(tab_stlmfit, tab_sptotal)
 row.names(tab_combined) <- c("stlmfit", "sptotal")
 colnames(tab_combined) <- c("prediction", "se", "90% lb", "90% ub")
-tab_combined
+kable(tab_combined, digits = 0)
 ```
 
 We see that the predictions for the analyses are fairly similar. But, the analysis that incorporates time has a much smaller standard error and, therefore, a more narrow prediction interval.
+
+We can also examine the covariance parameters from the analysis with `sptotal`:
 
 ```{r}
 summary(fit_obj_2018)
 ```
 
-We also see that, though the partial sill is much larger than the nugget in the `sptotal` analysis, the range is quite small compared to the scale of the x and y coordinates. Therefore, there is effectively very little estimated spatial autocorrelation for sites that are moderately far apart:
+We see that, though the partial sill is much larger than the nugget in the `sptotal` analysis, the range is quite small compared to the scale of the x and y coordinates. Therefore, there is effectively very little estimated spatial autocorrelation for sites that are moderately far apart, as seen in the following plot:
 
-```{r}
+```{r, fig.height = 4}
 plot(fit_obj_2018)
 ```
 
+<br>
+
+<br>
+
 #### Comparison to `stlmfit()` with Added `NA`
 
-Finally, as a small check to make sure that `stlmfit()` iw "working" correctly, we might want to compare the prediction from `sptotal` on the 2018 data only to the prediction from using `stlmfit()` but making all counts before 2018 `NA`. The predictions should be very close, possibly differing slightly because of the different method that parameters are optimized.
+Finally, as a small check to make sure that `stlmfit()` iw "working" correctly, we might want to compare the prediction from `sptotal` on the 2018 data only to the prediction from using `stlmfit()` but artificially making all counts before 2018 `NA`. The predictions should be very close, possibly differing slightly because of the different method that parameters are optimized.
 
 ```{r}
 moose_df_high_2018 <- moose_df_high %>% filter(Surveyyear == 2018)
@@ -112,6 +125,8 @@ fit_obj_fake <- stlmfit(formula = totalmoosena ~ 1,
                         tcol = "Surveyyear", wtscol = "yearind")
 ```
 
+After obtaining the prediction, se, and prediction interval, the following table compares all three approaches (`stlmfit()` with all data, `sptotal` with 2018 data, and `stlmfit()` with `NA` for all data before 2018):
+
 ```{r}
 prediction_fake <- fit_obj_fake[[1]]
 predvar_fake <- fit_obj_fake[[2]]
@@ -120,10 +135,15 @@ ub_fake <- fit_obj_fake[[4]]
 tab_stlmfit_fake <- cbind(prediction_fake, sqrt(predvar_fake),
                           lb_fake, ub_fake)
 tab_all <- rbind(tab_combined, tab_stlmfit_fake)
-tab_all
+row.names(tab_all) <- c("stlmfit", "sptotal", "stlmfitNA")
+kable(tab_all, digits = 0)
 ```
 
 The predictions from `sptotal` and `stlmfit()` with the missing data are very close and the standard errors are fairly close as well. 
+
+<br>
+
+<br>
 
 #### Differences in Predictions between `stlmfit()` and `sptotal`.
 
@@ -142,7 +162,7 @@ Then, we compare the sitewise predictions for each method:
 cbind(fit_obj[[5]], sptotal_df_unsamp$totalmoosena_pred_count)
 ```
 
-We see that most sites have similar predicted abundance for the two methods. For example, site 784 (the sites are identified by the rownumbers) has a prediction of 21.4 moose using `stlmfit()` and a prediction of 9.7 moose using `sptotal`. Why are these predictions so drastically different?
+We see that most sites have similar predicted abundance for the two methods. However, for some sites, the predictions are quite different. For example, site 784 (the sites are identified by the rownumbers) has a prediction of 21.4 moose using `stlmfit()` and a prediction of 9.7 moose using `sptotal`. Why are these predictions so drastically different?
 
 ```{r}
 test_df <- moose_df_high %>% slice(784) %>% select(ID)
@@ -160,7 +180,7 @@ semi_join(moose_df_high, test_df)
 
 and the reason seems for this difference seems similar to the reason for site 784. 
 
-Note that the reverse also holds: for site 743, `sptotal` predicts an abundance of 27.6 moose while `stlmfit()` predicts an abundance of 12.5 moose. 
+Note that the reverse also holds. For example, for site 743, `sptotal` predicts an abundance of 27.6 moose while `stlmfit()` predicts an abundance of 12.5 moose. 
 
 ```{r}
 test_df <- moose_df_high %>% slice(743) %>% select(ID)
@@ -168,6 +188,10 @@ semi_join(moose_df_high, test_df)
 ```
 
 `stlmfit()`'s prediction is closer to the actual observed count in 2014. 
+
+<br>
+
+<br>
 
 ## The `LOW` Stratum
 
@@ -211,6 +235,10 @@ fit_obj_fake_low <- stlmfit(formula = totalmoosena ~ 1,
                         tcol = "Surveyyear", wtscol = "yearind")
 ```
 
+<br>
+
+<br>
+
 ## Comparing the Totals Across Strata
 
 We can then add up our predictors and prediction variances across the strata for each method, assuming no cross-covariance across strata:
@@ -222,6 +250,10 @@ fit_obj[[1]] + fit_obj_low[[1]] ## stlmfit
 sqrt(pred_obj$PredVar + pred_obj_low$PredVar) ## sptotal 2018
 sqrt(fit_obj[[2]] + fit_obj_low[[2]]) ## stlmfit
 ```
+
+<br>
+
+<br>
 
 ## Moose Analysis 2004 to 2006
 
