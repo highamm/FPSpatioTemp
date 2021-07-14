@@ -15,4 +15,7 @@ Imports: tibble,
     stats,
     dplyr,
     sptotal,
-    readr
+    readr,
+    tidyr,
+    ggplot2
+    

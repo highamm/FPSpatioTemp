@@ -20,8 +20,8 @@
 #' @param areacol is the name of the column in the data frame 
 #' with the site areas
 #' NOTE: package has not yet been tested for use of this argument.
-#' a list of class \code{slmfit} with
-#' @return a list with 
+#' @param CorModel a correlation model for the spatial correlation ("Exponential" is the only choice for now).
+#' @return a list with \itemize{
 #'   \item the prediction of the total abundance
 #'   \item the prediction variance
 #'   \item a 90% prediction interval lower bound
@@ -34,6 +34,7 @@
 #'    partial sill, range, spatial nugget, temporal partial sill,
 #'    autocorrelation parameter, temporal nugget, and spatiotemporal
 #'    nugget).
+#'  }
 #' NOTE: This function will eventually be split into stlmfit() to fit
 #' the model, estcov() as a helper in model fitting, 
 #' and predict.stlmfit(), in much the same way that sptotal is split.
@@ -338,8 +339,9 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   data$predictions[unsampcurrind == 1] <- zhatu
   data$predictions[ind.sa == 1] <- z.density
   
-  return(list(totalpred, predvar, lb, ub, zhatu, sitevar, 
-              list(sigma_parsil_spat = sigma_parsil_spat_hat,
+  return(list(totalpred = totalpred, predvar = predvar, 
+              lb = lb, ub = ub, zhatu = zhatu, sitevar = sitevar, 
+              parms = list(sigma_parsil_spat = sigma_parsil_spat_hat,
                    range = range_hat,
                    sigma_nugget_spat = sigma_nugget_spat_hat,
                    sigma_parsil_time = sigma_parsil_time_hat,

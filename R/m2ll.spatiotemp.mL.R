@@ -3,9 +3,8 @@
 #' The primary purpose of \code{m2LL.spatiotemp.mL.R} is to estimate the spatial
 #' covariance parameters and fixed effects through maximum likelihood.
 #'
-#' @param theta is the parameter vector of (nugget, partialsill, range,
-#' (vector of mean parameters), rho), where rho is the correlation for 
-#' an AR(1) time series
+#' @param theta is the parameter vector of (spatial partial sill,
+#' range, spatial nugget, range, temporal partial sill, temporal autocorrelation, temporal nugget, and spatiotemporal nugget)
 #' @param zcol is the response vector of counts, with \code{NA} values 
 #' for the missing values for sites that were not observed at a particular
 #' time point.

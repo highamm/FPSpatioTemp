@@ -57,7 +57,7 @@ where $\mathbf{R}_{sp}$ is a spatial correlation matrix and $\mathbf{R}_t$ is a 
 If we assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, and $\bm{\nu}$ are mutually independent of each other, then 
 
 \begin{equation}
-var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{R}_{sp} + \sigma^2_{\gamma} \mathbf{I}_{sp} + \sigma^2_{\tau} \mathbf{R}_t + \sigma^2_{\eta} \mathbf{I}_t + \sigma^2_{\nu} \mathbf{I}_N.
+var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{sp} \mathbf{R}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\gamma} \mathbf{Z}_{sp} \mathbf{I}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\nu} \mathbf{I}_N.
 \end{equation}
 
 A common form of $\mathbf{R}_{sp}$ is exponential. For observations at locations $i$ and $i'$ at $h_{ii'}$ distance apart,

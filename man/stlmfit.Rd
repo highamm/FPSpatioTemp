@@ -4,7 +4,16 @@
 \alias{stlmfit}
 \title{Spatio-Temporal Model Fit}
 \usage{
-stlmfit(formula, data, xcoordcol, ycoordcol, tcol, wtscol, areacol = NULL)
+stlmfit(
+  formula,
+  data,
+  xcoordcol,
+  ycoordcol,
+  tcol,
+  wtscol,
+  areacol = NULL,
+  CorModel = "Exponential"
+)
 }
 \arguments{
 \item{formula}{is an \code{R} linear model formula specifying the
@@ -24,11 +33,12 @@ the weights for which sites we want the prediction for.}
 
 \item{areacol}{is the name of the column in the data frame 
 with the site areas
-NOTE: package has not yet been tested for use of this argument.
-a list of class \code{slmfit} with}
+NOTE: package has not yet been tested for use of this argument.}
+
+\item{CorModel}{a correlation model for the spatial correlation ("Exponential" is the only choice for now).}
 }
 \value{
-a list with 
+a list with \itemize{
   \item the prediction of the total abundance
   \item the prediction variance
   \item a 90% prediction interval lower bound
@@ -41,6 +51,7 @@ a list with
    partial sill, range, spatial nugget, temporal partial sill,
    autocorrelation parameter, temporal nugget, and spatiotemporal
    nugget).
+ }
 NOTE: This function will eventually be split into stlmfit() to fit
 the model, estcov() as a helper in model fitting, 
 and predict.stlmfit(), in much the same way that sptotal is split.

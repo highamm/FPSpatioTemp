@@ -19,9 +19,8 @@ m2LL.spatiotemp.ML(
 )
 }
 \arguments{
-\item{theta}{is the parameter vector of (nugget, partialsill, range,
-(vector of mean parameters), rho), where rho is the correlation for 
-an AR(1) time series}
+\item{theta}{is the parameter vector of (spatial partial sill,
+range, spatial nugget, range, temporal partial sill, temporal autocorrelation, temporal nugget, and spatiotemporal nugget)}
 
 \item{zcol}{is the response vector of counts, with \code{NA} values 
 for the missing values for sites that were not observed at a particular
