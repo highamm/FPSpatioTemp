@@ -35,7 +35,7 @@ df <- df %>% mutate(predind = if_else(times == 3, true = 1, false = 0))
 fit_toy <- stlmfit(formula = response ~ 1, data = df,
                    xcoordcol = "xcoords",
                    ycoordcol = "ycoords",
-                   tcol = "times", wtscol = "predind")
+                   tcol = "times")
 fit_toy[[1]]
 sqrt(fit_toy[[2]])
 df %>% filter(times == 3) %>% summarise(total = sum(response_all))

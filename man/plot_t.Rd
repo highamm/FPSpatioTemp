@@ -14,6 +14,8 @@ plot_t(xcoords, ycoords, times, response, alpha = 0.4)
 \item{times}{a vector of times}
 
 \item{response, }{a vector of the response variable}
+
+\item{alpha}{a line transparency parameter}
 }
 \value{
 a plot.

@@ -26,8 +26,9 @@
 #'        sigma_parsil_spat = 0.5, range = 4, sigma_nugget_spat = 0.5,
 #'        sigma_parsil_time = 0.5, rho = 0.7, sigma_nugget_time = 0.5,
 #'        sigma_nugget_spacetime = 0.5)
-#' @import dplyr
+#' @importFrom dplyr slice row_number
 #' @importFrom tidyr expand_grid
+#' @importFrom tibble tibble
 #' @export sim_spatiotemp
 
 sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
@@ -59,7 +60,8 @@ sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
   
   ## build Zs, spatial random effects design matrix.
   onetime <- diag(1, nspat) %>% as.data.frame()
-  Zs <- onetime %>% slice(rep(row_number(), ntime)) %>% as.matrix()
+  Zs <- onetime %>% dplyr::slice(rep(dplyr::row_number(), ntime)) %>%
+    as.matrix()
   
   ## build spatial components of overall variance
   comp_1 <- sigma_parsil_spat * Zs %*% Rs %*% t(Zs)
@@ -94,8 +96,10 @@ sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
   ## data frames
   space_time_info <- tidyr::expand_grid(times, allcoords)
   
-  out_df <- dplyr::tibble(space_time_info, response)
+  out_df <- tibble::tibble(space_time_info, response)
   out_obj <- list(out_df = out_df, seed = seed)
+  
+  class(out_obj) <- "sim_spatiotemp"
   return(out_obj)
   
 }

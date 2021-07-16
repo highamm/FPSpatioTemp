@@ -15,69 +15,50 @@
 #' @param ycoordcol is the name of the column in the data frame with y coordinates or latitudinal coordinates.
 #' @param tcol is the name of the column in the data frame with 
 #' the time points.
-#' @param wtscol is the name of the column in the data frame with
-#' the weights for which sites we want the prediction for.
 #' @param areacol is the name of the column in the data frame 
 #' with the site areas
 #' NOTE: package has not yet been tested for use of this argument.
 #' @param CorModel a correlation model for the spatial correlation ("Exponential" is the only choice for now).
 #' @return a list with \itemize{
-#'   \item the prediction of the total abundance
-#'   \item the prediction variance
-#'   \item a 90% prediction interval lower bound
-#'   \item a 90% prediction interval upper bound
-#'   \item a vector of site-by-site predictions for the unsampled sites
-#'   \item a vector of site-by-site prediction variances for the unsampled sites
-#'   \item a list with the 7 spatio-temporal covariance parameter
-#'    estimates for Exponential spatial covariance and AR(1) temporal
-#'    covariance and a sum-with-error linear mixed model (spatial
+#'   \item the original data set, appended with a few variables
+#'   \item the estimated spatiotemporal covariance matrix
+#'   \item the design matrix for the fixed effects
+#'   \item a vector of the sampled response values
+#'   \item a list with the 8 spatio-temporal parameter
+#'    estimates for the fixed effects, 
+#'    the Exponential spatial covariance and AR(1) temporal
+#'    covariance and a sum-with-error linear mixed model
+#'     (vector of fixed effects parameter estimates, spatial
 #'    partial sill, range, spatial nugget, temporal partial sill,
 #'    autocorrelation parameter, temporal nugget, and spatiotemporal
 #'    nugget).
 #'  }
 #' NOTE: This function will eventually be split into stlmfit() to fit
-#' the model, estcov() as a helper in model fitting, 
-#' and predict.stlmfit(), in much the same way that sptotal is split.
+#' the model and estcov() as a helper in model fitting
+#' @examples 
+#' obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
+#'       sigma_parsil_spat = 0.5, range = 4, sigma_nugget_spat = 0.5,
+#'       sigma_parsil_time = 0.5, rho = 0.7, sigma_nugget_time = 0.5,
+#'       sigma_nugget_spacetime = 0.5)
+#'       
+#' samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
+#' samp_data <- samp_obj$df_full
+#' samp_data <- samp_data %>%
+#'  dplyr::mutate(predwts = dplyr::if_else(times == max(times),
+#'   true = 1, false = 0))
+#' stlmfit_obj <- stlmfit(formula = response_na ~ 1, data = samp_data,
+#'  xcoordcol = "xcoords",
+#' ycoordcol = "ycoords", tcol = "times") 
 #' @import stats
-#' @import dplyr
 #' @export stlmfit
-
-
-# moose_df2 <- moose_df %>% sample_n(nrow(moose_df))
-# formula <- totalmoosena ~ 1
-# data <- moose_df2
-# xcoordcol <- "xTM"
-# ycoordcol <- "yTM"
-# tcol <- "Surveyyear"
-# wtscol <- "yearind"
-# 
-# 
-# ## 2004 through 2012 data
-# moose_df <- readr::read_csv("inst/moose_04_12_all.csv")
-# 
-# tm_obj <- sptotal::LLtoTM(mean(moose_df$centrlon),
-#                           lat = moose_df$centrlat,
-#                           lon = moose_df$centrlon)
-# moose_df$xTM <- tm_obj$xy[ ,1]
-# moose_df$yTM <- tm_obj$xy[ ,2]
-# 
-# moose_df <- moose_df %>%
-#   mutate(yearind = if_else(Surveyyear == 2012, true = 1, false = 0))
-# 
-# formula <- totalmoosena ~ 1
-# data <- moose_df2
-# xcoordcol <- "xTM"
-# ycoordcol <- "yTM"
-# tcol <- "Surveyyear"
-# wtscol <- "yearind"
-
+                                                            
 stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
-                    wtscol, areacol = NULL,
+                    areacol = NULL,
                     CorModel = "Exponential") {
   
   ## order the data so that sites are in the same order within each time
   
-  data <- data %>% arrange_(tcol, xcoordcol, ycoordcol) 
+  data <- data %>% dplyr::arrange_(tcol, xcoordcol, ycoordcol) 
   ## data %>% arrange(!! rlang::sym(c("tcol")))
   
   ## make data frame of only predictors
@@ -121,7 +102,10 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   ## or NA (for unsampled sites)
   
   ind.sa <- !is.na(yvar)
+  data$ind.sa <- ind.sa
   ind.un <- is.na(yvar)
+  data$ind.un <- ind.un
+  
   data.sa <- datanomiss[ind.sa, ]
   data.un <- datanomiss[ind.un, ]
   
@@ -242,111 +226,23 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   comp_5 <- diag(sigma_nugget_spacetime_hat, nrow = N)
   
   Sigmaest <- comp_1 + comp_2 + comp_3 + comp_4 + comp_5
-
-  
-
-  ###########################################################
-  ## break this next part out into its own predict() function
-  ###########################################################
-
-  
   Sigma.ss <- Sigmaest[ind.sa, ind.sa, drop = FALSE]
-  Sigma.us <- Sigmaest[ind.un, ind.sa, drop = FALSE]
-  Sigma.su <- t(Sigma.us)
-  Sigma.uu <- Sigmaest[ind.un, ind.un, drop = FALSE]
-  
-  Sigma.ssi <- solve(Sigma.ss)
-  
-  ## indicator for unsampled sites that are in the current year of 
-  ## interest
-  unsampcurrind <- ind.sa == 0 & data[[wtscol]] == 1
-  
-  Xucurr <- Xall[unsampcurrind, , drop = FALSE]
+  Sigma.ssi <- solve(Sigma.ss) ## can output this so it doesn't
+  ## also get inverted in predict.stlmfit()
   
   betahat <- solve(t(Xs) %*% Sigma.ssi %*% Xs) %*%
     t(Xs) %*% Sigma.ssi %*%
-    z.sa
+    z.density
   
-  ## matrix of covariance between all sites in the current year and
-  ## all sites that were sampled
-  Sigma.cs <- Sigmaest[data[[wtscol]] == 1, ind.sa == 1]
+  stlmfit_obj <- list(data = data, Sigmaest = Sigmaest, Xall = Xall, 
+                      z.density = z.density, parms = list(betahat = betahat, sigma_parsil_spat = sigma_parsil_spat_hat,
+                               range = range_hat,
+                               sigma_nugget_spat = sigma_nugget_spat_hat,
+                               sigma_parsil_time = sigma_parsil_time_hat,
+                               rho = rhotime_hat,
+                               sigma_nugget_time = sigma_nugget_time_hat,
+                               sigma_nugget_spacetime = sigma_nugget_spacetime_hat))
   
-  ## covariance matrix of sites in the current year
-  Sigma.cc <- Sigmaest[data[[wtscol]] == 1, data[[wtscol]] == 1]
-  
-  ## prediction indicator vector for all sampled sites
-  bsall <-  data[[wtscol]][ind.sa == 1]
-  
-  ## prediction indicator vector for sampled sites in the current year
-  bs <- bsall[bsall == 1]
-  
-  ## prediction indicator vector for all unsampled sites 
-  buall <- data[[wtscol]][ind.sa == 0]
-  
-  ## prediction indicator vector for
-  ## the unsampled sites in the current year
-  bu <- buall[buall == 1]
-  
-  ## part 1 of the predictor
-  p1 <- bsall 
-  
-  ## covariance of the unsampled sites in the current year with all of the
-  ## sampled sites
-  Sigma.ucurrs <- Sigmaest[unsampcurrind == 1, ind.sa == 1]
-  Sigma.ssi <- solve(Sigmaest[ind.sa == 1, ind.sa == 1])
-  
-  p2 <- t(bu) %*% Sigma.ucurrs %*% Sigma.ssi
-  
-  p3 <- -t(bu) %*% (Sigma.ucurrs %*% Sigma.ssi %*% Xs %*%
-                      solve(t(Xs) %*% Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi)
-  p4 <- t(bu) %*% (Xucurr %*%  solve(t(Xs) %*% Sigma.ssi %*% Xs) %*%
-                     t(Xs) %*% Sigma.ssi)
-  
-  ## kriging weights
-  tlambda <- (p1 + p2 + p3 + p4)
-  
-  ## prediction for the total in the current year
-  totalpred <- tlambda %*% z.density
-  
-  ## prediction weights for sites in the current year (usually just a 
-  ## vector of 1's if we want to predict the total for the current year).
-  bc <- c(bs, bu)
-  
-  predvar <- tlambda %*% Sigma.ss %*% t(tlambda) -
-    2 * t(bc) %*% Sigma.cs %*% t(tlambda) +
-    t(bc) %*% Sigma.cc %*% bc
-  
-  lb <- as.vector(totalpred) + c(-1) * 1.645 * sqrt(as.vector(predvar))
-  ub <- as.vector(totalpred) + c(1) * 1.645 * sqrt(as.vector(predvar))
-  
-  
-  ## an equivalent calculation for the total:
-  muhats <- Xs %*% betahat; muhatu <- Xucurr %*% betahat
-  ## the predicted values for the sites that were not sampled
-  zhatu <- Sigma.ucurrs %*% Sigma.ssi %*% (z.density -
-                                             muhats) + muhatu
-  totalpred_equiv <- sum(zhatu) + sum(density[ind.sa == 1 & data[[wtscol]] == 1])
-  
-  W <- t(Xu) - t(Xs) %*% Sigma.ssi %*% Sigma.su
-  Vmat <- solve(t(Xs) %*% Sigma.ssi %*% Xs)
-  sitecov <- Sigma.uu - Sigma.us %*% Sigma.ssi %*% Sigma.su +
-    t(W) %*% Vmat %*% W
-  sitevar <- diag(sitecov)
-  
-  
-  data$predictions <- rep(NA, nrow(data))
-  
-  data$predictions[unsampcurrind == 1] <- zhatu
-  data$predictions[ind.sa == 1] <- z.density
-  
-  return(list(totalpred = totalpred, predvar = predvar, 
-              lb = lb, ub = ub, zhatu = zhatu, sitevar = sitevar, 
-              parms = list(sigma_parsil_spat = sigma_parsil_spat_hat,
-                   range = range_hat,
-                   sigma_nugget_spat = sigma_nugget_spat_hat,
-                   sigma_parsil_time = sigma_parsil_time_hat,
-                   rho = rhotime_hat,
-                   sigma_nugget_time = sigma_nugget_time_hat,
-                   sigma_nugget_spacetime = sigma_nugget_spacetime_hat)))
-  
+  class(stlmfit_obj) <- "stlmfit"
+  return(stlmfit_obj)
 }

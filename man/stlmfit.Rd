@@ -10,7 +10,6 @@ stlmfit(
   xcoordcol,
   ycoordcol,
   tcol,
-  wtscol,
   areacol = NULL,
   CorModel = "Exponential"
 )
@@ -28,9 +27,6 @@ response variable as well as covariates for predicting the response on the unsam
 \item{tcol}{is the name of the column in the data frame with 
 the time points.}
 
-\item{wtscol}{is the name of the column in the data frame with
-the weights for which sites we want the prediction for.}
-
 \item{areacol}{is the name of the column in the data frame 
 with the site areas
 NOTE: package has not yet been tested for use of this argument.}
@@ -39,22 +35,21 @@ NOTE: package has not yet been tested for use of this argument.}
 }
 \value{
 a list with \itemize{
-  \item the prediction of the total abundance
-  \item the prediction variance
-  \item a 90% prediction interval lower bound
-  \item a 90% prediction interval upper bound
-  \item a vector of site-by-site predictions for the unsampled sites
-  \item a vector of site-by-site prediction variances for the unsampled sites
-  \item a list with the 7 spatio-temporal covariance parameter
-   estimates for Exponential spatial covariance and AR(1) temporal
-   covariance and a sum-with-error linear mixed model (spatial
+  \item the original data set, appended with a few variables
+  \item the estimated spatiotemporal covariance matrix
+  \item the design matrix for the fixed effects
+  \item a vector of the sampled response values
+  \item a list with the 8 spatio-temporal parameter
+   estimates for the fixed effects, 
+   the Exponential spatial covariance and AR(1) temporal
+   covariance and a sum-with-error linear mixed model
+    (vector of fixed effects parameter estimates, spatial
    partial sill, range, spatial nugget, temporal partial sill,
    autocorrelation parameter, temporal nugget, and spatiotemporal
    nugget).
  }
 NOTE: This function will eventually be split into stlmfit() to fit
-the model, estcov() as a helper in model fitting, 
-and predict.stlmfit(), in much the same way that sptotal is split.
+the model and estcov() as a helper in model fitting
 }
 \description{
 Estimates regression coefficients, spatial autocorrelation
@@ -64,4 +59,19 @@ NOTE: Current version has not been tested with any fixed effects
 in the design matrix X
 NOTE: Current version only does Maximum Likelihood, though REML 
 will be added.
+}
+\examples{
+obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
+      sigma_parsil_spat = 0.5, range = 4, sigma_nugget_spat = 0.5,
+      sigma_parsil_time = 0.5, rho = 0.7, sigma_nugget_time = 0.5,
+      sigma_nugget_spacetime = 0.5)
+      
+samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
+samp_data <- samp_obj$df_full
+samp_data <- samp_data \%>\%
+ dplyr::mutate(predwts = dplyr::if_else(times == max(times),
+  true = 1, false = 0))
+stlmfit_obj <- stlmfit(formula = response_na ~ 1, data = samp_data,
+ xcoordcol = "xcoords",
+ycoordcol = "ycoords", tcol = "times") 
 }
