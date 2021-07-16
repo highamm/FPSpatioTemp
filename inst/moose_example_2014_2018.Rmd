@@ -7,6 +7,22 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
+## General Description of Data
+2013: separate area
+2016: no snow
+
+-2013: two regions surveyed
+2014- pare it down to the smaller area from the larger area previously
+2019- took two areas from 2004 - 2014 plus what was added on after 2014
+2020- 2014-2018
+2021- 2014-2018 area (planned)
+
+Abundance surveys are performed in the TOK region of Alaska annually. The following is a brief description of these surveys. From 2004 - 2012, two regions were surveyed on an alternating year basis (e.g. Region 1 was surveyed in 2004, Region 2 in 2005, Region 1 in 2006, etc.). In 2013, both of these regions were surveyed. From 2014 - 2018, the the two "alternating year regions" were combined into one single survey region that was a subset of these two regions. This smaller region was thought to be of the highest importance for moose abundance prediction. The 2014 - 2018 region also included a small region that was not part of the 2004 - 2013 surveys. 2016 did not have a survey because there was not sufficient snow cover. The 2019 survey took the survey area from 2004 - 2013 and added the small region that was added in the 2014 - 2018 surveys. 2020 reverted to the 2014 - 2018 survey area, and 2021 is planned to also survey that same area. 
+
+In summary, there is a subset of sites that was sampled from 2004 - 2020, but, of most interest is probably the area that has been surveyed every year since 2014 (except for the year 2016, when no survey was done).
+
+## Specific Example
+
 For this example, we have moose abundance data from the TOK region of Alaska. Abundance surveys were performed annually from 2014 through 2018, except for the year 2016, in which no survey was done. Therefore, the data set has five years of data, but 2016 has counts that are all `NA`. The goal is to obtain an abundance prediction for the total number of moose in the region in the year 2018, the most recent year of the survey. The prediction should be able to leverage both spatial correlation across sites and temporal correlation across years.
 
 There are 182 unique spatial locations (sites) and 5 time points. There is a row in the data set for each space-time point combination for a total of 910 rows. The sites are stratified into a `HIGH` stratum and a `LOW` stratum. Throughout the five years, there are a small number of sites (~ 10) that changed stratum. Either a site that was classified as `LOW` was changed to `HIGH`, or, vice versa. For this preliminary, we use the classification for all sites __from the most recent year__, 2018. Therefore, a site that was classified as `LOW` in 2015 but changed to `HIGH` in 2018 is a `HIGH` strata site for this analysis. Strata are analyzed separately, and are allowed to have different means, spatial covariances, and temporal covariances.
