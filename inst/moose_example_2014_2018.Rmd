@@ -19,7 +19,8 @@ We start with an analysis for the `HIGH` stratum. The model fit with `stlmfit()`
 library(tidyverse)
 library(here)
 library(FPSpatioTemp)
-moose_temp_high <- read_csv(here("inst", "moose_high_2014_2018.csv"))
+moose_temp_high <- read_csv(here("inst",
+                                 "data/moose_high_2014_2018.csv"))
 
 ## keep only variables that are necessary for analysis
 moose_df_high <- moose_temp_high %>%
@@ -49,7 +50,6 @@ We can grab the prediction, standard error, and 90% prediction interval from the
 
 ```{r}
 library(knitr)
-pred_obj
 prediction <- pred_obj$totalpred
 predvar <- pred_obj$predvar
 lb <- pred_obj$lb
@@ -61,7 +61,6 @@ kable(tab_stlmfit)
 We might also want to examine the spatial and temporal covariance parameters:
 
 ```{r}
-fit_obj
 plot_sp(fit_obj$data$xcoords, fit_obj$data$ycoords,
         fit_obj$data$Surveyyear, fit_obj$data$totalmoosena)
 ## only plots sites with two connected points in the data set,
@@ -211,7 +210,7 @@ Fit model with `stlmfit()`:
 
 ```{r}
 library(tidyverse)
-moose_df_low <- read_csv(here("inst", "moose_low_2014_2018.csv"))
+moose_df_low <- read_csv(here("inst", "data/moose_low_2014_2018.csv"))
 
 moose_df_low <- moose_df_low %>%
   mutate(yearind = if_else(Surveyyear == 2018, true = 1, false = 0))
@@ -274,7 +273,7 @@ Comments for this analysis are omitted.
 
 ```{r}
 library(tidyverse)
-moose_df <- read_csv(here("inst", "moose_04_06.csv"))
+moose_df <- read_csv(here("inst", "data/moose_04_06.csv"))
 
 tm_obj <- sptotal::LLtoTM(mean(moose_df$centrlon),
                           lat = moose_df$centrlat,
