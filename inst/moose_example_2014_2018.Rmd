@@ -36,7 +36,7 @@ library(tidyverse)
 library(here)
 library(FPSpatioTemp)
 moose_temp_high <- read_csv(here("inst",
-                                 "data/moose_high_2014_2018.csv"))
+                                 "datasets/moose_high_2014_2018.csv"))
 
 ## keep only variables that are necessary for analysis
 moose_df_high <- moose_temp_high %>%
@@ -226,7 +226,7 @@ Fit model with `stlmfit()`:
 
 ```{r}
 library(tidyverse)
-moose_df_low <- read_csv(here("inst", "data/moose_low_2014_2018.csv"))
+moose_df_low <- read_csv(here("inst", "datasets/moose_low_2014_2018.csv"))
 
 moose_df_low <- moose_df_low %>%
   mutate(yearind = if_else(Surveyyear == 2018, true = 1, false = 0))
@@ -289,7 +289,7 @@ Comments for this analysis are omitted.
 
 ```{r}
 library(tidyverse)
-moose_df <- read_csv(here("inst", "data/moose_04_06.csv"))
+moose_df <- read_csv(here("inst", "datasets/moose_04_06.csv"))
 
 tm_obj <- sptotal::LLtoTM(mean(moose_df$centrlon),
                           lat = moose_df$centrlat,

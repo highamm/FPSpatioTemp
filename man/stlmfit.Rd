@@ -71,7 +71,8 @@ samp_data <- samp_obj$df_full
 samp_data <- samp_data \%>\%
  dplyr::mutate(predwts = dplyr::if_else(times == max(times),
   true = 1, false = 0))
-stlmfit_obj <- stlmfit(formula = response_na ~ 1, data = samp_data,
+samp_data$x <- rnorm(nrow(samp_data), 0, 1)
+stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,
  xcoordcol = "xcoords",
 ycoordcol = "ycoords", tcol = "times") 
 }

@@ -49,7 +49,7 @@ sim_fun <- function(nx = 10, ny = 10, ntime = 5, betavec = 10,
 ## do 1 simulation
 sim_1 <- sim_fun()
 
-nrep <- 20
+nrep <- 9
 sim_output <- replicate(nrep, sim_fun(), simplify = "matrix")                 
 sim_output_df <- t(sim_output) %>% as_tibble()  
 sim_output_df <- tidyr::unnest(sim_output_df,
@@ -70,4 +70,5 @@ sim_output_df %>% summarise(coverage = mean(conf_ind),
                             rmspe = sqrt(sum((pred - truetotal) ^ 2)),
                             medci = median(ub - lb),
                             meanse = mean(se))
-sim_output_df %>% select(lb, ub, truetotal, conf_ind) %>% print(n = Inf)
+
+write.csv(sim_output_df, "sim_output.csv", row.names = FALSE)
