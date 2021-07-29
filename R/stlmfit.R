@@ -59,7 +59,8 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   
   ## order the data so that sites are in the same order within each time
   
-  data <- data %>% dplyr::arrange_(tcol, xcoordcol, ycoordcol) 
+  data <- data %>% dplyr::ungroup() %>%
+    dplyr::arrange_(tcol, xcoordcol, ycoordcol) 
   ## data %>% arrange(!! rlang::sym(c("tcol")))
   
   ## make data frame of only predictors
@@ -182,10 +183,14 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   DM[lower.tri(DM)] <- stats::dist(as.matrix(cbind(uniquecoords[ ,1], uniquecoords[ ,2])))
   Dismat <- DM + t(DM)
   
-  ##  make sure the function is working
-  ##  can replace this step with a grid search to give `parmest` 
-  ##  a better starting point than (1, 1, 1, 1).
-  m2LL.spatiotemp.ML(theta = c(0, 0, 0, 1, 0, 0, 0),
+ 
+  
+  varstart <- log(var(density, na.rm = TRUE) / 20)
+  rangestart <- median(Dismat) / 2
+  rhostart <- 0
+  
+  m2LL.spatiotemp.ML(theta = c(varstart, rangestart, varstart,
+                              varstart, rhostart, varstart, varstart),
                      zcol = density,
                      XDesign = as.matrix(X),
                      xcoord = uniquecoords[ ,1],
@@ -193,8 +198,11 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
                      timepoints = uniquetimes,
                      CorModel = "Exponential",
                      Zs = Zs, Zt = Zt, H = H, Dismat = Dismat)
+
   
-  parmest <- stats::optim(c(0, 0, 0, 1, 0, 0, 0), m2LL.spatiotemp.ML,
+  parmest <- stats::optim(c(varstart, rangestart, varstart,
+                            varstart, rhostart, varstart, varstart),
+                          m2LL.spatiotemp.ML,
                           zcol = density,
                           XDesign = as.matrix(X),
                           xcoord = uniquecoords[ ,1],

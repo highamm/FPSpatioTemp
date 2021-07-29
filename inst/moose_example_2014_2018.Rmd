@@ -35,13 +35,23 @@ We start with an analysis for the `HIGH` stratum. The model fit with `stlmfit()`
 library(tidyverse)
 library(here)
 library(FPSpatioTemp)
-moose_temp_high <- read_csv(here("inst",
-                                 "datasets/moose_high_2014_2018.csv"))
+# moose_temp_high <- read_csv(here("inst",
+#                                  "datasets/moose_high_2014_2018.csv"))
+data(moose_14_18)
+
+## use most recent stratification
+moose_14_18 <- moose_14_18 %>%
+  mutate(newstrat = if_else(Surveyyear == 2018,
+                            true = stratfact, 
+                            false = NA_integer_)) %>%
+  group_by(ID) %>% fill(newstrat, .direction = "updown")
+
+moose_temp_high <- moose_14_18 %>% dplyr::filter(newstrat == "HIGH")
 
 ## keep only variables that are necessary for analysis
 moose_df_high <- moose_temp_high %>%
   select(totalmoosena, SurveyID, Surveyyear, ID,
-         Stratname, xcoords, ycoords)
+         Stratname, xcoords, ycoords, samp_frame)
 
 ## n unique spatial points and n unique time points.
 nspat <- nrow(moose_df_high) / length(unique(moose_df_high$Surveyyear))
@@ -50,7 +60,7 @@ ntime <- nrow(moose_df_high) / nrow(unique(cbind(moose_df_high$xcoords, moose_df
 ## create a variable for what values we want added up for
 ## abundance
 moose_df_high <- moose_df_high %>%
-  mutate(yearind = if_else(Surveyyear == 2018, true = 1, false = 0))
+  mutate(yearind = if_else(Surveyyear == 2018 & samp_frame == 1, true = 1, false = 0)) %>% ungroup()
 ```
 
 The model is then fit with `stlmfit()`, assuming a sum-with-error covariance with an exponential spatial correlation structure and an AR(1) temporal correlation structure.
@@ -59,6 +69,7 @@ The model is then fit with `stlmfit()`, assuming a sum-with-error covariance wit
 fit_obj <- stlmfit(formula = totalmoosena ~ 1, data = moose_df_high,
                    xcoordcol = "xcoords", ycoordcol = "ycoords",
                    tcol = "Surveyyear")
+
 pred_obj <- predict(object = fit_obj, wtscol = "yearind")
 ```
 
@@ -71,7 +82,7 @@ predvar <- pred_obj$predvar
 lb <- pred_obj$lb
 ub <- pred_obj$ub
 tab_stlmfit <- cbind(prediction, sqrt(predvar), lb, ub)
-kable(tab_stlmfit)
+kable(tab_stlmfit, digits = 0)
 ```
 
 We might also want to examine the spatial and temporal covariance parameters:
@@ -80,7 +91,7 @@ We might also want to examine the spatial and temporal covariance parameters:
 plot_sp(fit_obj$data$xcoords, fit_obj$data$ycoords,
         fit_obj$data$Surveyyear, fit_obj$data$totalmoosena)
 ## only plots sites with two connected points in the data set,
-## which isn't really the most useful
+## which isn't really the most useful...need to modify plot_t
 plot_t(fit_obj$data$xcoords, fit_obj$data$ycoords,
         fit_obj$data$Surveyyear, fit_obj$data$totalmoosena)
 ```
@@ -226,10 +237,14 @@ Fit model with `stlmfit()`:
 
 ```{r}
 library(tidyverse)
-moose_df_low <- read_csv(here("inst", "datasets/moose_low_2014_2018.csv"))
+# moose_df_low <- read_csv(here("inst", "datasets/moose_low_2014_2018.csv"))
+
+moose_df_low <- moose_14_18 %>%
+  dplyr::filter(newstrat == "LOW")
 
 moose_df_low <- moose_df_low %>%
-  mutate(yearind = if_else(Surveyyear == 2018, true = 1, false = 0))
+  mutate(yearind = if_else(Surveyyear == 2018 & samp_frame == 1,
+                           true = 1, false = 0))
 
 fit_obj_low <- stlmfit(formula = totalmoosena ~ 1, data = moose_df_low,
                    xcoordcol = "xcoords", ycoordcol = "ycoords",
@@ -248,17 +263,6 @@ fit_obj_low_2018 <- slmfit(formula = totalmoosena ~ 1,
                        xcoordcol = "xcoords", ycoordcol = "ycoords",
                        estmethod = "ML")
 pred_obj_low_2018 <- predict(fit_obj_low_2018)
-```
-
-```{r, echo = FALSE, eval = FALSE}
-moose_df_low_2018 <- moose_df_low %>% filter(Surveyyear == 2018)
-moose_df_low_before2018 <- moose_df_low %>% filter(Surveyyear < 2018)
-moose_df_low_before2018$totalmoosena <- NA
-
-fit_obj_fake_low <- stlmfit(formula = totalmoosena ~ 1,
-                        data = moose_df_low_fakemiss,
-                        xcoordcol = "xcoords", ycoordcol = "ycoords",
-                        tcol = "Surveyyear", wtscol = "yearind")
 ```
 
 <br>
@@ -289,21 +293,23 @@ Comments for this analysis are omitted.
 
 ```{r}
 library(tidyverse)
-moose_df <- read_csv(here("inst", "datasets/moose_04_06.csv"))
+# moose_df <- read_csv(here("inst", "datasets/moose_04_06.csv"))
 
-tm_obj <- sptotal::LLtoTM(mean(moose_df$centrlon),
-                          lat = moose_df$centrlat,
-                          lon = moose_df$centrlon)
-
-moose_df$xTM <- tm_obj$xy[ ,1]
-moose_df$yTM <- tm_obj$xy[ ,2]
-
+data(moose_04_12)
+moose_df <- moose_04_12 %>% filter(Surveyyear >= 2004 & Surveyyear <= 2006) %>%
+    mutate(newstrat = if_else(Surveyyear == 2006,
+                            true = stratfact, 
+                            false = NA_integer_)) %>%
+  group_by(ID) %>% fill(newstrat, .direction = "updown")
 
 moose_df <- moose_df %>%
-  mutate(yearind = if_else(Surveyyear == 2006, true = 1, false = 0))
+  mutate(yearind = if_else(Surveyyear == 2006 & samp_frame == 1, true = 1, false = 0))
 
-moose_04_06 <- stlmfit(formula = totalmoosena ~ 1, data = moose_df,
-                       xcoordcol = "xTM", ycoordcol = "yTM",
+
+moose_06_high <- moose_df %>% dplyr::filter(newstrat == "HIGH")
+
+moose_04_06 <- stlmfit(formula = totalmoosena ~ 1, data = moose_06_high %>% ungroup(),
+                       xcoordcol = "xcoords", ycoordcol = "ycoords",
                        tcol = "Surveyyear",
                        areacol = NULL)
 pred_04_06 <- predict(moose_04_06, wtscol = "yearind")
@@ -311,9 +317,12 @@ pred_04_06$totalpred ## pred
 sqrt(pred_04_06$predvar) ## se
 
 ## compare to sptotal
-moose_2006 <- moose_df %>% dplyr::filter(Surveyyear == 2006)
-moose_06 <- slmfit(formula = totalmoosena ~ 1, data = moose_2006,
-                       xcoordcol = "xTM", ycoordcol = "yTM",
+
+moose_2006_high <- moose_df %>% dplyr::filter(Surveyyear == 2006 &
+                                           samp_frame == 1) %>%
+  filter(newstrat == "HIGH")
+moose_06 <- slmfit(formula = totalmoosena ~ 1, data = moose_2006_high,
+                       xcoordcol = "xcoords", ycoordcol = "ycoords",
                        areacol = NULL)
 predict(moose_06)
 ```
