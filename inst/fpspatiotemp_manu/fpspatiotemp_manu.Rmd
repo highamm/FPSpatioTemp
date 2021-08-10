@@ -1,0 +1,283 @@
+---
+title: |
+  An Application of Spatiotemporal Modeling to Finite Population Abundance Prediction
+type: ARTICLE TEMPLATE
+author:
+  - name: A. N. Author
+    affil: a
+    email: latex.helpdesk@tandf.co.uk
+  - name: John Smith
+    affil: b
+    email: john.smith@uni-freiburg.de
+  - name: Dominik Leutnant
+    affil: c, \dagger, \ddagger
+    email: leutnant@fh-muenster.de
+affiliation:
+  - num: a
+    address: |
+      Taylor & Francis, 4 Park Square, Milton Park, Abingdon, UK
+  - num: b
+    address: |
+      Institut für Informatik, Albert-Ludwigs-Universität, Freiburg, Germany
+  - num: c
+    address: |
+      Muenster University of Applied Sciences - 
+      Institute for Infrastructure, Water, Resources, Environment,
+      Correnstr. 25, 48149 Münster, Germany
+bibliography: interactcadsample.bib
+appendix: appendix.tex
+abstract: |
+  This template is for authors who are preparing a manuscript for a Taylor & 
+  Francis journal using the \LaTeX\ document preparation system and the 
+  `interact} class file, which is available via selected journals' home 
+  pages on the Taylor & Francis website.
+keywords: |
+  Sections; lists; figures; tables; mathematics; fonts; references; appendices
+header-includes: |
+  \usepackage{hyperref}
+  \usepackage[utf8]{inputenc}
+  \def\tightlist{}
+output: rticles::tf_article
+---
+
+\section{Introduction}
+
+\subsection{Motivation}
+
+Moose surveys in Alaska and western Canada are often performed annually in many regions. The primary goal of these surveys is to predict moose abundance, the total number of moose, in the region. Because of time and money constraints, only some areas (sites) in the region of interest are selected to be in the survey. Biologists fly to these selected sites, count the number of moose, and can then use a spatial statistical model to find a prediction for the finite abundance for that year [@ver2008spatial]. 
+
+Though these surveys are annual, each survey is analysed completely independently of surveys from previous years (cite examples). For example, a model for the survey conducted in the year 2019 only uses counts on sites that were sampled in that year. However, using counts from previous years in a model that incorporates both spatial and temporal correlation (spatiotemporal) could result in a prediction that is more precise than predictions from a spatial model using only counts from the most recent survey year. 
+
+Though the framework of the motivation is given with an example on moose surveys, this type of analysis could be useful for many examples involving prediction in a finite region with sites that are surveyed regularly.
+
+\subsection{Background}
+
+Paragraph about background of spatiotemporal models
+
+Paragraph about background of finite populations
+
+Small paragraph combining and summarizing the previous two paragraphs
+
+Small paragraph that gives the outline for the rest of the paper
+
+\section{Methods}
+
+We now give details on the development of the predictor for abundance. We first detail the spatiotemporal model, and we then use the spatiotemporal model with a finite population correction factor to give a Best-Linear-Unbiased-Predictor (BLUP) and its variance for total abundance in a given year.
+
+\subsection{Spatiotemporal Model}
+
+Let $Y(\mathbf{s}_{i}, t_j)$, $i = 1, 2, \ldots, n_{sp}$ and $j = 1, 2, \ldots, n_{t}$ be a random variable, where the vector $\mathbf{s}_i$ contains the coordinates for the $i^{th}$ spatial site location and where $t_j$ is the $j^{th}$ time point. With each spatial location at each time point, the total number of data points (observed and unobserved) is $n_{sp} \cdot n_{t} \equiv N$. Then, a model for $\\mathbf{y}(\mathbf{s}_{i}, t_j)$, a vector of the $Y(\mathbf{s}_{i}, t_j)$ is
+
+\begin{equation}
+\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, t_j),
+\end{equation}
+\noindent
+where $\mathbf{X}$ is a design matrix for fixed effects and $\bm{\beta}$ is a parameter vector of fixed effects. The error $\bm{\epsilon}(\mathbf{s}_{i}, t_j)$ can be decomposed into spatial and temporal components, as in @dumelle2021linear. In particular, a sum-with-error linear mixed model for response vector $\mathbf{y}(\mathbf{s}_{i}, t_j)$ is
+
+\begin{equation} \label{equation:model}
+\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{sp} \bm{\delta} + \mathbf{Z}_{sp} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\nu}.
+\end{equation}
+
+$\mathbf{Z}_{sp}$ is an $N \times n_{sp}$ matrix where the values in a row corresponding to an observation in location $\mathbf{s}_{i}$ are a $1$ in the $i^{th}$ column and 0's in all other columns. Similarly, $\mathbf{Z}_t$ is an $N \times n_{t}$ matrix where the values in a row corresponding to an observation at time point $\mathbf{t}_j$ are a $1$ in the $j^{th}$ column and 0's in all other columns. We assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{eta}$, and $\bm{\nu}$ all are all mean $\mathbf{0}$ vectors of length $n_{sp}$, $n_{sp}$, $n_t$, $n_t$, and $N$, respectively, with the covariances
+\mbox{}
+\begin{align*}
+cov(\bm{\delta}) &= \sigma^2_{\delta} \mathbf{R}_{sp} \\
+cov(\bm{\gamma}) &= \sigma^2_{\gamma} \mathbf{I}_{sp} \\
+cov(\bm{\tau}) &= \sigma^2_{\tau} \mathbf{R}_t \\
+cov(\bm{\eta}) &= \sigma^2_{\eta} \mathbf{I}_t \\
+cov(\bm{\nu}) &= \sigma^2_{\nu} \mathbf{I}_N,
+\end{align*}
+\noindent
+where $\mathbf{R}_{sp}$ is a spatial correlation matrix and $\mathbf{R}_t$ is a temporal correlation matrix. $\sigma^2_{\delta}$ and $\sigma^2_{\gamma}$ are the spatial partial sill and spatial nugget, $\sigma^2_{\tau}$ and $\sigma^2_{\eta}$ are the temporal partial sill and temporal nugget, and $\sigma^2_{\nu}$ is spatiotemporal independent error variance parameter.
+
+If we assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, and $\bm{\nu}$ are mutually independent of each other, then 
+
+\begin{equation}
+var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{sp} \mathbf{R}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\gamma} \mathbf{Z}_{sp} \mathbf{I}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\nu} \mathbf{I}_N.
+\end{equation}
+
+One common form of $\mathbf{R}_{sp}$ is exponential. For observations at locations $i$ and $i'$ at $h_{ii'}$ distance apart, the $i^{th}$ row and $i'^{th}$ column of $\mathbf{R}_{sp}$ is
+\mbox{}
+\begin{equation}
+r_{sp, ii'} = \text{exp}(-h_{ii'} / \phi),
+\end{equation}
+\noindent
+where $\phi$ is the range parameter.
+
+One common form of $\mathbf{R}_t$ is also exponential, more commonly known in time series as AR(1). For observations at time points $j$ and $j'$ that are $m_{jj'}$ units apart, the $j^{th}$ row and $j'^{th}$ column of $\mathbf{R}_{t}$ is
+\mbox{}
+\begin{equation}
+r_{t, jj'} = \text{exp}(-m_{jj'} / \rho),
+\end{equation}
+\noindent
+where $\rho$ is the autocorrelation parameter.
+
+If we assume that $\mathbf{y}$ is multivariate normal with mean $\mathbf{X} \bm{\beta} \equiv \bm{\mu}$ and variance $\bm{\Sigma}$, then all parameters can be estimated with Maximum Likelihood or Restricted Maximum Likelihood.
+
+\subsection{Finite Population Kriging}
+
+The model in equation \ref{equation:model} is used for all $N$ observations at $n_{sp}$ sites and $n_t$ time points. But, we typically do not have the resources to sample every spatial site in every year. Additionally, for many wildlife management decisions, we are most interested in prediction of the abundance in the most current year of the survey. 
+
+Let the subscript $s$ denote observations that were sampled (both past and present), and let the subscript $u$ denote observations that were unsampled. Then, we can re-order the response vector so that
+\mbox{}
+\begin{equation}
+\mathbf{y} = [\mathbf{y}_u', \mathbf{y}_s']'.
+\end{equation}
+
+Let $\mathbf{\tilde{y}} = [\mathbf{\tilde{y}}_u', \mathbf{\tilde{y}}_s']'$ denote the fixed, realized values of the response variable for one data-generating process. Our primary goal is to use the model developed in the previous section to predict values for $\mathbf{\tilde{y}}_{u}$ from the observed data in $\mathbf{\tilde{y}}_{s}$. That is, we want to find optimal weights $\mathbf{a}'$ to apply to the sampled data $\mathbf{a}' \mathbf{\tilde{y}}_s$, such that $\mathbf{a}' \mathbf{y}_s$ is the Best Linear Unbiased Predictor (BLUP) for $\mathbf{b}_a' \mathbf{y}_a$. If we are interested in the total abundance across all years, then $\mathbf{b}_a$ is a column vector of 1's. so that we are adding up all values of the response for our predictor of total abundance. 
+
+Unbiasedness implies that $E(\mathbf{a'}\mathbf{y}_s) = E(\mathbf{b}_a'\mathbf{y}_a)$ for all $\bm{\beta}$. So, denoting $\mathbf{X}_s$ as the design matrix for sampled sites, $\mathbf{a'} \mathbf{X}_s \bm{\beta}$ = $\mathbf{b'} \mathbf{X} \bm{\beta}$ for every $\bm{\beta}$, implying that $\mathbf{a'} \mathbf{X}_s = \mathbf{b'}_a \mathbf{X}$.
+
+The kriging weights are then found by finding $\bm{\lambda}$ such that
+\mbox{]}
+\begin{equation}
+E\{(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\} - E\{(\bm{\lambda'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)(\bm{\lambda}'\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\}
+\end{equation}
+\noindent
+is greater than 0 for all $\mathbf{a'}$. The prediction equations are
+
+\begin{equation}
+\begin{pmatrix}
+\bm{\Sigma}_{s, s} & \mathbf{X}_s \\
+\mathbf{X}_s' & 0
+\end{pmatrix} 
+\begin{pmatrix}
+\bm{\lambda} \\
+m
+\end{pmatrix} = 
+\begin{pmatrix}
+\bm{\Sigma}_{s, s} & \bm{\Sigma}_{s, u} \\
+\mathbf{X}_{s}' & \mathbf{X}_{u}'
+\end{pmatrix} 
+\begin{pmatrix}
+\mathbf{b}_{s} \\
+\mathbf{b}_{u}
+\end{pmatrix},
+\end{equation}
+\noindent
+where again the subscripts $s$ and $u$ denote sampled and unsampled observations. For example, letting $n$ denote the number of sampled observations, $\bm{\Sigma}_{s, s}$ denotes the $n \times n$ submatrix of $\bm{\Sigma}$ corresponding only to rows and columns of sampled observations and $\bm{\Sigma}_{u, s}$ denotes the $(N - n) \times n$ submatrix of $\bm{\Sigma}$ corresponding to rows of observations that were not sampled and columns of observations that were sampled. Then, $\bm{\lambda}$ is an $n \times 1$ vector. 
+
+Then, we can solve for the prediction weights as
+\mbox{}
+\begin{equation}
+\bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, s}\bm{\Sigma}_{s, s}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, s} \bm{\Sigma}_{s, s}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1} + \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{s, s}^{-1}.
+\end{equation}
+
+Our prediction for the total abundance across all years of the survey is then
+\mbox{}
+\begin{equation}
+\bm{\lambda}_s' \mathbf{\tilde{y}}_s,
+\end{equation}
+\noindent
+with a prediction variance of 
+\mbox{}
+\begin{equation}
+E((\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b}_a'\mathbf{y}_a)) = \\
+\bm{\lambda}_s'\bm{\Sigma}_{s, s}\bm{\lambda}_s - 2 \mathbf{b}_a' \bm{\Sigma}_{a ,s} \bm{\lambda}_s + \mathbf{b}_a' \bm{\Sigma}\mathbf{b}_a.
+\end{equation}
+
+
+
+<!-- which is equivalent to  -->
+
+<!-- $$ -->
+<!-- \mathbf{b}_{s}'\mathbf{\tilde{y}}_{s} + \mathbf{b}_{u}' \mathbf{\hat{y}}_{u}, -->
+<!-- $$ -->
+<!-- where $\mathbf{\hat{y}}_{u} = \bm{\Sigma}_{u, s} \Sigma_{s, s}^{-1} (\mathbf{\tilde{y}}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_u$ with $\bm{\hat{\mu}}_s = \mathbf{X}_s \bm{\hat{\beta}}_{GLS}, \bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}_{GLS}$. $\bm{\hat{\beta}}_{GLS}$ is the generalized least squares estimator $(\mathbf{X}_s' \bm{\Sigma}_{s, s}^{-1} \mathbf{X}_s)^{-1} \mathbf{X}_s' \bm{\Sigma}_{s, s}^{-1} \mathbf{y}_s$. -->
+
+
+
+<!-- site-by-site predictions for the unsampled sites in both the past and the present come from the usual block kriging formulae: -->
+
+<!-- \begin{equation} -->
+<!-- \mathbf{\hat{y}}_{u} = \bm{\Sigma}_{u, s} \bm{\Sigma}_{s, s}^{-1}(\mathbf{y}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_{u}, -->
+<!-- \end{equation} -->
+
+However, we often are not interested in predicting total abundance across multiple years and instead would want a prediction of the total abundance in the most recent year of the survey. Therefore, for this goal, $\mathbf{b}_a$ should not be a vector of 1's and should instead take a value of 1 if the observation is in the current year of the survey and a 0 if the observation is not in the current year of the survey:
+\mbox{}
+\begin{equation}
+\mathbf{b}_a = [\mathbf{b}_{up}', \mathbf{b}_{uc}', \mathbf{b}_{sp}', , \mathbf{b}_{sc}']' = [\mathbf{0}', \mathbf{1}', \mathbf{0}', \mathbf{1}']',
+\end{equation}
+\noindent
+where the subscripts $up$, $uc$, $sp$, and $sc$ denote unsampled sites in past years, unsampled sites in current years, sampled sites in past years, and sampled sites in current years, respectively.
+
+$\bm{\lambda}_s$ can then be rewritten as
+\mbox{}
+\begin{equation}
+\bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{uc}' (\bm{\Sigma}_{uc, s}\bm{\Sigma}_{s, s}^{-1}) - \mathbf{b}'_{uc}(\bm{\Sigma}_{uc, s} \bm{\Sigma}_{s, s}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1} + \mathbf{b}_{uc}' \mathbf{X}_{uc}'(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{s, s}^{-1}.
+\end{equation}
+
+The prediction variance can then be rewritten as
+\mbox{}
+\begin{equation}
+\bm{\lambda}_s'\bm{\Sigma}_{s, s}\bm{\lambda}_s - 2 \mathbf{b}_{c}' \bm{\Sigma}_{c, s} \bm{\lambda}_s + \mathbf{b}_{c}' \bm{\Sigma_{c, c}} \mathbf{b}_{c},
+\end{equation}
+\noindent
+where $c$ denotes observations in the current year.
+
+\section{Application}
+
+see moose_example_2014_2018.Rmd
+
+\section{Simulation}
+
+see simulations/simulation_script.R
+
+\section{Discussion}
+
+## Tables
+
+The `interact` class file will deal with positioning your tables in the same way as standard \LaTeX. It should not normally be necessary to use the optional `[htb]` location specifiers of the `table` environment in your manuscript; you may, however, find the `[p]` placement option or the `endfloat` package useful if a journal insists on the need to separate tables from the text.
+
+The `tabular` environment can be used as shown to create tables with single horizontal rules at the head, foot and elsewhere as appropriate. The captions appear above the tables in the \textsf{Interact} style, therefore the `\tbl` command should be used before the body of the table. For example, Table~\ref{sample-table} is produced using the following commands:
+\begin{table}
+\tbl{Example of a table showing that its caption is as wide as
+ the table itself and justified.}
+{\begin{tabular}{lcccccc} \toprule
+ & \multicolumn{2}{l}{Type} \\ \cmidrule{2-7}
+ Class & One & Two & Three & Four & Five & Six \\ \midrule
+ Alpha\textsuperscript{a} & A1 & A2 & A3 & A4 & A5 & A6 \\
+ Beta & B2 & B2 & B3 & B4 & B5 & B6 \\
+ Gamma & C2 & C2 & C3 & C4 & C5 & C6 \\ \bottomrule
+\end{tabular}}
+\tabnote{\textsuperscript{a}This footnote shows how to include
+ footnotes to a table if required.}
+\label{sample-table}
+\end{table}
+```
+\begin{table}
+\tbl{Example of a table showing that its caption is as wide as
+ the table itself and justified.}
+{\begin{tabular}{lcccccc} \toprule
+ & \multicolumn{2}{l}{Type} \\ \cmidrule{2-7}
+ Class & One & Two & Three & Four & Five & Six \\ \midrule
+ Alpha\textsuperscript{a} & A1 & A2 & A3 & A4 & A5 & A6 \\
+ Beta & B2 & B2 & B3 & B4 & B5 & B6 \\
+ Gamma & C2 & C2 & C3 & C4 & C5 & C6 \\ \bottomrule
+\end{tabular}}
+\tabnote{\textsuperscript{a}This footnote shows how to include
+ footnotes to a table if required.}
+\label{sample-table}
+\end{table}
+```
+
+To ensure that tables are correctly numbered automatically, the `\label` command should be included just before `\end{table}`.
+
+The `\toprule`, `\midrule`, `\bottomrule` and `\cmidrule` commands are those used by `booktabs.sty`, which is called by the `interact` class file and included in the \textsf{Interact} \LaTeX\ bundle for convenience. Tables produced using the standard commands of the `tabular` environment are also compatible with the `interact` class file.
+
+
+
+
+
+## The list of references
+
+References should be listed at the end of the main text in alphabetical order by authors' surnames, then chronologically (earliest first). If references have the same author(s), editor(s), etc., arrange by year of publication, with undated works at the end.
+A single-author entry precedes a multi-author entry that begins with the same name.
+If the reference list contains two or more items by the same author(s) in the same year, add a, b, etc. and list them alphabetically by title.
+Successive entries by two or more authors when only the first author is the same are alphabetized by co-authors' surnames.
+If a reference has more than ten named authors, list only the first seven, followed by 'et al.'.
+If a reference has no author or editor, order by title; if a date of publication is impossible to find, use `n.d.' in its place.
+
+The following list shows some sample references prepared in the Taylor & Francis Chicago author-date style.
+
+[@Ade09; @Alb05]
