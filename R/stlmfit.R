@@ -185,7 +185,7 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   
  
   
-  varstart <- log(var(density, na.rm = TRUE) / 20)
+  varstart <- log(var(density, na.rm = TRUE) / 10)
   rangestart <- median(Dismat) / 2
   rhostart <- 0
   

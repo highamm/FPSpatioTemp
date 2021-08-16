@@ -42,32 +42,28 @@
 Abundance Prediction}
 
 
-\author{\name{A. N. Author$^{a}$, John Smith$^{b}$, Dominik
-Leutnant$^{c, \dagger, \ddagger}$}
-\affil{$^{a}$Taylor \& Francis, 4 Park Square, Milton Park, Abingdon,
-UK; $^{b}$Institut für Informatik, Albert-Ludwigs-Universität, Freiburg,
+\author{\name{Matt Higham$^{a}$, John Smith$^{b}$, Dominik Leutnant$^{c,
+\dagger, \ddagger}$}
+\affil{$^{a}$St.~Lawrence University Canton, NY 13617; $^{b}$Institut
+für Informatik, Albert-Ludwigs-Universität, Freiburg,
 Germany; $^{c}$Muenster University of Applied Sciences - Institute for
 Infrastructure, Water, Resources, Environment, Correnstr. 25, 48149
 Münster, Germany}
 }
 
-\thanks{CONTACT A. N.
-Author. Email: \href{mailto:latex.helpdesk@tandf.co.uk}{\nolinkurl{latex.helpdesk@tandf.co.uk}}, John
+\thanks{CONTACT Matt
+Higham. Email: \href{mailto:mhigham@stlawu.edu}{\nolinkurl{mhigham@stlawu.edu}}, John
 Smith. Email: \href{mailto:john.smith@uni-freiburg.de}{\nolinkurl{john.smith@uni-freiburg.de}}, Dominik
 Leutnant. Email: \href{mailto:leutnant@fh-muenster.de}{\nolinkurl{leutnant@fh-muenster.de}}}
 
 \maketitle
 
 \begin{abstract}
-This template is for authors who are preparing a manuscript for a Taylor
-\& Francis journal using the \LaTeX~document preparation system and the
-`interact\} class file, which is available via selected journals' home
-pages on the Taylor \& Francis website.
+Insert abstract here.
 \end{abstract}
 
 \begin{keywords}
-Sections; lists; figures; tables; mathematics; fonts; references;
-appendices
+spatial; temporal; kriging;
 \end{keywords}
 
 \section{Introduction}
@@ -84,8 +80,9 @@ to find a prediction for the finite abundance for that year
 \citep{ver2008spatial}.
 
 Though these surveys are annual, each survey is analysed completely
-independently of surveys from previous years (cite examples). For
-example, a model for the survey conducted in the year 2019 only uses
+independently of surveys from previous years
+\citep[e.g.][]{gasaway1986estimating, kellie_geospatial_2006, boertje2009managing, peters2014contrasting}.
+For example, a model for a survey conducted in the year 2019 only uses
 counts on sites that were sampled in that year. However, using counts
 from previous years in a model that incorporates both spatial and
 temporal correlation (spatiotemporal) could result in a prediction that
@@ -94,20 +91,40 @@ from the most recent survey year.
 
 Though the framework of the motivation is given with an example on moose
 surveys, this type of analysis could be useful for many examples
-involving prediction in a finite region with sites that are surveyed
-regularly.
+involving prediction in a finite region with spatial sites that are
+surveyed regularly.
 
 \subsection{Background}
 
-Paragraph about background of spatiotemporal models
+\begin{itemize}
+\tightlist
+\item
+  Paragraph about background of spatiotemporal models
+\end{itemize}
 
-Paragraph about background of finite populations
+Prediction for a total, a subset of the total, or a mean in a finite
+number of spatial locations should incorporate a finite population
+correction to the variance of the predictor
+\citep{ver2008spatial, higham2021adjusting}. In the context of
+ecological monitoring in spatiotemporal prediction, we are often most
+interested in predicting the total abundance for the most recent year of
+the survey. In this case, the finite population correction should adjust
+based on the number of sites surveyed in the current year of the survey,
+so that, for example, the prediction variance is zero if all sites in
+the current year are sampled.
 
-Small paragraph combining and summarizing the previous two paragraphs
+The rest of this paper is organized as follows. In Section
+\ref{section:Methods}, we couple spatiotemporal modeling with finite
+population prediction to develop the Best-Linear-Unbiased-Predictor for
+any linear function of site abundance, including the total abundance
+across all sites. In Section \ref{section:Application}, we apply the
+predictor to a moose data set in the TOC region of Alaska. In Section
+\ref{section:Simulation}, we conduct a brief simulation study to examine
+the properties of the predictor. Finally, in Section
+\ref{section:Discussion}, we conclude and give directions for future
+research.
 
-Small paragraph that gives the outline for the rest of the paper
-
-\section{Methods}
+\section{Methods} \label{section:Methods}
 
 We now give details on the development of the predictor for abundance.
 We first detail the spatiotemporal model, and we then use the
@@ -123,7 +140,7 @@ Let \(Y(\mathbf{s}_{i}, t_j)\), \(i = 1, 2, \ldots, n_{sp}\) and
 site location and where \(t_j\) is the \(j^{th}\) time point. With each
 spatial location at each time point, the total number of data points
 (observed and unobserved) is \(n_{sp} \cdot n_{t} \equiv N\). Then, a
-model for \(\\mathbf{y}(\mathbf{s}_{i}, t_j)\), a vector of the
+model for \(\mathbf{y}(\mathbf{s}_{i}, t_j)\), a vector of the
 \(Y(\mathbf{s}_{i}, t_j)\) is
 
 \begin{equation}
@@ -171,18 +188,19 @@ then
 var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{sp} \mathbf{R}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\gamma} \mathbf{Z}_{sp} \mathbf{I}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\nu} \mathbf{I}_N.
 \end{equation}
 
-One common form of \(\mathbf{R}_{sp}\) is exponential. For observations
-at locations \(i\) and \(i'\) at \(h_{ii'}\) distance apart, the
-\(i^{th}\) row and \(i'^{th}\) column of \(\mathbf{R}_{sp}\) is \mbox{}
-\begin{equation}
-r_{sp, ii'} = \text{exp}(-h_{ii'} / \phi),
+There are many common parameterizations of \(\mathbf{R}_{sp}\), but one
+form is the exponential. For observations at locations \(i\) and \(i'\)
+at \(h_{ii'}\) distance apart, row \(i\) and column \(i'\) of
+\(\mathbf{R}_{sp}\) is equal to \mbox{} \begin{equation}
+\text{exp}(-h_{ii'} / \phi),
 \end{equation} \noindent where \(\phi\) is the range parameter.
 
-One common form of \(\mathbf{R}_t\) is also exponential, more commonly
-known in time series as AR(1). For observations at time points \(j\) and
-\(j'\) that are \(m_{jj'}\) units apart, the \(j^{th}\) row and
-\(j'^{th}\) column of \(\mathbf{R}_{t}\) is \mbox{} \begin{equation}
-r_{t, jj'} = \text{exp}(-m_{jj'} / \rho),
+There are also many common parameterizations of \(\mathbf{R}_t\), but
+one form is the exponential, more commonly known in time series as
+AR(1). For observations at time points \(j\) and \(j'\) that are
+\(m_{jj'}\) units apart, row \(j\) and column \(j'\) of
+\(\mathbf{R}_{t}\) is equal to \mbox{} \begin{equation}
+\text{exp}(-m_{jj'} / \rho),
 \end{equation} \noindent where \(\rho\) is the autocorrelation
 parameter.
 
@@ -196,9 +214,7 @@ Restricted Maximum Likelihood.
 The model in equation \ref{equation:model} is used for all \(N\)
 observations at \(n_{sp}\) sites and \(n_t\) time points. But, we
 typically do not have the resources to sample every spatial site in
-every year. Additionally, for many wildlife management decisions, we are
-most interested in prediction of the abundance in the most current year
-of the survey.
+every year.
 
 Let the subscript \(s\) denote observations that were sampled (both past
 and present), and let the subscript \(u\) denote observations that were
@@ -264,10 +280,8 @@ sampled and columns of observations that were sampled. Then,
 Then, we can solve for the prediction weights as \mbox{}
 \begin{equation}
 \bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, s}\bm{\Sigma}_{s, s}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, s} \bm{\Sigma}_{s, s}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1} + \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{s, s}^{-1}.
-\end{equation}
-
-Our prediction for the total abundance across all years of the survey is
-then \mbox{} \begin{equation}
+\end{equation} \noindent Our prediction for the total abundance across
+all years of the survey is then \mbox{} \begin{equation}
 \bm{\lambda}_s' \mathbf{\tilde{y}}_s,
 \end{equation} \noindent with a prediction variance of \mbox{}
 \begin{equation}
@@ -282,7 +296,7 @@ goal, \(\mathbf{b}_a\) should not be a vector of 1's and should instead
 take a value of 1 if the observation is in the current year of the
 survey and a 0 if the observation is not in the current year of the
 survey: \mbox{} \begin{equation}
-\mathbf{b}_a = [\mathbf{b}_{up}', \mathbf{b}_{uc}', \mathbf{b}_{sp}', , \mathbf{b}_{sc}']' = [\mathbf{0}', \mathbf{1}', \mathbf{0}', \mathbf{1}']',
+\mathbf{b}_a = [\mathbf{b}_{up}^\prime, \mathbf{b}_{uc}', \mathbf{b}_{sp}', , \mathbf{b}_{sc}']' = [\mathbf{0}', \mathbf{1}', \mathbf{0}', \mathbf{1}']',
 \end{equation} \noindent where the subscripts \(up\), \(uc\), \(sp\),
 and \(sc\) denote unsampled sites in past years, unsampled sites in
 current years, sampled sites in past years, and sampled sites in current
@@ -298,102 +312,130 @@ The prediction variance can then be rewritten as \mbox{}
 \end{equation} \noindent where \(c\) denotes observations in the current
 year.
 
-\section{Application}
+\section{Application} \label{section:Application}
 
-\section{Simulation}
+Abundance surveys are performed in the TOK region of Alaska annually. In
+particular, surveys were conducted every year from 2014 through 2020,
+except for the year 2016, during which there was not sufficient snow
+cover to perform a survey. Before each survey, the sites are stratified
+into a High stratum and a Low stratum. In the high stratum, there are
+230 unique spatial locations in the sampling frame of each year while in
+the low stratum, there are 151 unique spatial locations. For both
+strata, there are 7 unique time points, including the year 2016.
 
-\section{Discussion}
+The strata are fit separately with a sum-with-error covariance, an
+exponential spatial correlation structure, and an AR(1) temporal
+correlation structure outlined in \ref{section:Methods}. The predicted
+total abundance is 2811 moose with a 95\% prediction interval of (2683,
+2940) moose.
 
-\hypertarget{tables}{%
-\subsection{Tables}\label{tables}}
+Moose surveys in the TOC region were historically analyzed without
+explicitly using any data from surveys in past years. Therefore, we
+compare the spatiotemporal prediction and prediction interval with a
+spatial model fit with the \(\texttt{sptotal}\) package using only the
+data from the year 2020. The prediction total abundance is 2888 moose
+with a 95\% prediction interval of (2306, 3469) moose. We see that the
+predictions are somewhat similar, but that, because the strictly spatial
+analysis ignores information from past years, the prediction interval
+for the spatiotemporal analysis is more narrow.
 
-The \texttt{interact} class file will deal with positioning your tables
-in the same way as standard \LaTeX. It should not normally be necessary
-to use the optional \texttt{{[}htb{]}} location specifiers of the
-\texttt{table} environment in your manuscript; you may, however, find
-the \texttt{{[}p{]}} placement option or the \texttt{endfloat} package
-useful if a journal insists on the need to separate tables from the
-text.
+\section{Simulation} \label{section:Simulation}
 
-The \texttt{tabular} environment can be used as shown to create tables
-with single horizontal rules at the head, foot and elsewhere as
-appropriate. The captions appear above the tables in the
-\textsf{Interact} style, therefore the \texttt{\textbackslash{}tbl}
-command should be used before the body of the table. For example,
-Table\textasciitilde{}\ref{sample-table} is produced using the following
-commands:
+\begin{itemize}
+\tightlist
+\item
+  possibly include \texttt{sptotal} (on current year only) and SRS (on
+  current year only) as reference comparisons.
+\end{itemize}
 
-\begin{table}
-\tbl{Example of a table showing that its caption is as wide as
- the table itself and justified.}
-{\begin{tabular}{lcccccc} \toprule
- & \multicolumn{2}{l}{Type} \\ \cmidrule{2-7}
- Class & One & Two & Three & Four & Five & Six \\ \midrule
- Alpha\textsuperscript{a} & A1 & A2 & A3 & A4 & A5 & A6 \\
- Beta & B2 & B2 & B3 & B4 & B5 & B6 \\
- Gamma & C2 & C2 & C3 & C4 & C5 & C6 \\ \bottomrule
-\end{tabular}}
-\tabnote{\textsuperscript{a}This footnote shows how to include
- footnotes to a table if required.}
-\label{sample-table}
-\end{table}
+For a preliminary simulation, we use a grid of 100 spatial sites and 5
+time points. The spatiotemporal process is simulated as a sum-with-error
+model with an exponential spatial correlation structure and an
+exponential temporal correlation structure with the following parameters
 
-\begin{verbatim}
-\begin{table}
-\tbl{Example of a table showing that its caption is as wide as
- the table itself and justified.}
-{\begin{tabular}{lcccccc} \toprule
- & \multicolumn{2}{l}{Type} \\ \cmidrule{2-7}
- Class & One & Two & Three & Four & Five & Six \\ \midrule
- Alpha\textsuperscript{a} & A1 & A2 & A3 & A4 & A5 & A6 \\
- Beta & B2 & B2 & B3 & B4 & B5 & B6 \\
- Gamma & C2 & C2 & C3 & C4 & C5 & C6 \\ \bottomrule
-\end{tabular}}
-\tabnote{\textsuperscript{a}This footnote shows how to include
- footnotes to a table if required.}
-\label{sample-table}
-\end{table}
-\end{verbatim}
+The mean is
 
-To ensure that tables are correctly numbered automatically, the
-\texttt{\textbackslash{}label} command should be included just before
-\texttt{\textbackslash{}end\{table\}}.
+\begin{itemize}
+\tightlist
+\item
+  \(\beta\) = 10.
+\end{itemize}
 
-The \texttt{\textbackslash{}toprule}, \texttt{\textbackslash{}midrule},
-\texttt{\textbackslash{}bottomrule} and
-\texttt{\textbackslash{}cmidrule} commands are those used by
-\texttt{booktabs.sty}, which is called by the \texttt{interact} class
-file and included in the \textsf{Interact} \LaTeX~bundle for
-convenience. Tables produced using the standard commands of the
-\texttt{tabular} environment are also compatible with the
-\texttt{interact} class file.
+The spatial parameters are
 
-\hypertarget{the-list-of-references}{%
-\subsection{The list of references}\label{the-list-of-references}}
+\begin{itemize}
+\tightlist
+\item
+  \(\sigma^2_{\delta}\) = 0.9,
+\item
+  \(\sigma^2_{\gamma}\) = 0.1,
+\item
+  \(\phi\) = 5.
+\end{itemize}
 
-References should be listed at the end of the main text in alphabetical
-order by authors' surnames, then chronologically (earliest first). If
-references have the same author(s), editor(s), etc., arrange by year of
-publication, with undated works at the end. A single-author entry
-precedes a multi-author entry that begins with the same name. If the
-reference list contains two or more items by the same author(s) in the
-same year, add a, b, etc. and list them alphabetically by title.
-Successive entries by two or more authors when only the first author is
-the same are alphabetized by co-authors' surnames. If a reference has
-more than ten named authors, list only the first seven, followed by `et
-al.'. If a reference has no author or editor, order by title; if a date
-of publication is impossible to find, use `n.d.' in its place.
+The temporal parameters are
 
-The following list shows some sample references prepared in the Taylor
-\& Francis Chicago author-date style.
+\begin{itemize}
+\tightlist
+\item
+  \(\sigma^2_{\tau}\) = 0.7,
+\item
+  \(\sigma^2_{\eta}\) = 0.3,
+\item
+  \(\rho\) = 0.8.
+\end{itemize}
 
-\citep{Ade09, Alb05}
+And, the spatiotemporal nugget is
+
+\begin{itemize}
+\tightlist
+\item
+  \(\sigma^2_{\nu}\) = 0.4.
+\end{itemize}
+
+The sample size \(n\) is 100 (of the 500 total data points). For 100
+iterations, the percentage of 90\% prediction intervals that covered the
+true total was 81\%.
+
+There are a few plausible reasons for this low coverage:
+
+\begin{itemize}
+\tightlist
+\item
+  there is something incorrect about the method or code used.
+\item
+  the sample size is only 100 sites, meaning that, on average, only 20
+  sites get selected per year. This small sample size may mean that the
+  8 parameters cannot be estimated accurately.
+\item
+  only 100 simulations were done.
+\end{itemize}
+
+Hampering investigation of this is the fact that the simulations take a
+long time to run. The \texttt{stmodel} package will be very helpful for
+this, as we can replace the slow code for fitting the spatiotemporal
+model with faster code from the package.
+
+\section{Discussion} \label{section:Discussion}
+
+\begin{itemize}
+\item
+  mention substantial reduction of se in the application (and,
+  presumably, the simulations).
+\item
+  mention normal-based-related limitations
+\item
+  mention Bayesian approach, and its potential flaws
+\item
+  mention possible extension to imperfect detection
+\item
+  mention forecasting potential
+\end{itemize}
 
 \bibliographystyle{tfcad}
 \bibliography{interactcadsample.bib}
 
 
-\input{"appendix.tex"}
 
 
 \end{document}

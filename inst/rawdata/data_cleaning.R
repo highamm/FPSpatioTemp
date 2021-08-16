@@ -19,7 +19,8 @@ raw_moose <- all_moose %>% select(-c(YBULL_SF, YBULL_GTSF, BULL_30_40,
 ##save(raw_moose, file = "data/raw_moose.rda")
 
 load(file = "data/raw_moose.rda")
-all_moose <- raw_moose
+all_moose <- raw_moose %>%
+  mutate(stratfact = factor(str_to_upper(Stratname)))
 
 ## change some 0's that should be NA to NA and vice versa
 all_moose <- all_moose %>%
@@ -29,9 +30,9 @@ all_moose <- all_moose %>%
            if_else(is.na(prop.cov.1), true = 0, false = prop.cov.1)) %>%
   mutate(prop.cov.6_7 =
            if_else(is.na(prop.cov.6_7), true = 0, false = prop.cov.6_7)) %>%
-  mutate(stratfact = factor(Stratname)) %>%
   dplyr::select(totalmoosena, everything())
 
+all_moose %>% filter(Surveyyear == 2020) %>% select(stratfact)
 
 ## change lat/lon to TM
 library(sptotal)
@@ -55,9 +56,9 @@ moose_small <- moose_tm %>%
          Stratname, Counted, AreaMi, ELEV_MEAN, stratfact,
          xcoords, ycoords, samp_frame)
 moose_full <- moose_small %>% complete(Surveyyear, nesting(ID),
-                                       fill = list(samp_frame = 0)) %>%
-  mutate() 
+                                       fill = list(samp_frame = 0))
 
+moose_full %>% filter(Surveyyear == 2014, Stratname == "HIGH") %>% View()
 ## add coordinates
 moose_full <- moose_full %>% group_by(ID) %>% 
   fill(xcoords, .direction = "downup") %>%
@@ -86,7 +87,7 @@ moose_complete <- bind_rows(moose_full, moose_2016)
 
 ## output the full data set
 
-## save(file = "moose_complete.rda", moose_complete)
+## save(file = "data/moose_complete.rda", moose_complete)
 
 
 load(file = "data/moose_complete.rda")
@@ -115,7 +116,7 @@ moose_14_18 <- moose_14_18 %>% group_by(ID) %>%
 load(file = "data/moose_14_18.rda")
 moose_14_18
 ## 2014 - 2020
-data(moose_14_18)
+
 moose_14_18 <- moose_14_18 %>% ungroup()
 ## save(moose_14_18, file = "data/moose_14_18.rda")
 
@@ -124,7 +125,7 @@ moose_14_20 <- moose_complete %>%
   filter(Surveyyear >= 2014 & Surveyyear <= 2020)
 moose_14_20 <- moose_14_20 %>% group_by(ID) %>%
   filter((sum(samp_frame) != 0))
-data(moose_14_20)
+
 moose_14_20 <- moose_14_20 %>% ungroup()
 ## save(moose_14_20, file = "data/moose_14_20.rda")
 
@@ -134,6 +135,6 @@ moose_04_12 <- moose_complete %>%
   filter(Surveyyear >= 2004 & Surveyyear <= 2012)
 moose_04_12 <- moose_04_12 %>% group_by(ID) %>%
   filter((sum(samp_frame) != 0))
-data(moose_04_12)
+
 moose_04_12 <- moose_04_12 %>% ungroup()
 ## save(moose_04_12, file = "data/moose_04_12.rda")
