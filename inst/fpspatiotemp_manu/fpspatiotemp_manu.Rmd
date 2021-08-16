@@ -105,7 +105,7 @@ There are many common parameterizations of $\mathbf{R}_{sp}$, but one form is th
 \noindent
 where $\phi$ is the range parameter. 
 
-There are also many common parameterizations of $\mathbf{R}_t$, but one form is the exponential, more commonly known in time series as AR(1). For observations at time points $j$ and $j'$ that are $m_{jj'}$ units apart, row $j$ and column $j'$ of $\mathbf{R}_{t}$ is equal to
+There are also many common parameterizations of $\mathbf{R}_t$, but one form is the exponential, which is equivalent to an AR(1) process in time series if the time points are equally spaced and the correlation parameter is greater than zero. For observations at time points $j$ and $j'$ that are $m_{jj'}$ units apart, row $j$ and column $j'$ of $\mathbf{R}_{t}$ is equal to
 \mbox{}
 \begin{equation}
 \text{exp}(-m_{jj'} / \rho),
@@ -114,6 +114,8 @@ There are also many common parameterizations of $\mathbf{R}_t$, but one form is 
 where $\rho$ is the autocorrelation parameter.
 
 If we assume that $\mathbf{y}$ is multivariate normal with mean $\mathbf{X} \bm{\beta} \equiv \bm{\mu}$ and variance $\bm{\Sigma}$, then all parameters can be estimated with Maximum Likelihood or Restricted Maximum Likelihood.
+
+Note that we will explore other covariance structures, including an extension of the sum-with-error model and different spatial and temporal correlation structures.
 
 \subsection{Finite Population Kriging}
 
