@@ -6,10 +6,10 @@ author:
   - name: Matt Higham
     affil: a
     email: mhigham@stlawu.edu
-  - name: John Smith
+  - name: Carly Hammond, John Merickel, Jeff Wells
     affil: b
-    email: john.smith@uni-freiburg.de
-  - name: Dominik Leutnant
+    email: fill these in later
+  - name: add more
     affil: c, \dagger, \ddagger
     email: leutnant@fh-muenster.de
 affiliation:
@@ -19,12 +19,10 @@ affiliation:
       Canton, NY 13617
   - num: b
     address: |
-      Institut für Informatik, Albert-Ludwigs-Universität, Freiburg, Germany
+      fill in later
   - num: c
     address: |
-      Muenster University of Applied Sciences - 
-      Institute for Infrastructure, Water, Resources, Environment,
-      Correnstr. 25, 48149 Münster, Germany
+      fill in later
 bibliography: interactcadsample.bib
 # appendix: appendix.tex
 abstract: |
