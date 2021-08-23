@@ -460,4 +460,6 @@ sim_res %>% summarise(coverage = mean(conf_ind),
 
 * mention forecasting potential
 
+* take-home message: monitoring programs that use regularly surveys might consider incorporating time into their analysis to improve precision of predictors (e.g. NARS for lake assessments).
+
 
