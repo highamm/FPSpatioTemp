@@ -54,7 +54,7 @@ Though the framework of the motivation is given with an example on moose surveys
 
 \subsection{Background}
 
-* Paragraph about background of spatiotemporal models
+* Add paragraph about background of spatiotemporal models
 
 Prediction for a total, a subset of the total, or a mean in a finite number of spatial locations should incorporate a finite population correction to the variance of the predictor [@ver2008spatial; @higham2021adjusting]. In the context of ecological monitoring in spatiotemporal prediction, we are often most interested in predicting the total abundance for the most recent year of the survey. In this case, the finite population correction should adjust based on the number of sites surveyed in the current year of the survey, so that, for example, the prediction variance is zero if all sites in the current year are sampled.
 
@@ -433,7 +433,7 @@ The sample size $n$ is 100 (of the 500 total data points). For 100 iterations, t
 There are a few plausible reasons for this low coverage:
 
 * there is something incorrect about the method or code used.
-* the sample size is only 100 sites, meaning that, on average, only 20 sites get selected per year. This small sample size may mean that the 8 parameters cannot be estimated accurately.
+* the sample size is only 100 sites, meaning that, on average, only 20 sites get selected per year. This small sample size may mean that the 8 parameters cannot be estimated accurately. I believe that this is the actual cause of the lower than nominal coverage and hope to do a larger simulation study next.
 * only 100 simulations were done.
 
 Hampering investigation of this is the fact that the simulations take a long time to run. The `stmodel` package will be very helpful for this, as we can replace the slow code for fitting the spatiotemporal model with faster code from the package.
