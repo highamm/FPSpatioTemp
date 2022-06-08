@@ -52,16 +52,19 @@
 #' ycoordcol = "ycoords", tcol = "times") 
 #' @import stats
 #' @export stlmfit
-                                               
+             
+
+                                  
 stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
                     areacol = NULL,
-                    CorModel = "Exponential") {
+                    CorModel = "exponential") {
   
   ## order the data so that sites are in the same order within each time
   
   data <- data %>% dplyr::ungroup() %>%
     dplyr::arrange_(tcol, xcoordcol, ycoordcol) 
   ## data %>% arrange(!! rlang::sym(c("tcol")))
+
   
   ## make data frame of only predictors
   datapredsonly <- data.frame(data[ ,all.vars(formula)[-1]])
@@ -90,61 +93,15 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
                                  stats::na.pass, data = datanomiss)
   
   yvar <- stats::model.response(fullmf, "numeric")
-  density <- yvar / areavar
+  zdensity <- yvar / areavar
   
-  ## remove any rows with missing values in any of the predictors
-  formula.onlypreds <- formula[-2]
+  ind_sa <- !is.na(yvar)
+  data$ind_sa <- ind_sa
+  ind_un <- is.na(yvar)
+  data$ind_un <- ind_un
   
-  X <- model.matrix(formula.onlypreds,
-                    model.frame(formula.onlypreds, datanomiss,
-                                na.action = stats::na.omit))
+  zdensity_samp <- zdensity[ind_sa]
   
-  ## divide data set into sampled sites and unsampled sites based
-  ## on whether the response variable has a number (for sampled sites)
-  ## or NA (for unsampled sites)
-  
-  ind.sa <- !is.na(yvar)
-  data$ind.sa <- ind.sa
-  ind.un <- is.na(yvar)
-  data$ind.un <- ind.un
-  
-  data.sa <- datanomiss[ind.sa, ]
-  data.un <- datanomiss[ind.un, ]
-  
-  m.un <- stats::model.frame(formula, data.un, na.action =
-                               stats::na.pass)
-  
-  Xu <- model.matrix(formula.onlypreds,
-                     model.frame(formula.onlypreds, data.un,
-                                 na.action = stats::na.omit))
-  
-  ## sampled response values and design matrix
-  m.sa <- stats::model.frame(formula, data.sa, na.action =
-                               stats::na.omit)
-  z.sa <- stats::model.response(m.sa)
-  Xs <- stats::model.matrix(formula, m.sa)
-  
-  if (abs(det(t(Xs) %*% Xs)) < 1e-10) {
-    stop("There are collinearity issues in the predictors. Remove collinear predictors and re-fit the model.")
-  }
-  
-  
-  z.density <- z.sa / areavar[ind.sa]
-  n <- nrow(Xs)
-  
-  
-  prednames <- colnames(Xs)
-  
-  ## x and y coordinates for sampled and unsampled sites
-  x.sa <- xcoordsTM[ind.sa]
-  y.sa <- ycoordsTM[ind.sa]
-  x.un <- xcoordsTM[ind.un]
-  y.un <- ycoordsTM[ind.un]
-  
-  ## number of sites that were sampled
-  n.sa <- nrow(Xs)
-  ## number of sites that were not sampled
-  n.un <- nrow(Xu)
   
   ###########################
   ## stuff pertaining to time
@@ -169,7 +126,7 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   onetime <- diag(1, nspat) %>% as.data.frame()
   Zs <- onetime %>% slice(rep(row_number(), ntime)) %>% as.matrix()
   
-
+  
   Zt <- lapply(1:ntime, matrix, data = 0, nrow = nspat, ncol = ntime)
   
   for (i in 1:ntime) {
@@ -183,74 +140,127 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   DM[lower.tri(DM)] <- stats::dist(as.matrix(cbind(uniquecoords[ ,1], uniquecoords[ ,2])))
   Dismat <- DM + t(DM)
   
- 
   
-  varstart <- log(var(density, na.rm = TRUE) / 10)
-  rangestart <- median(Dismat) / 2
-  rhostart <- 0
   
-  m2LL.spatiotemp.ML(theta = c(varstart, rangestart, varstart,
-                              varstart, rhostart, varstart, varstart),
-                     zcol = density,
-                     XDesign = as.matrix(X),
-                     xcoord = uniquecoords[ ,1],
-                     ycoord = uniquecoords[ ,2],
-                     timepoints = uniquetimes,
-                     CorModel = "Exponential",
-                     Zs = Zs, Zt = Zt, H = H, Dismat = Dismat)
+  totalvar <- var(zdensity_samp)
+  
+  s_de_initial <- totalvar / 10
+  s_ie_initial <- totalvar / 10
+  t_de_initial <- totalvar / 10
+  t_ie_initial <- totalvar / 10
+  st_de_initial <- totalvar / 10
+  st_ie_initial <- totalvar / 10
+  total_var_initial <- sum(
+    s_de_initial, s_ie_initial, t_de_initial,
+    t_ie_initial, st_de_initial, st_ie_initial
+  )
+  s_range_initial <- median(Dismat)
+  t_range_initial <- median(H)
+  
+  siminitial <-  DumelleEtAl2021STLMM::make_covparam_object(
+    s_de = s_de_initial, s_ie = s_ie_initial,
+    t_ie = t_ie_initial, t_de = t_de_initial,
+    st_de = st_de_initial, st_ie = st_ie_initial,
+    s_range = s_range_initial, t_range = t_range_initial,
+    stcov = "productsum", estmethod = "reml"
+  )
+  
+  data_sa <- datanomiss[ind_sa, ]
+  data_un <- datanomiss[ind_un, ]
+  
+  # data_sampled <- data %>% dplyr::filter(!is.na(yvar))
+
+  fast_est <- DumelleEtAl2021STLMM::stlmm(
+    formula = formula,
+    data = data_sa,
+    xcoord = xcoordcol,
+    ycoord = ycoordcol,
+    tcoord = tcol,
+    stcov = "productsum",
+    estmethod = "reml",
+    s_cor = CorModel,
+    t_cor = CorModel,
+    initial = siminitial,
+    condition = 1e-4
+  )
+  
+  
+  # varstart <- log(var(density, na.rm = TRUE) / 10)
+  # rangestart <- median(Dismat) / 2
+  # rhostart <- 0
+  
+  # m2LL.spatiotemp.ML(theta = c(varstart, rangestart, varstart,
+  #                             varstart, rhostart, varstart, varstart),
+  #                    zcol = density,
+  #                    XDesign = as.matrix(X),
+  #                    xcoord = uniquecoords[ ,1],
+  #                    ycoord = uniquecoords[ ,2],
+  #                    timepoints = uniquetimes,
+  #                    CorModel = "Exponential",
+  #                    Zs = Zs, Zt = Zt, H = H, Dismat = Dismat)
 
   
-  parmest <- stats::optim(c(varstart, rangestart, varstart,
-                            varstart, rhostart, varstart, varstart),
-                          m2LL.spatiotemp.ML,
-                          zcol = density,
-                          XDesign = as.matrix(X),
-                          xcoord = uniquecoords[ ,1],
-                          ycoord = uniquecoords[ ,2],
-                          timepoints = uniquetimes,
-                          CorModel = "Exponential",
-                          Zs = Zs, Zt = Zt, H = H, Dismat = Dismat)
+  # parmest <- stats::optim(c(varstart, rangestart, varstart,
+  #                           varstart, rhostart, varstart, varstart),
+  #                         m2LL.spatiotemp.ML,
+  #                         zcol = density,
+  #                         XDesign = as.matrix(X),
+  #                         xcoord = uniquecoords[ ,1],
+  #                         ycoord = uniquecoords[ ,2],
+  #                         timepoints = uniquetimes,
+  #                         CorModel = "Exponential",
+  #                         Zs = Zs, Zt = Zt, H = H, Dismat = Dismat)
   
-  sigma_parsil_spat_hat <- exp(parmest$par[1])
-  range_hat <- exp(parmest$par[2])
-  sigma_nugget_spat_hat <- exp(parmest$par[3])
+  parmest <- unclass(fast_est$CovarianceParameters)
+  sigma_parsil_spat_hat <- parmest[1]
+  range_hat <- parmest[7]
+  sigma_nugget_spat_hat <- parmest[2]
   
-  sigma_parsil_time_hat <- exp(parmest$par[4])
-  rhotime_hat <- exp(parmest$par[5]) / (1 + exp(parmest$par[5]))
-  sigma_nugget_time_hat  <- exp(parmest$par[6])
+  sigma_parsil_time_hat <- parmest[3]
+  rhotime_hat <- parmest[8]
+  sigma_nugget_time_hat  <- parmest[4]
   
-  sigma_nugget_spacetime_hat <- exp(parmest$par[7])
+  sigma_parsil_spacetime_hat <- parmest[5]
+  sigma_nugget_spacetime_hat <- parmest[6]
+
   
-  if (CorModel == "Exponential") {
-    Rs_hat <- exp(-Dismat / range_hat)
+  
+  
+  if (CorModel == "exponential") {
+    Rs_hat <- exp(-(3 * (Dismat / range_hat)))
   }
   
   comp_1 <- sigma_parsil_spat_hat * Zs %*% Rs_hat %*% t(Zs)
   comp_2 <- sigma_nugget_spat_hat * Zs %*% t(Zs)
   
-  Rt_hat <- rhotime_hat ^ H 
+  if (CorModel == "exponential") {
+    Rt_hat <- exp(-(3 * (H / rhotime_hat)))
+  }
+
   comp_3 <- sigma_parsil_time_hat * Zt %*% Rt_hat %*% t(Zt)
   comp_4 <- sigma_nugget_time_hat * Zt %*% t(Zt)
   
   comp_5 <- diag(sigma_nugget_spacetime_hat, nrow = N)
   
-  Sigmaest <- comp_1 + comp_2 + comp_3 + comp_4 + comp_5
-  Sigma.ss <- Sigmaest[ind.sa, ind.sa, drop = FALSE]
+  comp_6 <- sigma_parsil_spacetime_hat * (Zs %*% Rs_hat %*% t(Zs)) * (Zt %*% Rt_hat %*% t(Zt))
+  
+  Sigmaest <- comp_1 + comp_2 + comp_3 + comp_4 + comp_5 + comp_6
+  
+  Sigma.ss <- Sigmaest[ind_sa, ind_sa, drop = FALSE]
   Sigma.ssi <- solve(Sigma.ss) ## can output this so it doesn't
   ## also get inverted in predict.stlmfit()
   
-  betahat <- solve(t(Xs) %*% Sigma.ssi %*% Xs) %*%
-    t(Xs) %*% Sigma.ssi %*%
-    z.density
+  betahat <- fast_est$Coefficients
   
   stlmfit_obj <- list(data = data, Sigmaest = Sigmaest, Xall = Xall, 
-                      z.density = z.density, parms = list(betahat = betahat, sigma_parsil_spat = sigma_parsil_spat_hat,
+                      z.density = zdensity_samp, parms = list(betahat = betahat, sigma_parsil_spat = sigma_parsil_spat_hat,
                                range = range_hat,
                                sigma_nugget_spat = sigma_nugget_spat_hat,
                                sigma_parsil_time = sigma_parsil_time_hat,
                                rho = rhotime_hat,
                                sigma_nugget_time = sigma_nugget_time_hat,
-                               sigma_nugget_spacetime = sigma_nugget_spacetime_hat))
+                               sigma_nugget_spacetime = sigma_nugget_spacetime_hat,
+                               sigma_parsil_spacetime = sigma_parsil_spacetime_hat))
   
   class(stlmfit_obj) <- "stlmfit"
   return(stlmfit_obj)

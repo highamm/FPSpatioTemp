@@ -45,41 +45,42 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   }
   
   data <- object$data
+  
   Xall <- object$Xall
-  ind.sa <- data$ind.sa
-  ind.un <- data$ind.un
+  ind_sa <- data$ind_sa
+  ind_un <- data$ind_un
   Sigmaest <- object$Sigmaest
   betahat <- object$parms$betahat
   
-  Sigma.ss <- Sigmaest[ind.sa, ind.sa, drop = FALSE]
-  Sigma.us <- Sigmaest[ind.un, ind.sa, drop = FALSE]
-  Sigma.su <- t(Sigma.us)
-  Sigma.uu <- Sigmaest[ind.un, ind.un, drop = FALSE]
+  Sigma_ss <- Sigmaest[ind_sa, ind_sa, drop = FALSE]
+  Sigma_us <- Sigmaest[ind_un, ind_sa, drop = FALSE]
+  Sigma_su <- t(Sigma_us)
+  Sigma_uu <- Sigmaest[ind_un, ind_un, drop = FALSE]
   
-  Sigma.ssi <- solve(Sigma.ss)
+  Sigma_ssi <- solve(Sigma_ss)
   
   ## indicator for unsampled sites that are in the current year of 
   ## interest
-  unsampcurrind <- ind.sa == 0 & data[[wtscol]] == 1
+  unsampcurrind <- ind_sa == 0 & data[[wtscol]] == 1
   
   Xucurr <- Xall[unsampcurrind, , drop = FALSE]
-  Xs <- Xall[ind.sa, , drop = FALSE]
-  Xu <- Xall[ind.un, , drop = FALSE]
+  Xs <- Xall[ind_sa, , drop = FALSE]
+  Xu <- Xall[ind_un, , drop = FALSE]
   ## matrix of covariance between all sites in the current year and
   ## all sites that were sampled
-  Sigma.cs <- Sigmaest[data[[wtscol]] == 1, ind.sa == 1]
+  Sigma_cs <- Sigmaest[data[[wtscol]] == 1, ind_sa == 1]
   
   ## covariance matrix of sites in the current year
-  Sigma.cc <- Sigmaest[data[[wtscol]] == 1, data[[wtscol]] == 1]
+  Sigma_cc <- Sigmaest[data[[wtscol]] == 1, data[[wtscol]] == 1]
   
   ## prediction indicator vector for all sampled sites
-  bsall <-  data[[wtscol]][ind.sa == 1]
+  bsall <-  data[[wtscol]][ind_sa == 1]
   
   ## prediction indicator vector for sampled sites in the current year
   bs <- bsall[bsall == 1]
   
   ## prediction indicator vector for all unsampled sites 
-  buall <- data[[wtscol]][ind.sa == 0]
+  buall <- data[[wtscol]][ind_sa == 0]
   
   ## prediction indicator vector for
   ## the unsampled sites in the current year
@@ -90,15 +91,15 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   
   ## covariance of the unsampled sites in the current year with all of the
   ## sampled sites
-  Sigma.ucurrs <- Sigmaest[unsampcurrind == 1, ind.sa == 1]
-  Sigma.ssi <- solve(Sigmaest[ind.sa == 1, ind.sa == 1])
+  Sigma_ucurrs <- Sigmaest[unsampcurrind == 1, ind_sa == 1]
+  Sigma_ssi <- solve(Sigmaest[ind_sa == 1, ind_sa == 1])
   
-  p2 <- t(bu) %*% Sigma.ucurrs %*% Sigma.ssi
+  p2 <- t(bu) %*% Sigma_ucurrs %*% Sigma_ssi
   
-  p3 <- -t(bu) %*% (Sigma.ucurrs %*% Sigma.ssi %*% Xs %*%
-                      solve(t(Xs) %*% Sigma.ssi %*% Xs) %*% t(Xs) %*% Sigma.ssi)
-  p4 <- t(bu) %*% (Xucurr %*%  solve(t(Xs) %*% Sigma.ssi %*% Xs) %*%
-                     t(Xs) %*% Sigma.ssi)
+  p3 <- -t(bu) %*% (Sigma_ucurrs %*% Sigma_ssi %*% Xs %*%
+                      solve(t(Xs) %*% Sigma_ssi %*% Xs) %*% t(Xs) %*% Sigma_ssi)
+  p4 <- t(bu) %*% (Xucurr %*%  solve(t(Xs) %*% Sigma_ssi %*% Xs) %*%
+                     t(Xs) %*% Sigma_ssi)
   
   ## kriging weights
   tlambda <- (p1 + p2 + p3 + p4)
@@ -112,9 +113,9 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   ## vector of 1's if we want to predict the total for the current year).
   bc <- c(bs, bu)
   
-  predvar <- tlambda %*% Sigma.ss %*% t(tlambda) -
-    2 * t(bc) %*% Sigma.cs %*% t(tlambda) +
-    t(bc) %*% Sigma.cc %*% bc
+  predvar <- tlambda %*% Sigma_ss %*% t(tlambda) -
+    2 * t(bc) %*% Sigma_cs %*% t(tlambda) +
+    t(bc) %*% Sigma_cc %*% bc
   
   lb <- as.vector(totalpred) + 1 * stats::qnorm((1 - pred_level) / 2) * sqrt(as.vector(predvar))
   ub <- as.vector(totalpred) + -1 * stats::qnorm((1 - pred_level) / 2) * sqrt(as.vector(predvar))
@@ -123,13 +124,13 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   ## an equivalent calculation for the total:
   muhats <- Xs %*% betahat; muhatu <- Xucurr %*% betahat
   ## the predicted values for the sites that were not sampled
-  zhatu <- Sigma.ucurrs %*% Sigma.ssi %*% (z.density -
+  zhatu <- Sigma_ucurrs %*% Sigma_ssi %*% (z.density -
                                              muhats) + muhatu
-  ##totalpred_equiv <- sum(zhatu) + sum(density[ind.sa == 1 & data[[wtscol]] == 1])
+  ##totalpred_equiv <- sum(zhatu) + sum(density[ind_sa == 1 & data[[wtscol]] == 1])
   
-  W <- t(Xu) - t(Xs) %*% Sigma.ssi %*% Sigma.su
-  Vmat <- solve(t(Xs) %*% Sigma.ssi %*% Xs)
-  sitecov <- Sigma.uu - Sigma.us %*% Sigma.ssi %*% Sigma.su +
+  W <- t(Xu) - t(Xs) %*% Sigma_ssi %*% Sigma_su
+  Vmat <- solve(t(Xs) %*% Sigma_ssi %*% Xs)
+  sitecov <- Sigma_uu - Sigma_us %*% Sigma_ssi %*% Sigma_su +
     t(W) %*% Vmat %*% W
   sitevar <- diag(sitecov)
   
@@ -138,7 +139,7 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   
   ## site by site predictions for past years are left out
   data$predictions_[unsampcurrind == 1] <- zhatu
-  data$predictions_[ind.sa == 1] <- z.density
+  data$predictions_[ind_sa == 1] <- z.density
   
   pred_obj <- list(totalpred = totalpred, predvar = predvar,
                    lb = lb, ub = ub, zhatu = zhatu, sitevar = sitevar,

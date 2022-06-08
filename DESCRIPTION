@@ -19,5 +19,6 @@ Imports:
     readr,
     tidyr,
     ggplot2,
-    magrittr
+    magrittr,
+    DumelleEtAl2021STLMM
 Depends: R (>= 3.5.0)

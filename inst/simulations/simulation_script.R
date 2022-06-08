@@ -1,4 +1,5 @@
 library(FPSpatioTemp)
+library(tidyverse)
 
 sim_fun <- function(nx = 10, ny = 10, ntime = 5, betavec = 10,
                     sigma_parsil_spat = 0.9, range = 5,
@@ -50,12 +51,12 @@ sim_fun <- function(nx = 10, ny = 10, ntime = 5, betavec = 10,
 sim_1 <- sim_fun()
 
 set.seed(08122021)
-nrep <- 100
+nrep <- 3
 sim_output <- replicate(nrep, sim_fun(), simplify = "matrix")                 
 sim_output_df <- t(sim_output) %>% as_tibble()  
 sim_output_df <- tidyr::unnest(sim_output_df,
                                cols = c(pred, se, lb, ub, truetotal,
-                                        parms.betahat,
+                                        parms.yo,
                                         parms.sigma_parsil_spat,
                                         parms.range,
                                         parms.sigma_nugget_spat,
@@ -72,4 +73,13 @@ sim_output_df %>% summarise(coverage = mean(conf_ind),
                             medci = median(ub - lb),
                             meanse = mean(se))
 
-write.csv(sim_output_df, "inst/simulations/sim_output.csv", row.names = FALSE)
+library(tidyverse)
+write_csv(sim_output_df, "inst/simulations/sim_output.csv")
+
+
+# sims_df <- read_csv("inst/simulations/sim_output.csv")
+# 
+# sims_df |> summarise(coverage = mean(conf_ind),
+#                      rmspe = sqrt(sum((pred - truetotal) ^ 2)),
+#                      medci = median(ub - lb),
+#                      meanse = mean(se))

@@ -11,7 +11,7 @@ stlmfit(
   ycoordcol,
   tcol,
   areacol = NULL,
-  CorModel = "Exponential"
+  CorModel = "exponential"
 )
 }
 \arguments{
