@@ -1,11 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=higham_test    # Job name
+#SBATCH --array=0-400%24           # %5 restricts to 5 jobs at a time
 #SBATCH --mail-type=END,FAIL          # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=mhigham@stlawu.edu  # Where to send mail	
-#SBATCH --ntasks=1                    # Run on a single CPU
+#SBATCH --ntasks=1                    # Run 
 #SBATCH --mem=70gb                     # Job memory request
 #SBATCH --time=01-03:45:00               # Time limit days-hrs:min:sec
-#SBATCH --output=slurm_%j.log   # Standard output and error log
+#SBATCH --output=logs/slurm_%j.log   # Standard output and error log
+#SBATCH -n 1                   # Allocate 1 node
 
 
 echo "Date              = $(date)"
@@ -16,11 +18,9 @@ echo "Number of Nodes Allocated      = $SLURM_JOB_NUM_NODES"
 echo "Number of Tasks Allocated      = $SLURM_NTASKS"
 echo "Number of Cores/Task Allocated = $SLURM_CPUS_PER_TASK"
 
-#module load R/3.6.3
 module load R/4.0.0
 
-# Rscript /home/mhigham/test_hpc.R 
-Rscript /home/mhigham/FPSpatioTemp/inst/simulation_script.R 
+Rscript /home/mhigham/simulation_script.R 
 
 echo -n "Finished program at: "
 date

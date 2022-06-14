@@ -46,7 +46,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 Moose surveys in Alaska and western Canada are often performed annually in many regions. The primary goal of these surveys is to predict moose abundance, the total number of moose, in the region. Because of time and money constraints, only some areas (sites) in the region of interest are selected to be in the survey. Biologists fly to these selected sites, count the number of moose, and can then use a spatial statistical model to find a prediction for the finite abundance for that year [@ver2008spatial]. 
 
-Though these surveys are annual, each survey is analysed completely independently of surveys from previous years [e.g. @gasaway1986estimating; @kellie_geospatial_2006; @boertje2009managing; @peters2014contrasting]. For example, a model for a survey conducted in the year 2019 only uses counts on sites that were sampled in that year. However, using counts from previous years in a model that incorporates both spatial and temporal correlation (spatiotemporal) could result in a prediction that is more precise than predictions from a spatial model using only counts from the most recent survey year. 
+Though these surveys are annual, each survey is analysed completely independently of surveys from previous years [e.g. @gasaway1986estimating; @kellie_geospatial_2006; @boertje2009managing; @peters2014contrasting]. For example, a model for a survey conducted in the year 2019 only uses counts on sites that were sampled in that year. However, using counts from previous years in a model that incorporates both spatial and temporal correlation (spatiotemporal) could result in a prediction for the realized total or mean that is more precise than predictions from a spatial model using only counts from the most recent survey year. 
 
 Though the framework of the motivation is given with an example on moose surveys, this type of analysis could be useful for many examples involving prediction in a finite region with spatial sites that are surveyed regularly.
 
@@ -65,7 +65,7 @@ We now give details on the development of the predictor for abundance. We first 
 
 \subsection{Spatiotemporal Model}
 
-Let $Y(\mathbf{s}_{i}, t_j)$, $i = 1, 2, \ldots, n_{sp}$ and $j = 1, 2, \ldots, n_{t}$ be a random variable, where the vector $\mathbf{s}_i$ contains the coordinates for the $i^{th}$ spatial site location and where $t_j$ is the $j^{th}$ time point. With each spatial location at each time point, the total number of data points (observed and unobserved) is $n_{sp} \cdot n_{t} \equiv N$. Then, a model for $\mathbf{y}(\mathbf{s}_{i}, t_j)$, a vector of the $Y(\mathbf{s}_{i}, t_j)$ is
+Let $Y(\mathbf{s}_{i}, t_j)$, $i = 1, 2, \ldots, n_{sp}$ and $j = 1, 2, \ldots, n_{t}$ be a random variable, where the vector $\mathbf{s}_i$ contains the coordinates for the $i^{th}$ spatial site location and where $t_j$ is the $j^{th}$ time point. With each spatial location at each time point, the total number of data points (observed and unobserved) is $n_{sp} \cdot n_{t} \equiv N$. Then, a model for $\mathbf{y}(\mathbf{s}_{i}, t_j)$, a vector of the $Y(\mathbf{s}_{i}, t_j)$, is
 
 \begin{equation}
 \mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, t_j),
@@ -77,7 +77,7 @@ where $\mathbf{X}$ is a design matrix for fixed effects and $\bm{\beta}$ is a pa
 \mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{sp} \bm{\delta} + \mathbf{Z}_{sp} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\nu}.
 \end{equation}
 
-$\mathbf{Z}_{sp}$ is an $N \times n_{sp}$ matrix where the values in a row corresponding to an observation in location $\mathbf{s}_{i}$ are a $1$ in the $i^{th}$ column and 0's in all other columns. Similarly, $\mathbf{Z}_t$ is an $N \times n_{t}$ matrix where the values in a row corresponding to an observation at time point $\mathbf{t}_j$ are a $1$ in the $j^{th}$ column and 0's in all other columns. We assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{eta}$, and $\bm{\nu}$ all are all mean $\mathbf{0}$ vectors of length $n_{sp}$, $n_{sp}$, $n_t$, $n_t$, and $N$, respectively, with the covariances
+$\mathbf{Z}_{sp}$ is an $N \times n_{sp}$ matrix where the values in a row corresponding to an observation in location $\mathbf{s}_{i}$ are a $1$ in the $i^{th}$ column and 0's in all other columns. Similarly, $\mathbf{Z}_t$ is an $N \times n_{t}$ matrix where the values in a row corresponding to an observation at time point $\mathbf{t}_j$ are a $1$ in the $j^{th}$ column and 0's in all other columns. We assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, and $\bm{\nu}$ all are all mean $\mathbf{0}$ vectors of length $n_{sp}$, $n_{sp}$, $n_t$, $n_t$, and $N$, respectively, with covariances
 \mbox{}
 \begin{align*}
 cov(\bm{\delta}) &= \sigma^2_{\delta} \mathbf{R}_{sp} \\
@@ -87,11 +87,12 @@ cov(\bm{\eta}) &= \sigma^2_{\eta} \mathbf{I}_t \\
 cov(\bm{\nu}) &= \sigma^2_{\nu} \mathbf{I}_N,
 \end{align*}
 \noindent
-where $\mathbf{R}_{sp}$ is a spatial correlation matrix and $\mathbf{R}_t$ is a temporal correlation matrix. $\sigma^2_{\delta}$ and $\sigma^2_{\gamma}$ are the spatial partial sill and spatial nugget, $\sigma^2_{\tau}$ and $\sigma^2_{\eta}$ are the temporal partial sill and temporal nugget, and $\sigma^2_{\nu}$ is spatiotemporal independent error variance parameter.
+where $\mathbf{R}_{sp}$ is a spatial correlation matrix, $\mathbf{R}_t$ is a temporal correlation matrix, $\sigma^2_{\delta}$ and $\sigma^2_{\gamma}$ are the spatial partial sill and spatial nugget, $\sigma^2_{\tau}$ and $\sigma^2_{\eta}$ are the temporal partial sill and temporal nugget, and $\sigma^2_{\nu}$ is the spatiotemporal independent error variance parameter.
 
 If we assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, and $\bm{\nu}$ are mutually independent of each other, then 
 
 \begin{equation}
+\label{equation:var}
 var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{sp} \mathbf{R}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\gamma} \mathbf{Z}_{sp} \mathbf{I}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\nu} \mathbf{I}_N.
 \end{equation}
 
@@ -111,7 +112,7 @@ There are also many common parameterizations of $\mathbf{R}_t$, but one form is 
 \noindent
 where $\rho$ is the autocorrelation parameter.
 
-If we assume that $\mathbf{y}$ is multivariate normal with mean $\mathbf{X} \bm{\beta} \equiv \bm{\mu}$ and variance $\bm{\Sigma}$, then all parameters can be estimated with Maximum Likelihood or Restricted Maximum Likelihood.
+If we assume that $\mathbf{y}$ is multivariate normal with mean $\mathbf{X} \bm{\beta} \equiv \bm{\mu}$ and variance $\bm{\Sigma}$ (Equation \ref{equation:var}), then all parameters can be estimated with Maximum Likelihood or Restricted Maximum Likelihood.
 
 Note that we will explore other covariance structures, including an extension of the sum-with-error model and different spatial and temporal correlation structures.
 
@@ -125,14 +126,14 @@ Let the subscript $s$ denote observations that were sampled (both past and prese
 \mathbf{y} = [\mathbf{y}_u', \mathbf{y}_s']'.
 \end{equation}
 
-Let $\mathbf{\tilde{y}} = [\mathbf{\tilde{y}}_u', \mathbf{\tilde{y}}_s']'$ denote the fixed, realized values of the response variable for one data-generating process. Our primary goal is to use the model developed in the previous section to predict values for $\mathbf{\tilde{y}}_{u}$ from the observed data in $\mathbf{\tilde{y}}_{s}$. That is, we want to find optimal weights $\mathbf{a}'$ to apply to the sampled data $\mathbf{a}' \mathbf{\tilde{y}}_s$, such that $\mathbf{a}' \mathbf{y}_s$ is the Best Linear Unbiased Predictor (BLUP) for $\mathbf{b}_a' \mathbf{y}_a$. If we are interested in the total abundance across all years, then $\mathbf{b}_a$ is a column vector of 1's. so that we are adding up all values of the response for our predictor of total abundance. 
+Let $\mathbf{\tilde{y}} = [\mathbf{\tilde{y}}_u', \mathbf{\tilde{y}}_s']'$ denote the fixed, realized values of the response variable for one data-generating process. Our primary goal is to use the model developed in the previous section to predict values for $\mathbf{\tilde{y}}_{u}$ from the observed data in $\mathbf{\tilde{y}}_{s}$. That is, we want to find optimal weights $\mathbf{a}'$ to apply to the sampled data $\mathbf{a}' \mathbf{\tilde{y}}_s$, such that $\mathbf{a}' \mathbf{y}_s$ is the Best Linear Unbiased Predictor (BLUP) for $\mathbf{b}_a' \mathbf{y}_a$. If we are interested in the total abundance across all years, then $\mathbf{b}_a$ is a column vector of 1's. so that we are adding up all values of the response for a predictor of total abundance. 
 
 Unbiasedness implies that $E(\mathbf{a'}\mathbf{y}_s) = E(\mathbf{b}_a'\mathbf{y}_a)$ for all $\bm{\beta}$. So, denoting $\mathbf{X}_s$ as the design matrix for sampled sites, $\mathbf{a'} \mathbf{X}_s \bm{\beta}$ = $\mathbf{b'} \mathbf{X} \bm{\beta}$ for every $\bm{\beta}$, implying that $\mathbf{a'} \mathbf{X}_s = \mathbf{b'}_a \mathbf{X}$.
 
-The kriging weights are then found by finding $\bm{\lambda}$ such that
-\mbox{]}
+The kriging weights are then found by finding $\bm{\lambda}_s$, an $n \times 1$ vector, such that
+\mbox{}
 \begin{equation}
-E\{(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\} - E\{(\bm{\lambda'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)(\bm{\lambda}'\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\}
+E\{(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\} - E\{(\bm{\lambda'}_s\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)(\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\}
 \end{equation}
 \noindent
 is greater than 0 for all $\mathbf{a'}$. The prediction equations are
@@ -156,7 +157,7 @@ m
 \end{pmatrix},
 \end{equation}
 \noindent
-where again the subscripts $s$ and $u$ denote sampled and unsampled observations. For example, letting $n$ denote the number of sampled observations, $\bm{\Sigma}_{s, s}$ denotes the $n \times n$ submatrix of $\bm{\Sigma}$ corresponding only to rows and columns of sampled observations and $\bm{\Sigma}_{u, s}$ denotes the $(N - n) \times n$ submatrix of $\bm{\Sigma}$ corresponding to rows of observations that were not sampled and columns of observations that were sampled. Then, $\bm{\lambda}$ is an $n \times 1$ vector. 
+where again the subscripts $s$ and $u$ denote sampled and unsampled observations. For example, letting $n$ denote the number of sampled observations, $\bm{\Sigma}_{s, s}$ denotes the $n \times n$ submatrix of $\bm{\Sigma}$ corresponding only to rows and columns of sampled observations and $\bm{\Sigma}_{u, s}$ denotes the $(N - n) \times n$ submatrix of $\bm{\Sigma}$ corresponding to rows of observations that were not sampled and columns of observations that were sampled. Then, $\bm{\lambda}_s$ is an $n \times 1$ vector. 
 
 Then, we can solve for the prediction weights as
 \mbox{}
@@ -194,7 +195,7 @@ E((\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_s'\math
 <!-- \mathbf{\hat{y}}_{u} = \bm{\Sigma}_{u, s} \bm{\Sigma}_{s, s}^{-1}(\mathbf{y}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_{u}, -->
 <!-- \end{equation} -->
  
-However, we often are not interested in predicting total abundance across multiple years and instead would want a prediction of the total abundance in the most recent year of the survey. Therefore, for this goal, $\mathbf{b}_a$ should not be a vector of 1's and should instead take a value of 1 if the observation is in the current year of the survey and a 0 if the observation is not in the current year of the survey:
+However, we often are not interested in predicting total abundance across multiple years and instead would want a prediction of the total abundance in the most recent year of the survey. Then, $\mathbf{b}_a$ should not be a vector of 1's and should instead take a value of 1 if the observation is in the current year of the survey and a 0 if the observation is not in the current year of the survey:
 \mbox{}
 \begin{equation}
 \mathbf{b}_a = [\mathbf{b}_{up}^\prime, \mathbf{b}_{uc}', \mathbf{b}_{sp}', , \mathbf{b}_{sc}']' = [\mathbf{0}', \mathbf{1}', \mathbf{0}', \mathbf{1}']',
@@ -208,10 +209,10 @@ $\bm{\lambda}_s$ can then be rewritten as
 \bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{uc}' (\bm{\Sigma}_{uc, s}\bm{\Sigma}_{s, s}^{-1}) - \mathbf{b}'_{uc}(\bm{\Sigma}_{uc, s} \bm{\Sigma}_{s, s}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1} + \mathbf{b}_{uc}' \mathbf{X}_{uc}'(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{s, s}^{-1}.
 \end{equation}
 
-The prediction variance can then be rewritten as
+with a prediction variance of
 \mbox{}
 \begin{equation}
-\bm{\lambda}_s'\bm{\Sigma}_{s, s}\bm{\lambda}_s - 2 \mathbf{b}_{c}' \bm{\Sigma}_{c, s} \bm{\lambda}_s + \mathbf{b}_{c}' \bm{\Sigma_{c, c}} \mathbf{b}_{c},
+\bm{\lambda}_s'\bm{\Sigma}_{s, s}\bm{\lambda}_s - 2 \mathbf{b}_{c}' \bm{\Sigma}_{c, s} \bm{\lambda}_s + \mathbf{b}_{c}' \bm{\Sigma}_{c, c} \mathbf{b}_{c},
 \end{equation}
 \noindent
 where $c$ denotes observations in the current year.

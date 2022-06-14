@@ -6,7 +6,7 @@
 #' completely independent random error.
 #' 
 #' @param nx is the number of x coordinates for a spatial grid
-#' @param ny is the number of y coordinates for a temporal grid
+#' @param ny is the number of y coordinates for a spatial grid
 #' @param ntime is the number of time points
 #' @param betavec is the parameter vector for the fixed effects
 #' @param XDesign is the fixed effects design matrix
