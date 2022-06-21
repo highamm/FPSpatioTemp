@@ -61,121 +61,167 @@ The rest of this paper is organized as follows. In Section \ref{section:Methods}
 
 \section{Methods} \label{section:Methods}
 
-We now give details on the development of the predictor for abundance. We first detail the spatiotemporal model, and we then use the spatiotemporal model with a finite population correction factor to give a Best-Linear-Unbiased-Predictor (BLUP) and its variance for total abundance in a given year.
+We now give details on the development of the predictor for abundance. We first detail the spatiotemporal model. Because of the heavy use of notation in the spatiotemporal model development, we first introduce a purely spatial model (without temporal variability) and a purely temporal model (without spatial variability). We then build the spatiotemporal model and develop a finite population correction factor to give a Best-Linear-Unbiased-Predictor (BLUP) and its prediction variance for total abundance in a given year.
 
-\subsection{Spatiotemporal Model}
+\subsection{Spatial Model} \label{subsection:spatialmodel}
 
-Let $Y(\mathbf{s}_{i}, t_j)$, $i = 1, 2, \ldots, n_{sp}$ and $j = 1, 2, \ldots, n_{t}$ be a random variable, where the vector $\mathbf{s}_i$ contains the coordinates for the $i^{th}$ spatial site location and where $t_j$ is the $j^{th}$ time point. With each spatial location at each time point, the total number of data points (observed and unobserved) is $n_{sp} \cdot n_{t} \equiv N$. Then, a model for $\mathbf{y}(\mathbf{s}_{i}, t_j)$, a vector of the $Y(\mathbf{s}_{i}, t_j)$, is
-
-\begin{equation}
-\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, t_j),
-\end{equation}
-\noindent
-where $\mathbf{X}$ is a design matrix for fixed effects and $\bm{\beta}$ is a parameter vector of fixed effects. The error $\bm{\epsilon}(\mathbf{s}_{i}, t_j)$ can be decomposed into spatial and temporal components, as in @dumelle2021linear. In particular, a sum-with-error linear mixed model for response vector $\mathbf{y}(\mathbf{s}_{i}, t_j)$ is
-
-\begin{equation} \label{equation:model}
-\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{sp} \bm{\delta} + \mathbf{Z}_{sp} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\nu}.
-\end{equation}
-
-$\mathbf{Z}_{sp}$ is an $N \times n_{sp}$ matrix where the values in a row corresponding to an observation in location $\mathbf{s}_{i}$ are a $1$ in the $i^{th}$ column and 0's in all other columns. Similarly, $\mathbf{Z}_t$ is an $N \times n_{t}$ matrix where the values in a row corresponding to an observation at time point $\mathbf{t}_j$ are a $1$ in the $j^{th}$ column and 0's in all other columns. We assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, and $\bm{\nu}$ all are all mean $\mathbf{0}$ vectors of length $n_{sp}$, $n_{sp}$, $n_t$, $n_t$, and $N$, respectively, with covariances
-\mbox{}
-\begin{align*}
-cov(\bm{\delta}) &= \sigma^2_{\delta} \mathbf{R}_{sp} \\
-cov(\bm{\gamma}) &= \sigma^2_{\gamma} \mathbf{I}_{sp} \\
-cov(\bm{\tau}) &= \sigma^2_{\tau} \mathbf{R}_t \\
-cov(\bm{\eta}) &= \sigma^2_{\eta} \mathbf{I}_t \\
-cov(\bm{\nu}) &= \sigma^2_{\nu} \mathbf{I}_N,
-\end{align*}
-\noindent
-where $\mathbf{R}_{sp}$ is a spatial correlation matrix, $\mathbf{R}_t$ is a temporal correlation matrix, $\sigma^2_{\delta}$ and $\sigma^2_{\gamma}$ are the spatial partial sill and spatial nugget, $\sigma^2_{\tau}$ and $\sigma^2_{\eta}$ are the temporal partial sill and temporal nugget, and $\sigma^2_{\nu}$ is the spatiotemporal independent error variance parameter.
-
-If we assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, and $\bm{\nu}$ are mutually independent of each other, then 
-
-\begin{equation}
-\label{equation:var}
-var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{sp} \mathbf{R}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\gamma} \mathbf{Z}_{sp} \mathbf{I}_{sp} \mathbf{Z}_{sp}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\nu} \mathbf{I}_N.
-\end{equation}
-
-There are many common parameterizations of $\mathbf{R}_{sp}$, but one form is the exponential. For observations at locations $i$ and $i'$ at $h_{ii'}$ distance apart, row $i$ and column $i'$ of $\mathbf{R}_{sp}$ is equal to
+First, we consider a spatial linear model for a response variable $Y_s(\mathbf{s}_{i})$, $i = 1, 2, \ldots, n_{s}$, where the vector $\mathbf{s}_i$ contains the coordinates for the $i^{th}$ spatial site location and $n_s$ is the number of spatial locations. Then, a spatial model for $\mathbf{y}_s(\mathbf{s}_{i})$, a vector of the $Y_s(\mathbf{s}_{i})$, is
 \mbox{}
 \begin{equation}
+\mathbf{y}_s(\mathbf{s}_{i}) = \mathbf{X}_s \bm{\beta}_s + \bm{\epsilon}_s(\mathbf{s}_{i}),
+\end{equation}
+
+\noindent
+where $\mathbf{X}_s$ is a design matrix for the fixed effects and $\bm{\beta}_s$ is a parameter vector of fixed effects. The error $\bm{\epsilon}_s(\mathbf{s}_{i})$ can be decomposed into spatial error and independent error components:
+\mbox{}
+\begin{equation}
+\label{equation:spatialmodel}
+\bm{\epsilon}_s(\mathbf{s}_{i}) = \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma}.
+\end{equation}
+
+\noindent
+In equation \ref{equation:spatialmodel}, $\mathbf{Z}_{s}$ is an $n_s \times n_s$ matrix of $0$'s and $1$'s, where the values in a row corresponding to a data point at location $\mathbf{s}_{i}$ are a $1$ in the $i^{th}$ column and a `0` in all other columns. Note that, without temporal replication, $\mathbf{Z}_s$ is the identity matrix so is not necessary to include in equation \ref{equation:spatialmodel}. $\bm{\delta}$ is a random vector independent of $\bm{\gamma}$ with mean $\mathbf{0}$ and covariance $cov(\bm{\delta}) = \sigma^2_{\delta} \mathbf{R}_{s}$, where $\mathbf{R}_s$ is a spatial correlation matrix and $\sigma^2_{\delta}$ is sometimes called the spatial partial sill. $\bm{\gamma}$ is also a random vector with mean $\mathbf{0}$ but has covariance $cov(\bm{\gamma}) = \sigma^2_{\gamma} \mathbf{I}_{s}$, where $\mathbf{I}_s$ is the $n_s \times n_s$ identity matrix and $\sigma^2_{\gamma}$ is sometimes called the spatial nugget.
+
+There are many common parameterizations of $\mathbf{R}_{s}$. One common assumption is to assume the covariance function generating $\mathbf{R}_s$ is stationary and isotropic, depending only on the spatial distance between the data points. For example, the exponential covariance function is defined as follows. For observations at locations $i$ and $i'$ at $h_{ii'}$ distance apart, row $i$ and column $i'$ of $\mathbf{R}_{s}$ is equal to
+\mbox{}
+\begin{equation}
+\label{equation:spatcov}
 \text{exp}(-h_{ii'} / \phi),
 \end{equation}
-\noindent
-where $\phi$ is the range parameter. 
 
-There are also many common parameterizations of $\mathbf{R}_t$, but one form is the exponential, which is equivalent to an AR(1) process in time series if the time points are equally spaced and the correlation parameter is greater than zero. For observations at time points $j$ and $j'$ that are $m_{jj'}$ units apart, row $j$ and column $j'$ of $\mathbf{R}_{t}$ is equal to
+\noindent
+where $\phi$ is a spatial range parameter controlling the decay rate of the covariance as distance between two data points increases. 
+
+\subsection{Temporal Model} \label{subsection:temporalmodel}
+
+Next, we consider a temporal linear model for a response variable $Y_t(t_j)$, $j = 1, 2, \ldots, n_{t}$, where the vector $t_j$ contains the time for the $j^{th}$ time point and $n_t$ is the number of time points in the data. Then, a temporal model for $\mathbf{y}_t(t_j)$, a vector of the $Y_t(t_j)$, is
 \mbox{}
 \begin{equation}
+\mathbf{y}_t(t_j) = \mathbf{X}_t \bm{\beta}_t + \bm{\epsilon}_t(t_j),
+\end{equation}
+
+\noindent
+where $\mathbf{X}_t$ is a design matrix for the fixed effects and $\bm{\beta}_t$ is a parameter vector of fixed effects. The error $\bm{\epsilon}_t(t_j)$ can be decomposed into temporal error and independent error components:
+\mbox{}
+\begin{equation}
+\label{equation:temporalmodel}
+\bm{\epsilon}_t(t_j) = \mathbf{Z}_{t} \bm{\tau} + \mathbf{Z}_{t} \bm{\eta}.
+\end{equation}
+
+\noindent
+In equation \ref{equation:temporalmodel}, $\mathbf{Z}_{t}$ is an $n_t \times n_t$ matrix of $0$'s and $1$'s, where the values in a row corresponding to a data point at time point $t_j$ are a $1$ in the $j^{th}$ column and a `0` in all other columns. Note that, without spatial replication, $\mathbf{Z}_t$ is the identity matrix so is not necessary to include in equation \ref{equation:temporalmodel}. $\bm{\tau}$ is a random vector independent of $\bm{\eta}$ with mean $\mathbf{0}$ and covariance $cov(\bm{\tau}) = \sigma^2_{\tau} \mathbf{R}_{t}$, where $\mathbf{R}_t$ is a spatial correlation matrix and $\sigma^2_{\tau}$ is sometimes called the temporal partial sill. $\bm{\eta}$ is also a random vector with mean $\mathbf{0}$ but has covariance $cov(\bm{\eta}) = \sigma^2_{\eta} \mathbf{I}_{t}$, where $\mathbf{I}_t$ is the $n_t \times n_t$ identity matrix and $\sigma^2_{\eta}$ is sometimes called the temporal nugget.
+
+There are many common parameterizations of $\mathbf{R}_{t}$. One common assumption is to assume the covariance function generating $\mathbf{R}_t$ is stationary, depending only on the temporal distance between the data points. For example, the exponential covariance function is defined as follows. For observations at time points $j$ and $j'$ at $m_{jj'}$ units apart, row $j$ and column $j'$ of $\mathbf{R}_{t}$ is equal to
+\mbox{}
+\begin{equation}
+\label{equation:tempcov}
 \text{exp}(-m_{jj'} / \rho),
 \end{equation}
 \noindent
-where $\rho$ is the autocorrelation parameter.
+where $\rho$ is a temporal range parameter controlling the decay rate of the covariance as time units between two data points increases. Note that the exponential form of $\mathbf{R}_t$ is equivalent to an AR(1) (CITE) time series model if the time points are equally spaced and the correlation parameter is greater than zero.
 
-If we assume that $\mathbf{y}$ is multivariate normal with mean $\mathbf{X} \bm{\beta} \equiv \bm{\mu}$ and variance $\bm{\Sigma}$ (Equation \ref{equation:var}), then all parameters can be estimated with Maximum Likelihood or Restricted Maximum Likelihood.
+\subsection{Spatiotemporal Model}
 
-Note that we will explore other covariance structures, including an extension of the sum-with-error model and different spatial and temporal correlation structures.
+We now combine the spatial error components and temporal error components to formulate a model for data collected across both space and time. Let $Y(\mathbf{s}_{i}, t_j)$, $i = 1, 2, \ldots, n_{s}$ and $j = 1, 2, \ldots, n_{t}$, be a random variable, where $\mathbf{s}_i$ and $n_s$ are defined in subsection \ref{subsection:spatialmodel} and $t_j$ and $n_t$ are defined in subsection \ref{subsection:temporalmodel}. With each spatial location at each time point, the total number of data points is $n_{s} \cdot n_{t} \equiv N$. Then, a spatiotemporal model for $\mathbf{y}(\mathbf{s}_{i}, t_j)$, a vector of the $Y(\mathbf{s}_{i}, t_j)$, is
+\mbox{}
+\begin{equation}
+\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, t_j),
+\end{equation}
+
+\noindent
+where $\mathbf{X}$ is a design matrix for the fixed effects and $\bm{\beta}$ is a parameter vector of fixed effects. The error $\bm{\epsilon}(\mathbf{s}_{i}, t_j)$ can be decomposed into spatial and temporal components, as in @dumelle2021linear. Perhaps the simplest model would be to simply model the error $\bm{\epsilon}(\mathbf{s}_{i}, t_j)$ by summing the spatial and temporal errors defined in equation \ref{equation:spatialmodel} and equation \ref{equation:temporalmodel}:
+\mbox{}
+\begin{equation}
+\label{equation:sumcovmodel}
+\bm{\epsilon}(\mathbf{s}_{i}, t_j) = \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_{t} \bm{\tau} + \mathbf{Z}_{t} \bm{\eta}.
+\end{equation}
+
+With spatial and temporal replication, $\mathbf{Z}_s$ is an $N \times n_s$ matrix while $\mathbf{Z}_t$ is an $N \times n_t$ matrix. However, even when the spatial covariance function generating $\mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma}$ and the temporal covariance function generating $\mathbf{Z}_{t} \bm{\tau} + \mathbf{Z}_{t} \bm{\eta}$ are strictly positive definite, the sum of the spatial and temporal components is not necessarily strictly positive definite (@myers1990variograms). 
+
+A more flexible, given in @dumelle2021linear, is a product-sum linear mixed model
+\mbox{}
+\begin{equation} \label{equation:model}
+\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu},
+\end{equation}
+
+\noindent
+In equation \ref{equation:model}, $\bm{\omega}$ is a random vector of length $N$ with mean $\mathbf{0}$ and covariance $cov(\bm{\omega}) = \sigma^2_{\omega} \mathbf{R}_{st}$ where $\mathbf{R}_{st}$ is a spatiotemporal correlation matrix and $\sigma^2_{\omega}$ is sometimes called the spatiotemporal partial sill. $\bm{\nu}$ is also a random vector of length $n$ with mean $\mathbf{0}$ but has covariance $cov(\bm{\nu}) = \sigma^2_{\nu} \mathbf{I}_{st}$, where $\mathbf{I}_{st}$ is the $N \times N$ identity matrix and $\sigma^2_{\nu}$ is sometimes called the spatiotemporal nugget.
+
+A common formulation for $\mathbf{R}_{st}$ is
+\mbox{}
+\begin{equation*}
+\mathbf{R}_{st} \equiv \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' \odot \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t',
+\end{equation*}
+
+\noindent
+where $\odot$ is the Hadamard product operator.
+
+If we assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, $\bm{\omega}$, and $\bm{\nu}$ are mutually independent of each other, then 
+
+\begin{equation}
+\label{equation:var}
+var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' + \sigma^2_{\gamma} \mathbf{Z}_{s} \mathbf{I}_{s} \mathbf{Z}_{s}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\omega} \mathbf{R}_{st} + \sigma^2_{\nu} \mathbf{I}_{st}.
+\end{equation}
+
+<!-- Just need MVN for estimation (model itself does not require it) -->
+Note that the model in equation \ref{equation:model} does not have any distributional assumptions: we only need to specify the mean and variance of $\mathbf{y}$. However, if we also assume that $\mathbf{y}$ is multivariate normal (with mean $\mathbf{X} \bm{\beta} \equiv \bm{\mu}$ and variance $\bm{\Sigma}$ (Equation \ref{equation:var})), then all model parameters can be easily estimated with Maximum Likelihood or Restricted Maximum Likelihood. 
 
 \subsection{Finite Population Kriging}
 
-The model in equation \ref{equation:model} is used for all $N$ observations at $n_{sp}$ sites and $n_t$ time points. But, we typically do not have the resources to sample every spatial site in every year.
-
-Let the subscript $s$ denote observations that were sampled (both past and present), and let the subscript $u$ denote observations that were unsampled. Then, we can re-order the response vector so that
+The model in equation \ref{equation:model} is for the $N$-length vector $\mathbf{y}$. However, often we do not have the resources to sample or observe every spatial site in every year. Throughout this section, let the subscript $o$ denote observations that were observed (both past and present), the subscript $u$ denote observations that were unobserved, and the subscript $a$ denote all observations. Then, we can re-order the response vector so that
 \mbox{}
 \begin{equation}
-\mathbf{y} = [\mathbf{y}_u', \mathbf{y}_s']'.
+\mathbf{y}_a = [\mathbf{y}_u', \mathbf{y}_o']'.
 \end{equation}
 
-Let $\mathbf{\tilde{y}} = [\mathbf{\tilde{y}}_u', \mathbf{\tilde{y}}_s']'$ denote the fixed, realized values of the response variable for one data-generating process. Our primary goal is to use the model developed in the previous section to predict values for $\mathbf{\tilde{y}}_{u}$ from the observed data in $\mathbf{\tilde{y}}_{s}$. That is, we want to find optimal weights $\mathbf{a}'$ to apply to the sampled data $\mathbf{a}' \mathbf{\tilde{y}}_s$, such that $\mathbf{a}' \mathbf{y}_s$ is the Best Linear Unbiased Predictor (BLUP) for $\mathbf{b}_a' \mathbf{y}_a$. If we are interested in the total abundance across all years, then $\mathbf{b}_a$ is a column vector of 1's. so that we are adding up all values of the response for a predictor of total abundance. 
+Let $\mathbf{\tilde{y}}_a = [\mathbf{\tilde{y}}_u', \mathbf{\tilde{y}}_o']'$ denote the fixed, realized values of the response variable for one data-generating process. Our primary goal is to use the model developed in equation \ref{equation:model} to predict values for $\mathbf{\tilde{y}}_{u}$ from the observed data in $\mathbf{\tilde{y}}_{o}$. That is, we want to find optimal weights $\mathbf{a}'$ to apply to the observed data $\mathbf{a}' \mathbf{\tilde{y}}_o$, such that $\mathbf{a}' \mathbf{y}_o$ is the Best Linear Unbiased Predictor (BLUP) for $\mathbf{b}_a' \mathbf{y}_a$. For example, if we are interested in the total abundance across all years, then $\mathbf{b}_a$ is a column vector of 1's, so that we are adding up all values of the response for a predictor of total abundance. 
 
-Unbiasedness implies that $E(\mathbf{a'}\mathbf{y}_s) = E(\mathbf{b}_a'\mathbf{y}_a)$ for all $\bm{\beta}$. So, denoting $\mathbf{X}_s$ as the design matrix for sampled sites, $\mathbf{a'} \mathbf{X}_s \bm{\beta}$ = $\mathbf{b'} \mathbf{X} \bm{\beta}$ for every $\bm{\beta}$, implying that $\mathbf{a'} \mathbf{X}_s = \mathbf{b'}_a \mathbf{X}$.
+Unbiasedness implies that $E(\mathbf{q'}\mathbf{y}_o) = E(\mathbf{b}_a'\mathbf{y}_a)$ for all $\bm{\beta}$. So, denoting $\mathbf{X}_o$ as the design matrix for sampled sites, $\mathbf{q'} \mathbf{X}_o \bm{\beta}$ = $\mathbf{b'} \mathbf{X} \bm{\beta}$ for every $\bm{\beta}$, implying that $\mathbf{q'} \mathbf{X}_o = \mathbf{b'}_a \mathbf{X}_a$.
 
-The kriging weights are then found by finding $\bm{\lambda}_s$, an $n \times 1$ vector, such that
+The kriging weights are then found by finding $\bm{\lambda}_s$, an $n_o \times 1$ vector, such that
 \mbox{}
 \begin{equation}
-E\{(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{a'}\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\} - E\{(\bm{\lambda'}_s\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)(\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b'}_a \mathbf{z}_a)\}
+E\{(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)\} - E\{(\bm{\lambda'}_o\mathbf{y}_o - \mathbf{b'}_a \mathbf{z}_a)(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)\}
 \end{equation}
 \noindent
-is greater than 0 for all $\mathbf{a'}$. The prediction equations are
+is greater than 0 for all $\mathbf{q'}$. The prediction equations are
 
 \begin{equation}
 \begin{pmatrix}
-\bm{\Sigma}_{s, s} & \mathbf{X}_s \\
-\mathbf{X}_s' & 0
+\bm{\Sigma}_{o, o} & \mathbf{X}_o \\
+\mathbf{X}_o' & 0
 \end{pmatrix} 
 \begin{pmatrix}
 \bm{\lambda} \\
 m
 \end{pmatrix} = 
 \begin{pmatrix}
-\bm{\Sigma}_{s, s} & \bm{\Sigma}_{s, u} \\
-\mathbf{X}_{s}' & \mathbf{X}_{u}'
+\bm{\Sigma}_{o, o} & \bm{\Sigma}_{o, u} \\
+\mathbf{X}_{o}' & \mathbf{X}_{u}'
 \end{pmatrix} 
 \begin{pmatrix}
-\mathbf{b}_{s} \\
+\mathbf{b}_{o} \\
 \mathbf{b}_{u}
 \end{pmatrix},
 \end{equation}
 \noindent
-where again the subscripts $s$ and $u$ denote sampled and unsampled observations. For example, letting $n$ denote the number of sampled observations, $\bm{\Sigma}_{s, s}$ denotes the $n \times n$ submatrix of $\bm{\Sigma}$ corresponding only to rows and columns of sampled observations and $\bm{\Sigma}_{u, s}$ denotes the $(N - n) \times n$ submatrix of $\bm{\Sigma}$ corresponding to rows of observations that were not sampled and columns of observations that were sampled. Then, $\bm{\lambda}_s$ is an $n \times 1$ vector. 
-
-Then, we can solve for the prediction weights as
+where again the subscripts $o$ and $u$ denote observed and unobserved data points. For example, letting $n_o$ denote the number of observed data points, $\bm{\Sigma}_{o, o}$ denotes the $n_o \times n_o$ submatrix of $\bm{\Sigma}$ corresponding only to rows and columns of observed data points and $\bm{\Sigma}_{u, o}$ denotes the $(N - n_o) \times n_o$ submatrix of $\bm{\Sigma}$ corresponding to rows of data points that were not observed and columns of observations that were observed Then, the optimal prediction weights $\bm{\lambda}_o$ are an $n_o \times 1$ vector:
 \mbox{}
 \begin{equation}
-\bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, s}\bm{\Sigma}_{s, s}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, s} \bm{\Sigma}_{s, s}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1} + \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{s, s}^{-1}.
+\bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
 \end{equation}
 \noindent
-Our prediction for the total abundance across all years of the survey is then
+Then, the BLUP for $\mathbf{b}'_a \mathbf{y}_a$ is
 \mbox{}
 \begin{equation}
-\bm{\lambda}_s' \mathbf{\tilde{y}}_s,
+\hat{\mathbf{b}'_a \mathbf{y}_a} = \bm{\lambda}_o' \mathbf{\tilde{y}}_o,
 \end{equation}
 \noindent
 with a prediction variance of 
 \mbox{}
 \begin{equation}
-E((\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b}_a'\mathbf{y}_a)) = \\
-\bm{\lambda}_s'\bm{\Sigma}_{s, s}\bm{\lambda}_s - 2 \mathbf{b}_a' \bm{\Sigma}_{a ,s} \bm{\lambda}_s + \mathbf{b}_a' \bm{\Sigma}\mathbf{b}_a.
+E((\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)) = \\
+\bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_a' \bm{\Sigma}_{a, o} \bm{\lambda}_o + \mathbf{b}_a' \bm{\Sigma}_{a, a} \mathbf{b}_a.
 \end{equation}
 
 
@@ -195,29 +241,254 @@ E((\bm{\lambda}_s'\mathbf{y}_s - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_s'\math
 <!-- \mathbf{\hat{y}}_{u} = \bm{\Sigma}_{u, s} \bm{\Sigma}_{s, s}^{-1}(\mathbf{y}_s - \bm{\hat{\mu}}_s) + \bm{\hat{\mu}}_{u}, -->
 <!-- \end{equation} -->
  
-However, we often are not interested in predicting total abundance across multiple years and instead would want a prediction of the total abundance in the most recent year of the survey. Then, $\mathbf{b}_a$ should not be a vector of 1's and should instead take a value of 1 if the observation is in the current year of the survey and a 0 if the observation is not in the current year of the survey:
+A common prediction of interest is the total abundance in the most recent time point of the survey. Then, $\mathbf{b}_a$ is a vector of 1's and 0's, where the $k^{th}$ element of $\mathbf{b}_a$ is a $1$ if the $k^{th}$ element of $\mathbf{y}_a$ is from the most current time point of the survey and the $k^{th}$ element of $\mathbf{b}_a$ is a 0 otherwise. If we order $\mathbf{y}_a$ with the unobserved, past data points first, the unobserved, current data points second, the observed, past data points third, and the observed, current data points fourth, then
 \mbox{}
 \begin{equation}
-\mathbf{b}_a = [\mathbf{b}_{up}^\prime, \mathbf{b}_{uc}', \mathbf{b}_{sp}', , \mathbf{b}_{sc}']' = [\mathbf{0}', \mathbf{1}', \mathbf{0}', \mathbf{1}']',
+\mathbf{b}_a = [\mathbf{b}_{up}^\prime, \mathbf{b}_{uc}', \mathbf{b}_{op}', , \mathbf{b}_{oc}']' = [\mathbf{0}', \mathbf{1}', \mathbf{0}', \mathbf{1}']',
 \end{equation}
 \noindent
-where the subscripts $up$, $uc$, $sp$, and $sc$ denote unsampled sites in past years, unsampled sites in current years, sampled sites in past years, and sampled sites in current years, respectively.
+where the subscripts $up$, $uc$, $op$, and $oc$ denote unobserved sites in past years, unobserved sites in current years, observed sites in past years, and observed sites in current years, respectively.
 
-$\bm{\lambda}_s$ can then be rewritten as
+$\bm{\lambda}_o$ can then be rewritten as
 \mbox{}
 \begin{equation}
-\bm{\lambda}_s = \mathbf{b}_{s}' + \mathbf{b}_{uc}' (\bm{\Sigma}_{uc, s}\bm{\Sigma}_{s, s}^{-1}) - \mathbf{b}'_{uc}(\bm{\Sigma}_{uc, s} \bm{\Sigma}_{s, s}^{-1})\mathbf{X}_s(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1} + \mathbf{b}_{uc}' \mathbf{X}_{uc}'(\mathbf{X}_s'\bm{\Sigma}_{s, s}^{-1}\mathbf{X}_s)^{-1}\mathbf{X}_s \bm{\Sigma}_{s, s}^{-1}.
+\bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{uc}' (\bm{\Sigma}_{uc, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{uc}(\bm{\Sigma}_{uc, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{b}_{uc}' \mathbf{X}_{uc}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
 \end{equation}
 
 with a prediction variance of
 \mbox{}
 \begin{equation}
-\bm{\lambda}_s'\bm{\Sigma}_{s, s}\bm{\lambda}_s - 2 \mathbf{b}_{c}' \bm{\Sigma}_{c, s} \bm{\lambda}_s + \mathbf{b}_{c}' \bm{\Sigma}_{c, c} \mathbf{b}_{c},
+\bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_{c}' \bm{\Sigma}_{c, o} \bm{\lambda}_o + \mathbf{b}_{c}' \bm{\Sigma}_{c, c} \mathbf{b}_{c},
 \end{equation}
 \noindent
-where $c$ denotes observations in the current year.
+where $c$ denotes observations in the most current time point.
 
 \section{Application} \label{section:Application}
+
+\subsection{Data Description}
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(here)
+library(FPSpatioTemp)
+
+data(moose_14_20)
+
+## use most recent stratification
+moose_14_20 <- moose_14_20 %>%
+  mutate(newstrat = if_else(Surveyyear == 2020,
+                            true = stratfact, 
+                            false = NA_integer_)) %>%
+  group_by(ID) %>% fill(newstrat, .direction = "updown") %>%
+  ungroup()
+
+moose_df_all <- moose_14_20 %>%
+  select(totalmoosena, SurveyID, Surveyyear, ID,
+         newstrat, xcoords, ycoords, samp_frame) %>%
+  mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1,
+                           true = 1, false = 0)) %>%
+  ungroup()
+
+
+moose_df_merge <- moose_df_all %>% filter(yearind == 1) %>% select(ID)
+moose_final_all <- semi_join(moose_df_all, moose_df_merge)
+
+## nspat unique spatial points and ntime unique time points.
+nspat <- nrow(moose_final_all) / length(unique(moose_final_all$Surveyyear))
+ntime <- nrow(moose_final_all) / nrow(unique(cbind(moose_final_all$xcoords, moose_final_all$ycoords)))
+```
+
+```{r tokplot, fig.cap = "\\label{fig:tokplot} A map of the Taylor Corridor in the TOK region of Alaska.", out.width = "50%"}
+library(here)
+knitr::include_graphics(here("inst/fpspatiotemp_manu/20E_survey_area_overview.jpg"))
+```
+
+Abundance surveys are performed in the Taylor Corridor of the TOK region of Alaska annually (Figure \ref{fig:tokplot}. In particular, surveys were conducted every year from 2014 through 2020, except for the year 2016, during which there was not sufficient snow cover to perform a survey. There are a total of `r nspat` unique spatial locations, which we refer to as "sites," and a total of `r ntime` unique time points in the data set, including the missing year of 2016. 
+
+```{r, results = "hide"}
+moose_final_all |> group_by(Surveyyear) |>
+  summarise(sum(!is.na(totalmoosena)))
+moose_final_all |> group_by(ID) |>
+  summarise(n_obs = sum(!is.na(totalmoosena))) |>
+  arrange(n_obs)
+```
+
+In each year of the survey, an aerial team of biologists selects some of the `r nspat` sites to survey. The number of sites in the sampling frame that are selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique time points, some sites are surveyed as many as four or five different times while others are never surveyed. 
+
+```{r, results = "hide"}
+moose_final_all |> group_by(Surveyyear, newstrat) |>
+  summarise(ncount = n())
+```
+
+Before each the survey begins in each year, biologists stratify the sites into a `"HIGH"` stratum and a `"LOW"` stratum. There are 230 sites in the `"HIGH"` stratum while there are 151 sites in the `"LOW"` stratum. A map of the sites in the TOK region is given in Figure (make figure and put in figure number).
+
+\subsection{Model Fitting}
+
+We fit the product-sum covariance model defined in equation \ref{equation:model} using REML, with stratum as a covariate in the design matrix, an exponential spatial correlation structure defined in \ref{equation:spatcov}, and an exponential temporal correlation structure defined in \ref{equation:tempcov}. Table \ref{paramest} gives the estimated parameters from the model fit.
+
+<!-- The predicted total abundance is moose with a 95% prediction interval of moose. -->
+
+
+```{r, echo = FALSE, eval = TRUE, cache = TRUE}
+## using stratum as a predictor
+fit_obj_all <- stlmfit(formula = totalmoosena ~ newstrat,
+                       data = moose_final_all,
+                       xcoordcol = "xcoords", ycoordcol = "ycoords",
+                       tcol = "Surveyyear")
+tab <- round(unlist(fit_obj_all$parms)[-c(1, 2)], 2) |>
+  as.matrix() |>
+  t()
+```
+
+```{r, results = "hide"}
+colnames(tab) <- c("$\\hat{\\sigma}^2_{\\delta}$",
+                   "$\\hat{\\phi}$",
+                   "$\\hat{\\sigma}^2_{\\gamma}$",
+                   "$\\hat{\\sigma}^2_{\\tau}$",
+                   "$\\hat{\\rho}$",
+                   "$\\hat{\\sigma}^2_{\\eta}$",
+                   "$\\hat{\\sigma}^2_{\\omega}$",
+                   "$\\hat{\\sigma}^2_{\\nu}$") 
+library(xtable)
+xtable(tab, digits = 1, caption = "Table of estimated covariance parameters in the model.", label = "paramest") |>
+  print(sanitize.colnames.function = identity)
+```
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrr}
+  \hline
+ & $\hat{\sigma}^2_{\delta}$ & $\hat{\phi}$ & $\hat{\sigma}^2_{\gamma}$ & $\hat{\sigma}^2_{\tau}$ & $\hat{\rho}$ & $\hat{\sigma}^2_{\eta}$ & $\hat{\sigma}^2_{\omega}$ & $\hat{\sigma}^2_{\nu}$ \\ 
+  \hline
+1 & 16.9 & 13.3 & 3.8 & 0.9 & 6.9 & 0.2 & 30.8 & 24.0 \\ 
+   \hline
+\end{tabular}
+\caption{Table of estimated covariance parameters in the model.} 
+\label{paramest}
+\end{table}
+
+To help interpret what some of these fitted covariance parameter estimates mean, we can construct a fitted covariance plot (Figure \ref{fig:covplot}). Note that the centroids of two sites directly adjacent to one another are about 4 units apart. So, we see from Figure \@ref(fig:covplot) that the covariance between random response values from sites that are adjacent is estimated to be about 20 units if the response values are in the same year. The covariance between random responses values from adjacent sites is estimated to be about 10 units if the response values are 6 years apart. As the spatial distance between two sites increases, the covariance between the response values decreases to 0. In fact, the model estimates that, no matter what the time distance is, when two response values are 20 or more units apart, the covariance is nearly 0 units.
+
+```{r covplot, fig.cap = "\\label{fig:covplot} Estimated covariance from the fitted parameters in a product-sum model."}
+# moose_14 <- moose_df_all |> filter(Surveyyear == 2014)
+# dist_mat <- as.matrix(dist(cbind(moose_14$xcoords, moose_14$ycoords)))
+# min(dist_mat[dist_mat != 0])
+
+moose_parms <- fit_obj_all$parms ## (from manu.Rmd file)
+
+s_de <- moose_parms$sigma_parsil_spat
+s_ie <- moose_parms$sigma_nugget_spat
+t_de <- moose_parms$sigma_parsil_time
+t_ie <- moose_parms$sigma_nugget_time
+st_de <- moose_parms$sigma_parsil_spacetime
+st_ie <- moose_parms$sigma_nugget_spacetime
+total_var <- sum(s_de, s_ie, t_de, t_ie, st_de, st_ie)
+s_range <- moose_parms$range
+t_range <- moose_parms$rho
+rangetol <- 1 / 4
+s_rangetol <- s_range + s_range * rangetol
+# t_rangetol <- t_range + t_range * rangetol
+t_rangetol <- 3 * 2
+
+
+brspace <- 0.075
+brlen <- 0.15
+
+# epsilon tolerance
+epstol <- 1e-5
+# axistext_size <- 24
+# legendtext_size <- 24
+# annotate_size <- 9
+
+s_epstol <- c(0.2, 4, 20, Inf) ##  4, 10,
+
+
+# setting unique distance values
+h_s_seq <- seq(0, s_rangetol, length.out = 200)
+h_s_seq <- append(h_s_seq, s_epstol, s_range / 2)
+h_t_seq <- seq(0, t_rangetol, length.out = 200)
+h_t_seq <- append(h_t_seq, t_range / 2)
+h_s <- rep(h_s_seq, times = length(h_t_seq))
+h_t <- rep(h_t_seq, each = length(h_s_seq))
+
+t_epstol <- c(0.2, 2, max(h_t))
+
+# make covparam object
+covparams <- DumelleEtAl2021STLMM::make_covparam_object(
+  s_de = s_de,
+  s_ie = s_ie,
+  t_de = t_de,
+  t_ie = t_ie,
+  st_de = st_de,
+  st_ie = st_ie,
+  s_range = s_range,
+  t_range = t_range,
+  stcov = "productsum"
+)
+names(covparams) <- c("s_de", "s_ie", "t_de", "t_ie", "st_de", "st_ie",
+                      "s_range", "t_range")
+
+# make stcovariance
+sigma <- DumelleEtAl2021STLMM::make_stcovariance(covparams, h_s, h_t, "exponential", "exponential")
+
+gamma <- DumelleEtAl2021STLMM::make_stsemivariogram(covparams, h_s, h_t,
+                                                    "exponential",
+                                                    "exponential")
+
+data <- tibble::tibble(
+  h_s = h_s,
+  h_t = h_t,
+  sigma = sigma,
+  gamma = gamma
+)
+
+# temporal plotting subset
+# change s_epstol to c(1, Inf)
+t_plot_pos <- data %>%
+  dplyr::filter((h_s %in% c(0, s_epstol)) & (h_t > 0.2))
+t_plot_zero <- data %>%
+  dplyr::filter((h_s %in% c(0, s_epstol)) & (h_t == 0))
+
+s_plot_pos <- data %>% 
+  dplyr::filter(h_s > 0 & h_t %in% c(0, min(h_t[h_t > 0]), max(h_t)))
+s_plot_zero <- data %>%
+  dplyr::filter(h_s == 0 & h_t %in% c(0, min(h_t[h_t > 0]), max(h_t)))
+
+
+plot_s_de <- total_var - t_plot_pos$gamma[t_plot_pos$h_s == 0.2 & t_plot_pos$h_t == max(t_plot_pos$h_t)]
+plot_s_ie <- t_plot_pos$gamma[t_plot_pos$h_s == 0.2 & t_plot_pos$h_t == max(t_plot_pos$h_t)] -
+  t_plot_pos$gamma[t_plot_pos$h_s == 0 & t_plot_pos$h_t == max(t_plot_pos$h_t)]
+
+ggplot(data  = t_plot_pos) +
+  geom_line(mapping = aes(x = h_t, y = sigma, colour = as.factor(h_s)), size = 1.5) +
+  geom_point(data = t_plot_zero, mapping = aes(x = h_t, y = sigma, colour = as.factor(h_s)), size = 4) +
+  scale_colour_viridis_d(name = "Spatial Distance", begin = 0, end = 0.9) +
+  theme_minimal() +
+  labs(x = "Time Distance (years)",
+       y = "Estimated Covariance")
+```
+
+```{r, echo = FALSE, eval = FALSE}
+ggplot(data = s_plot_pos) +
+  geom_line(mapping = aes(x = h_s, y = sigma, colour = as.factor(h_t)), size = 1.5) +
+  geom_point(data = s_plot_zero, mapping = aes(x = h_s, y = sigma, colour = as.factor(h_t)), size = 4) +
+  scale_colour_viridis_d(end = 0.9) +
+  theme_minimal()
+```
+
+
+```{r, results = "hide"}
+pred_obj_all <- predict(object = fit_obj_all, wtscol = "yearind")
+
+prediction_all <- pred_obj_all$totalpred
+predvar_all <- pred_obj_all$predvar
+lb_all <- pred_obj_all$lb
+ub_all <- pred_obj_all$ub
+tab_stlmfit_all <- cbind(prediction_all, sqrt(predvar_all),
+                          lb_all, ub_all)
+library(xtable)
+xtable(tab_stlmfit_all, digits = 0)
+```
 
 <!-- Other Information: 2013: separate area -->
 <!-- 2016: no snow -->
@@ -233,20 +504,6 @@ where $c$ denotes observations in the current year.
 <!-- In summary, there is a subset of sites that was sampled from 2004 - 2020, but, of most interest is probably the area that has been surveyed every year since 2014 (except for the year 2016, when no survey was done). -->
 
 ```{r, message = FALSE, warning = FALSE}
-library(tidyverse)
-library(here)
-library(FPSpatioTemp)
-# moose_temp_high <- read_csv(here("inst",
-#                                  "datasets/moose_high_2014_2018.csv"))
-data(moose_14_20)
-
-## use most recent stratification
-moose_14_20 <- moose_14_20 %>%
-  mutate(newstrat = if_else(Surveyyear == 2020,
-                            true = stratfact, 
-                            false = NA_integer_)) %>%
-  group_by(ID) %>% fill(newstrat, .direction = "updown")
-
 moose_temp_high <- moose_14_20 %>% dplyr::filter(newstrat == "HIGH")
 
 ## keep only variables that are necessary for analysis
@@ -257,12 +514,13 @@ moose_df_high <- moose_temp_high %>%
 ## create a variable for what values we want added up for
 ## abundance
 moose_df_high <- moose_df_high %>%
-  mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1, true = 1, false = 0)) %>% ungroup()
+  mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1,
+                           true = 1, false = 0)) %>% ungroup()
 
 moose_df_merge <- moose_df_high %>% filter(yearind == 1) %>% select(ID)
 moose_final_high <- semi_join(moose_df_high, moose_df_merge)
 
-## n unique spatial points and n unique time points.
+## nspat unique spatial points and ntime unique time points.
 nspat <- nrow(moose_final_high) / length(unique(moose_final_high$Surveyyear))
 ntime <- nrow(moose_final_high) / nrow(unique(cbind(moose_final_high$xcoords, moose_final_high$ycoords)))
 ```
@@ -278,7 +536,8 @@ moose_df_low <- moose_temp_low %>%
 ## create a variable for what values we want added up for
 ## abundance
 moose_df_low <- moose_df_low %>%
-  mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1, true = 1, false = 0)) %>% ungroup()
+  mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1,
+                           true = 1, false = 0)) %>% ungroup()
 
 moose_df_merge_low <- moose_df_low %>% filter(yearind == 1) %>% select(ID)
 moose_final_low <- semi_join(moose_df_low, moose_df_merge_low)
@@ -289,7 +548,7 @@ ntime_low <- nrow(moose_final_low) / nrow(unique(cbind(moose_final_low$xcoords, 
 ```
 
 
-Abundance surveys are performed in the TOK region of Alaska annually. In particular, surveys were conducted every year from 2014 through 2020, except for the year 2016, during which there was not sufficient snow cover to perform a survey. Before each survey, the sites are stratified into a High stratum and a Low stratum. In the high stratum, there are 230 unique spatial locations in the sampling frame of each year while in the low stratum, there are 151 unique spatial locations. For both strata, there are 7 unique time points, including the year 2016. 
+
 
 ```{r, cache = TRUE}
 fit_obj_high <- stlmfit(formula = totalmoosena ~ 1,
@@ -356,7 +615,6 @@ pred_var <- sqrt(tab_stlmfit_low[1, 2] ^ 2 +
 pis <- pred_total + c(-1, 1) * 1.96 * 65.415
 ```
 
-The strata are fit separately with a sum-with-error covariance, an exponential spatial correlation structure, and an AR(1) temporal correlation structure outlined in \ref{section:Methods}. The predicted total abundance is `r round(pred_total, 0)` moose with a 95% prediction interval of (`r round(pis[1], 0)`, `r round(pis[2], 0)`) moose.
 
 ```{r, results = "hide"}
 ## sptotal on HIGH stratum
