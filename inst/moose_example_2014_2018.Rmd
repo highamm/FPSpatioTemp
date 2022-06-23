@@ -28,16 +28,16 @@ library(FPSpatioTemp)
 data(moose_14_18)
 
 ## use most recent stratification
-moose_14_18 <- moose_14_18 %>%
+moose_14_18 <- moose_14_18 |>
   mutate(newstrat = if_else(Surveyyear == 2018,
                             true = stratfact, 
-                            false = NA_integer_)) %>%
-  group_by(ID) %>% fill(newstrat, .direction = "updown")
+                            false = NA_integer_)) |>
+  group_by(ID) |> fill(newstrat, .direction = "updown")
 
-moose_temp_high <- moose_14_18 %>% dplyr::filter(newstrat == "HIGH")
+moose_temp_high <- moose_14_18 |> dplyr::filter(newstrat == "HIGH")
 
 ## keep only variables that are necessary for analysis
-moose_df_high <- moose_temp_high %>%
+moose_df_high <- moose_temp_high |>
   select(totalmoosena, SurveyID, Surveyyear, ID,
          Stratname, xcoords, ycoords, samp_frame)
 
@@ -47,8 +47,8 @@ ntime <- nrow(moose_df_high) / nrow(unique(cbind(moose_df_high$xcoords, moose_df
 
 ## create a variable for what values we want added up for
 ## abundance
-moose_df_high <- moose_df_high %>%
-  mutate(yearind = if_else(Surveyyear == 2018 & samp_frame == 1, true = 1, false = 0)) %>% ungroup()
+moose_df_high <- moose_df_high |>
+  mutate(yearind = if_else(Surveyyear == 2018 & samp_frame == 1, true = 1, false = 0)) |> ungroup()
 ```
 
 The model is then fit with `stlmfit()`, assuming a sum-with-error covariance with an exponential spatial correlation structure and an AR(1) temporal correlation structure.
@@ -95,7 +95,7 @@ We see that there is a fairly large independent error component (`$sigma_nugget_
 We might be interested in comparing this analysis with an analysis on the 2018 data only with the `sptotal` package.
 
 ```{r}
-moose_df_high_2018 <- moose_df_high %>% dplyr::filter(Surveyyear == 2018)
+moose_df_high_2018 <- moose_df_high |> dplyr::filter(Surveyyear == 2018)
 
 library(sptotal)
 fit_obj_2018 <- slmfit(formula = totalmoosena ~ 1,
@@ -135,8 +135,8 @@ plot(fit_obj_2018)
 Finally, as a small check to make sure that `stlmfit()` iw "working" correctly, we might want to compare the prediction from `sptotal` on the 2018 data only to the prediction from using `stlmfit()` but artificially making all counts before 2018 `NA`. The predictions should be very close, possibly differing slightly because of the different method that parameters are optimized.
 
 ```{r}
-moose_df_high_2018 <- moose_df_high %>% dplyr::filter(Surveyyear == 2018)
-moose_df_high_before2018 <- moose_df_high %>% dplyr::filter(Surveyyear < 2018)
+moose_df_high_2018 <- moose_df_high |> dplyr::filter(Surveyyear == 2018)
+moose_df_high_before2018 <- moose_df_high |> dplyr::filter(Surveyyear < 2018)
 moose_df_high_before2018$totalmoosena <- NA
 moose_df_high_fakemiss <- bind_rows(moose_df_high_before2018,
                                     moose_df_high_2018)
@@ -175,8 +175,8 @@ We might be interested in which sites seem to have a large difference in predict
 ```{r}
 sptotal_df <- pred_obj_2018$Pred_df
 ## drop sites that were sampled
-sptotal_df_unsamp <- sptotal_df %>%
-  dplyr::filter(totalmoosena_sampind == 0) %>%
+sptotal_df_unsamp <- sptotal_df |>
+  dplyr::filter(totalmoosena_sampind == 0) |>
   arrange(xcoordsTM_, ycoordsTM_)
 ```
 
@@ -189,7 +189,7 @@ cbind(pred_obj$zhatu, sptotal_df_unsamp$totalmoosena_pred_count)
 We see that most sites have similar predicted abundance for the two methods. However, for some sites, the predictions are quite different. For example, site 784 (the sites are identified by the rownumbers) has a prediction of 21.4 moose using `stlmfit()` and a prediction of 9.7 moose using `sptotal`. Why are these predictions so drastically different?
 
 ```{r}
-test_df <- moose_df_high %>% slice(784) %>% select(ID)
+test_df <- moose_df_high |> slice(784) |> select(ID)
 semi_join(moose_df_high, test_df)
 ```
 
@@ -198,7 +198,7 @@ We see that, in the year 2017, site 784 was surveyed and there were found to be 
 Similarly, site 765 has a much higher prediction in `stlmfit()` than `sptotal`:
 
 ```{r}
-test_df <- moose_df_high %>% slice(765) %>% select(ID)
+test_df <- moose_df_high |> slice(765) |> select(ID)
 semi_join(moose_df_high, test_df)
 ```
 
@@ -207,7 +207,7 @@ and the reason seems for this difference seems similar to the reason for site 78
 Note that the reverse also holds. For example, for site 743, `sptotal` predicts an abundance of 27.6 moose while `stlmfit()` predicts an abundance of 12.5 moose. 
 
 ```{r}
-test_df <- moose_df_high %>% slice(743) %>% select(ID)
+test_df <- moose_df_high |> slice(743) |> select(ID)
 semi_join(moose_df_high, test_df)
 ```
 
@@ -227,10 +227,10 @@ Fit model with `stlmfit()`:
 library(tidyverse)
 # moose_df_low <- read_csv(here("inst", "datasets/moose_low_2014_2018.csv"))
 
-moose_df_low <- moose_14_18 %>%
+moose_df_low <- moose_14_18 |>
   dplyr::filter(newstrat == "LOW")
 
-moose_df_low <- moose_df_low %>%
+moose_df_low <- moose_df_low |>
   mutate(yearind = if_else(Surveyyear == 2018 & samp_frame == 1,
                            true = 1, false = 0))
 
@@ -243,7 +243,7 @@ pred_obj_low <- predict(object = fit_obj_low, wtscol = "yearind")
 Fit model with `sptotal`:
 
 ```{r}
-moose_df_low_2018 <- moose_df_low %>% dplyr::filter(Surveyyear == 2018)
+moose_df_low_2018 <- moose_df_low |> dplyr::filter(Surveyyear == 2018)
 library(sptotal)
 
 fit_obj_low_2018 <- slmfit(formula = totalmoosena ~ 1,
@@ -284,19 +284,19 @@ library(tidyverse)
 # moose_df <- read_csv(here("inst", "datasets/moose_04_06.csv"))
 
 data(moose_04_12)
-moose_df <- moose_04_12 %>% filter(Surveyyear >= 2004 & Surveyyear <= 2006) %>%
+moose_df <- moose_04_12 |> filter(Surveyyear >= 2004 & Surveyyear <= 2006) |>
     mutate(newstrat = if_else(Surveyyear == 2006,
                             true = stratfact, 
-                            false = NA_integer_)) %>%
-  group_by(ID) %>% fill(newstrat, .direction = "updown")
+                            false = NA_integer_)) |>
+  group_by(ID) |> fill(newstrat, .direction = "updown")
 
-moose_df <- moose_df %>%
+moose_df <- moose_df |>
   mutate(yearind = if_else(Surveyyear == 2006 & samp_frame == 1, true = 1, false = 0))
 
 
-moose_06_high <- moose_df %>% dplyr::filter(newstrat == "HIGH")
+moose_06_high <- moose_df |> dplyr::filter(newstrat == "HIGH")
 
-moose_04_06 <- stlmfit(formula = totalmoosena ~ 1, data = moose_06_high %>% ungroup(),
+moose_04_06 <- stlmfit(formula = totalmoosena ~ 1, data = moose_06_high |> ungroup(),
                        xcoordcol = "xcoords", ycoordcol = "ycoords",
                        tcol = "Surveyyear",
                        areacol = NULL)
@@ -306,8 +306,8 @@ sqrt(pred_04_06$predvar) ## se
 
 ## compare to sptotal
 
-moose_2006_high <- moose_df %>% dplyr::filter(Surveyyear == 2006 &
-                                           samp_frame == 1) %>%
+moose_2006_high <- moose_df |> dplyr::filter(Surveyyear == 2006 &
+                                           samp_frame == 1) |>
   filter(newstrat == "HIGH")
 moose_06 <- slmfit(formula = totalmoosena ~ 1, data = moose_2006_high,
                        xcoordcol = "xcoords", ycoordcol = "ycoords",
@@ -318,7 +318,7 @@ predict(moose_06)
 Finally, the following is just a check to make sure things don't change from re-ordering the data set.
 
 ```{r}
-moose_df2 <- moose_df %>% sample_n(nrow(moose_df))
+moose_df2 <- moose_df |> sample_n(nrow(moose_df))
 
 moose_04_06_reorder <- stlmfit(formula = totalmoosena ~ 1,
                                data = moose_df2,

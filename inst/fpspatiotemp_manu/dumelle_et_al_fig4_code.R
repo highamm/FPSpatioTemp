@@ -76,10 +76,10 @@ data <- data.frame(
 
 
 # temporal plotting subset
-t_plot_pos <- data %>%
+t_plot_pos <- data |>
   dplyr::filter((h_s %in% c(0, s_epstol)) & (h_t > 0.2))
 
-t_plot_zero <- data %>%
+t_plot_zero <- data |>
   dplyr::filter((h_s %in% c(0, s_epstol)) & (h_t == 0))
 
 plot_s_de <- total_var - t_plot_pos$gamma[t_plot_pos$h_s == 10 & t_plot_pos$h_t == max(t_plot_pos$h_t)]

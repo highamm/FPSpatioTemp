@@ -251,13 +251,15 @@ where the subscripts $up$, $uc$, $op$, and $oc$ denote unobserved sites in past 
 
 $\bm{\lambda}_o$ can then be rewritten as
 \mbox{}
-\begin{equation}
+\begin{equation} 
+\label{equation:lambdacurrentpred}
 \bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{uc}' (\bm{\Sigma}_{uc, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{uc}(\bm{\Sigma}_{uc, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{b}_{uc}' \mathbf{X}_{uc}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
 \end{equation}
 
 with a prediction variance of
 \mbox{}
 \begin{equation}
+\label{equation:lambdacurrentvar}
 \bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_{c}' \bm{\Sigma}_{c, o} \bm{\lambda}_o + \mathbf{b}_{c}' \bm{\Sigma}_{c, c} \mathbf{b}_{c},
 \end{equation}
 \noindent
@@ -275,22 +277,22 @@ library(FPSpatioTemp)
 data(moose_14_20)
 
 ## use most recent stratification
-moose_14_20 <- moose_14_20 %>%
+moose_14_20 <- moose_14_20 |>
   mutate(newstrat = if_else(Surveyyear == 2020,
                             true = stratfact, 
-                            false = NA_integer_)) %>%
-  group_by(ID) %>% fill(newstrat, .direction = "updown") %>%
+                            false = NA_integer_)) |>
+  group_by(ID) |> fill(newstrat, .direction = "updown") |>
   ungroup()
 
-moose_df_all <- moose_14_20 %>%
+moose_df_all <- moose_14_20 |>
   select(totalmoosena, SurveyID, Surveyyear, ID,
-         newstrat, xcoords, ycoords, samp_frame) %>%
+         newstrat, xcoords, ycoords, samp_frame) |>
   mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1,
-                           true = 1, false = 0)) %>%
+                           true = 1, false = 0)) |>
   ungroup()
 
 
-moose_df_merge <- moose_df_all %>% filter(yearind == 1) %>% select(ID)
+moose_df_merge <- moose_df_all |> filter(yearind == 1) |> select(ID)
 moose_final_all <- semi_join(moose_df_all, moose_df_merge)
 
 ## nspat unique spatial points and ntime unique time points.
@@ -303,7 +305,7 @@ library(here)
 knitr::include_graphics(here("inst/fpspatiotemp_manu/20E_survey_area_overview.jpg"))
 ```
 
-Abundance surveys are performed in the Taylor Corridor of the TOK region of Alaska annually (Figure \ref{fig:tokplot}. In particular, surveys were conducted every year from 2014 through 2020, except for the year 2016, during which there was not sufficient snow cover to perform a survey. There are a total of `r nspat` unique spatial locations, which we refer to as "sites," and a total of `r ntime` unique time points in the data set, including the missing year of 2016. 
+Abundance surveys are performed in the Taylor Corridor of the TOK region of Alaska annually (Figure \ref{fig:tokplot}). In particular, surveys were conducted every year from 2014 through 2020, except for the year 2016, during which there was not sufficient snow cover to perform a survey. There are a total of `r nspat` unique spatial locations, which we refer to as "sites," and a total of `r ntime` unique time points in the data set, including the missing year of 2016. 
 
 ```{r, results = "hide"}
 moose_final_all |> group_by(Surveyyear) |>
@@ -320,9 +322,28 @@ moose_final_all |> group_by(Surveyyear, newstrat) |>
   summarise(ncount = n())
 ```
 
+```{r}
+library(sf)
+library(here)
+shp <- read_sf(here("inst/ADFG_Taylor_Corridor/20E_Taylor_corridor_SUs.shp"))
+
+ggplot(data = shp) +
+  geom_sf() +
+  theme_void()
+
+moose_final_2020 <- moose_final_all ##|> filter(Surveyyear == 2020)
+moose_shp_2020 <- left_join(shp, moose_final_2020, by = "ID")
+
+ggplot(data = moose_shp_2020) +
+  geom_sf(aes(fill = totalmoosena)) +
+  facet_wrap( ~Surveyyear) +
+  theme_void() +
+  scale_fill_viridis_c()
+```
+
 Before each the survey begins in each year, biologists stratify the sites into a `"HIGH"` stratum and a `"LOW"` stratum. There are 230 sites in the `"HIGH"` stratum while there are 151 sites in the `"LOW"` stratum. A map of the sites in the TOK region is given in Figure (make figure and put in figure number).
 
-\subsection{Model Fitting}
+\subsection{Model Fitting} \label{subsection:modelfit}
 
 We fit the product-sum covariance model defined in equation \ref{equation:model} using REML, with stratum as a covariate in the design matrix, an exponential spatial correlation structure defined in \ref{equation:spatcov}, and an exponential temporal correlation structure defined in \ref{equation:tempcov}. Table \ref{paramest} gives the estimated parameters from the model fit.
 
@@ -331,10 +352,16 @@ We fit the product-sum covariance model defined in equation \ref{equation:model}
 
 ```{r, echo = FALSE, eval = TRUE, cache = TRUE}
 ## using stratum as a predictor
+moose_final_all <- moose_final_all |>
+  mutate(allpred_wts = 1) |>
+  mutate(predwts2016 = if_else(Surveyyear == 2016,
+                               true = 1, 
+                               false = 0))
 fit_obj_all <- stlmfit(formula = totalmoosena ~ newstrat,
                        data = moose_final_all,
                        xcoordcol = "xcoords", ycoordcol = "ycoords",
                        tcol = "Surveyyear")
+fixed_vec <- round(unlist(fit_obj_all$parms)[c(1, 2)], 2)
 tab <- round(unlist(fit_obj_all$parms)[-c(1, 2)], 2) |>
   as.matrix() |>
   t()
@@ -367,7 +394,10 @@ xtable(tab, digits = 1, caption = "Table of estimated covariance parameters in t
 \label{paramest}
 \end{table}
 
-To help interpret what some of these fitted covariance parameter estimates mean, we can construct a fitted covariance plot (Figure \ref{fig:covplot}). Note that the centroids of two sites directly adjacent to one another are about 4 units apart. So, we see from Figure \@ref(fig:covplot) that the covariance between random response values from sites that are adjacent is estimated to be about 20 units if the response values are in the same year. The covariance between random responses values from adjacent sites is estimated to be about 10 units if the response values are 6 years apart. As the spatial distance between two sites increases, the covariance between the response values decreases to 0. In fact, the model estimates that, no matter what the time distance is, when two response values are 20 or more units apart, the covariance is nearly 0 units.
+To help interpret what some of these fitted covariance parameter estimates mean, we can construct a fitted covariance plot (Figure \ref{fig:covplot}). Note that the centroids of two sites directly adjacent to one another are about 4 units apart. So, we see from Figure \ref{fig:covplot} that the covariance between random response values from sites that are adjacent is estimated to be about 20 units if the response values are in the same year. The covariance between random responses values from adjacent sites is estimated to be about 10 units if the response values are 6 years apart. As the spatial distance between two sites increases, the covariance between the response values decreases to 0. In fact, the model estimates that, no matter what the time distance is, when two response values are 20 or more units apart, the covariance is nearly 0 units.
+
+The estimated vector of fixed effects, using `"HIGH"` as the reference group, is $\bm{\beta}$ = (`r fixed_vec[1]`, `r fixed_vec[2]`). Therefore the overall mean for sites in the `"HIGH"` stratum is estimated to be `r fixed_vec[1]` moose while the overall mean for sites in the `"LOW"` stratum is estimated to be `r fixed_vec[1] + fixed_vec[2]` moose.
+
 
 ```{r covplot, fig.cap = "\\label{fig:covplot} Estimated covariance from the fitted parameters in a product-sum model."}
 # moose_14 <- moose_df_all |> filter(Surveyyear == 2014)
@@ -444,14 +474,14 @@ data <- tibble::tibble(
 
 # temporal plotting subset
 # change s_epstol to c(1, Inf)
-t_plot_pos <- data %>%
+t_plot_pos <- data |>
   dplyr::filter((h_s %in% c(0, s_epstol)) & (h_t > 0.2))
-t_plot_zero <- data %>%
+t_plot_zero <- data |>
   dplyr::filter((h_s %in% c(0, s_epstol)) & (h_t == 0))
 
-s_plot_pos <- data %>% 
+s_plot_pos <- data |> 
   dplyr::filter(h_s > 0 & h_t %in% c(0, min(h_t[h_t > 0]), max(h_t)))
-s_plot_zero <- data %>%
+s_plot_zero <- data |>
   dplyr::filter(h_s == 0 & h_t %in% c(0, min(h_t[h_t > 0]), max(h_t)))
 
 
@@ -476,6 +506,7 @@ ggplot(data = s_plot_pos) +
   theme_minimal()
 ```
 
+\subsection{Prediction}
 
 ```{r, results = "hide"}
 pred_obj_all <- predict(object = fit_obj_all, wtscol = "yearind")
@@ -489,6 +520,82 @@ tab_stlmfit_all <- cbind(prediction_all, sqrt(predvar_all),
 library(xtable)
 xtable(tab_stlmfit_all, digits = 0)
 ```
+
+We now use the model in subsection \ref{subsection:modelfit} to predict the total abundance across all sites in the year 2020, the most recent year of the survey. Plugging in estimates of the covariance parameters into equations \ref{equation:lambdacurrentpred} and \ref{equation:lambdacurrentvar} and letting elements of $\mathbf{b}_a$ be 1's for data points in 2020 and 0's otherwise, we obtain a prediction of `r round(as.numeric(prediction_all), 0)` moose and a standard error of `r round(as.numeric(sqrt(predvar_all)), 0)` moose. A 90% normal-based prediction interval for the total abundance in 2020 is (`r round(lb_all, 0)`, `r round(ub_all, 0)`) moose. Sitewise predictions for sites in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
+
+```{r, fig.cap = "\\label{fig:sitepredmap} A map of the predictions for the sites in the year 2020."}
+pred_obj_map <- predict(object = fit_obj_all, wtscol = "allpred_wts")
+moose_shp_preds <- left_join(shp, pred_obj_map$data)
+
+# ggplot(data = moose_shp_preds) +
+#   geom_sf(aes(fill = predictions_)) +
+#   facet_wrap( ~ Surveyyear, nrow = 2) +
+#   theme_void() +
+#   scale_fill_viridis_c()
+
+moose_shp_preds_2020 <- moose_shp_preds |> filter(Surveyyear == 2020)
+ggplot(data = moose_shp_preds_2020) +
+  geom_sf(aes(fill = predictions_)) +
+  theme_void() +
+  scale_fill_viridis_c() +
+  geom_point(data = moose_shp_preds_2020 |> filter(ind_sa == 1), aes(x = CentoidX, y = CentroidY), size = 0.3, colour = grey(.5))
+```
+
+For comparison, we use the spatial `sptotal` package (CITE) to compute the prediction for the total abundance of moose in the year 2020 (CITE Ver Hoef 2008). We also use the standard simple random sampling estimator $\bar{y} \cdot \frac{n_s}{n_{o}}$, where $\bar{y}$ is the sample mean for the data points in 2020, $n_s$ is the total number of sites in 2020, and $n_o$ is the number of observed data points in 2020. The simple random sampling estimator has a standard error for the total abundance of $n_s^2 \cdot \frac{\hat{\sigma}^2}{n_o} \cdot (1 - \frac{n_o}{n_s})$.
+
+```{r}
+moose_final_2020 <- moose_final_all |>
+  dplyr::filter(Surveyyear == 2020)
+
+library(sptotal)
+fit_obj_2020 <- slmfit(formula = totalmoosena ~ newstrat,
+                       data = moose_final_2020,
+                       xcoordcol = "xcoords", ycoordcol = "ycoords",
+                       estmethod = "ML")
+pred_obj_2020 <- predict(fit_obj_2020)
+tab_sptotal <- cbind(pred_obj_2020$FPBK_Prediction, sqrt(pred_obj_2020$PredVar),
+                     pred_obj_2020$conf_bounds[1], pred_obj_2020$conf_bounds[2])
+
+pred_sptotal <- round(as.vector(pred_obj_2020$FPBK_Prediction), 0)
+se_sptotal <- round(as.vector(sqrt(pred_obj_2020$PredVar)), 0)
+```
+
+```{r}
+mean_srs <- mean(moose_final_2020$totalmoosena, na.rm = TRUE) 
+N_srs <- nrow(moose_final_2020)
+n_srs <- sum(!is.na(moose_final_2020$totalmoosena))
+var_srs <- var(moose_final_2020$totalmoosena, na.rm = TRUE)
+
+pred_srs <- round(mean_srs * N_srs, 0)
+se_srs <- round(sqrt(N_srs ^ 2 * var_srs / n_srs * (1 - n_srs / N_srs)), 0)
+```
+
+For the purely spatial model, the prediction for the total number of moose in 2020 in the region is `r pred_sptotal` moose with a standard error of `r se_sptotal` moose. For the simple random sampling estimator, the estimated total number of moose in 2020 in the region is `r pred_srs` with a standard error of `se_srs`. While the predictions for the total are similarly across the three methods, we see that the spatiotemporal model is most efficient ($SE$ = `r round(as.numeric(sqrt(predvar_all)), 0)`). We lose some of that efficiency by ignoring the data in previous years but still assuming that the data are spatially correlated (as in the model fit with `sptotal`). And, we lose even more efficiency by taking advantage of neither the temporal nor the spatial correlation (as in the simple random sample estimator).
+
+```{r, eval = FALSE}
+pred_sptotal <- pred_obj_2020$Pred_df |>
+  select(ID, totalmoosena_pred_count, totalmoosena_predvar_count)
+
+moose_shp_allpreds <- left_join(moose_shp_preds_2020, pred_sptotal) |>
+  mutate(pred_diffs = predictions_ - totalmoosena_pred_count)
+ggplot(data = moose_shp_allpreds) +
+  geom_sf(aes(fill = pred_diffs)) +
+  theme_void() +
+  scale_fill_viridis_c() +
+  geom_point(data = moose_shp_preds_2020 |> filter(ind_sa == 1), aes(x = CentoidX, y = CentroidY), size = 0.3, colour = grey(.5))
+```
+
+```{r}
+pred_obj_2016 <- predict(object = fit_obj_all, wtscol = "predwts2016")
+pred_2016 <- round(as.vector(pred_obj_2016$totalpred), 0)
+se_2016 <- round(sqrt(as.vector(pred_obj_2016$predvar)), 0)
+lb_2016 <- round(pred_obj_2016$lb)
+ub_2016 <- round(pred_obj_2016$ub)
+```
+
+<!-- Another idea: use this model to predict the abundance of moose at the sampled sites in 2021 (to see if the interval covers and to see how close the predictor is). -->
+
+
 
 <!-- Other Information: 2013: separate area -->
 <!-- 2016: no snow -->
@@ -504,20 +611,20 @@ xtable(tab_stlmfit_all, digits = 0)
 <!-- In summary, there is a subset of sites that was sampled from 2004 - 2020, but, of most interest is probably the area that has been surveyed every year since 2014 (except for the year 2016, when no survey was done). -->
 
 ```{r, message = FALSE, warning = FALSE}
-moose_temp_high <- moose_14_20 %>% dplyr::filter(newstrat == "HIGH")
+moose_temp_high <- moose_14_20 |> dplyr::filter(newstrat == "HIGH")
 
 ## keep only variables that are necessary for analysis
-moose_df_high <- moose_temp_high %>%
+moose_df_high <- moose_temp_high |>
   select(totalmoosena, SurveyID, Surveyyear, ID,
          newstrat, xcoords, ycoords, samp_frame)
 
 ## create a variable for what values we want added up for
 ## abundance
-moose_df_high <- moose_df_high %>%
+moose_df_high <- moose_df_high |>
   mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1,
-                           true = 1, false = 0)) %>% ungroup()
+                           true = 1, false = 0)) |> ungroup()
 
-moose_df_merge <- moose_df_high %>% filter(yearind == 1) %>% select(ID)
+moose_df_merge <- moose_df_high |> filter(yearind == 1) |> select(ID)
 moose_final_high <- semi_join(moose_df_high, moose_df_merge)
 
 ## nspat unique spatial points and ntime unique time points.
@@ -526,20 +633,20 @@ ntime <- nrow(moose_final_high) / nrow(unique(cbind(moose_final_high$xcoords, mo
 ```
 
 ```{r}
-moose_temp_low <- moose_14_20 %>% dplyr::filter(newstrat == "LOW")
+moose_temp_low <- moose_14_20 |> dplyr::filter(newstrat == "LOW")
 
 ## keep only variables that are necessary for analysis
-moose_df_low <- moose_temp_low %>%
+moose_df_low <- moose_temp_low |>
   select(totalmoosena, SurveyID, Surveyyear, ID,
          newstrat, xcoords, ycoords, samp_frame)
 
 ## create a variable for what values we want added up for
 ## abundance
-moose_df_low <- moose_df_low %>%
+moose_df_low <- moose_df_low |>
   mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1,
-                           true = 1, false = 0)) %>% ungroup()
+                           true = 1, false = 0)) |> ungroup()
 
-moose_df_merge_low <- moose_df_low %>% filter(yearind == 1) %>% select(ID)
+moose_df_merge_low <- moose_df_low |> filter(yearind == 1) |> select(ID)
 moose_final_low <- semi_join(moose_df_low, moose_df_merge_low)
 
 ## n unique spatial points and n unique time points.
@@ -618,7 +725,7 @@ pis <- pred_total + c(-1, 1) * 1.96 * 65.415
 
 ```{r, results = "hide"}
 ## sptotal on HIGH stratum
-moose_final_high_2020 <- moose_final_high %>%
+moose_final_high_2020 <- moose_final_high |>
   dplyr::filter(Surveyyear == 2020)
 
 library(sptotal)
@@ -634,7 +741,7 @@ row.names(tab_combined_high) <- c("stlmfit", "sptotal")
 colnames(tab_combined_high) <- c("prediction", "se", "90% lb", "90% ub")
 
 ## sptotal on LOW stratum
-moose_final_low_2020 <- moose_final_low %>%
+moose_final_low_2020 <- moose_final_low |>
   dplyr::filter(Surveyyear == 2020)
 
 library(sptotal)
@@ -657,13 +764,55 @@ pis_sptotal <- pred_sptotal[1, 1] +
   c(-1, 1) * 1.96 * se_sptotal[1, 1]
 ```
 
-Moose surveys in the TOC region were historically analyzed without explicitly using any data from surveys in past years. Therefore, we compare the spatiotemporal prediction and prediction interval with a spatial model fit with the $\texttt{sptotal}$ package using only the data from the year 2020. The prediction total abundance is `r round(pred_sptotal, 0)` moose with a 95% prediction interval of (`r round(pis_sptotal[1], 0)`, `r round(pis_sptotal[2], 0)`) moose. We see that the predictions are somewhat similar, but that, because the strictly spatial analysis ignores information from past years, the prediction interval for the spatiotemporal analysis is more narrow.
+<!-- Moose surveys in the TOC region were historically analyzed without explicitly using any data from surveys in past years. Therefore, we compare the spatiotemporal prediction and prediction interval with a spatial model fit with the $\texttt{sptotal}$ package using only the data from the year 2020. The prediction total abundance is `r round(pred_sptotal, 0)` moose with a 95% prediction interval of (`r round(pis_sptotal[1], 0)`, `r round(pis_sptotal[2], 0)`) moose. We see that the predictions are somewhat similar, but that, because the strictly spatial analysis ignores information from past years, the prediction interval for the spatiotemporal analysis is more narrow. -->
 
 \section{Simulation} \label{section:Simulation}
 
 * possibly include `sptotal` (on current year only) and SRS (on current year only) as reference comparisons.
 
-For a preliminary simulation, we use a grid of 100 spatial sites and 5 time points. The spatiotemporal process is simulated as a sum-with-error model with an exponential spatial correlation structure and an exponential temporal correlation structure with the following parameters
+For a preliminary simulation, we simulate a response vector $\mathbf{y}$ on a $20 \times 20$ grid of 400 spatial sites and 10 time points. $\mathbf{y}$ is multivariate normal with mean $\mathbf{10}$ and covariance $\bm{\Sigma}$ defined in equation \ref{equation:var} with the following covariance parameters:
+
+<!-- \begin{table}[ht] -->
+<!-- \centering -->
+<!-- \begin{tabular}{rrrrrrrrr} -->
+<!--   \hline -->
+<!--  & $\sigma^2_{\delta}$ & $\phi$ & $\hat{\sigma}^2_{\gamma}$ & $\hat{\sigma}^2_{\tau}$ & $\hat{\rho}$ & $\hat{\sigma}^2_{\eta}$ & $\hat{\sigma}^2_{\omega}$ & $\hat{\sigma}^2_{\nu}$ \\  -->
+<!--   \hline -->
+<!-- 0.9 & 5 & 0.1 & 0.7 & 0.8 & 0.3 & 0.4 & 30.8 & 24.0 \\  -->
+<!--    \hline -->
+<!-- \end{tabular} -->
+<!-- \caption{Table of estimated covariance parameters in the model.}  -->
+<!-- \label{simparms} -->
+<!-- \end{table} -->
+
+```{r}
+library(tidyverse)
+
+files <- list.files(here("inst/simulations/raw_sims"), full.names = TRUE)
+
+sims_readin <- map(files, read_csv, col_names = FALSE)
+sims_df <- bind_rows(sims_readin) 
+
+names(sims_df) <- c("pred", "se", "lb", "ub", "truetotal",
+                    "parms.yo",
+                    "parms.sigma_parsil_spat",
+                    "parms.range",
+                    "parms.sigma_nugget_spat",
+                    "parms.sigma_parsil_time",
+                    "parms.rho",
+                    "parms.sigma_nugget_time",
+                    "parms.sigma_nugget_spacetime",
+                    "parms.sigma_parsil_spacetime",
+                    "conf_ind")
+ggplot(data = sims_df, aes(x = (pred - truetotal))) +
+  geom_histogram(colour = "black", fill = "white", bins = 15)
+
+ggplot(data = sims_df, aes(x = parms.range)) +
+  geom_histogram(colour = "black", fill = "white", bins = 15)
+```
+
+
+The spatiotemporal process is simulated as a sum-with-error model with an exponential spatial correlation structure and an exponential temporal correlation structure with the following parameters
 
 The mean is
 
@@ -699,7 +848,7 @@ Hampering investigation of this is the fact that the simulations take a long tim
 library(here)
 sim_res <- read_csv(here("inst", "simulations", "sim_output.csv"))
 
-sim_res %>% summarise(coverage = mean(conf_ind),
+sim_res |> summarise(coverage = mean(conf_ind),
                             rmspe = sqrt(sum((pred - truetotal) ^ 2)),
                             medci = median(ub - lb),
                             meanse = mean(se))

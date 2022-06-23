@@ -57,12 +57,12 @@ library(dplyr)
 
 n <- 150
 indx_samp <- sample(1:nrow(simdata), size = n, replace = FALSE)
-simdata <- simdata %>% mutate(rowindx = 1:nrow(simdata)) %>% 
+simdata <- simdata |> mutate(rowindx = 1:nrow(simdata)) |> 
                      mutate(z_samp = if_else(rowindx %in% indx_samp,
                    true = Z, false = NA_real_))
 
 
-simdata <- simdata %>% mutate(resp_binary = if_else(Z > median(Z), true = 1,
+simdata <- simdata |> mutate(resp_binary = if_else(Z > median(Z), true = 1,
                                          false = 0),
                               resp_binary_samp = if_else(z_samp > median(z_samp, na.rm = TRUE), true = 1,
                                                     false = 0))

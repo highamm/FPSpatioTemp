@@ -49,8 +49,8 @@ Zt
 
 library(dplyr)
 ## create Zs matrix
-onetime <- diag(1, nspat) %>% as.data.frame()
-Zs <- onetime %>% slice(rep(row_number(), ntime)) %>% as.matrix()
+onetime <- diag(1, nspat) |> as.data.frame()
+Zs <- onetime |> slice(rep(row_number(), ntime)) |> as.matrix()
 
 
 ## create Rt matrix

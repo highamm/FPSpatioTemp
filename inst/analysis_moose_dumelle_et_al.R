@@ -11,14 +11,14 @@ library(tidyverse)
 
 data(moose_14_20)
 moose_14_20
-moose_14_20 %>% group_by(Surveyyear) %>% count()
-moose_14_20 %>% group_by(Surveyyear) %>% summarise(nsampframe = sum(samp_frame))
+moose_14_20 |> group_by(Surveyyear) |> count()
+moose_14_20 |> group_by(Surveyyear) |> summarise(nsampframe = sum(samp_frame))
 
 ## drop the extra observations from 2019
 
-moose_20 <- moose_14_20 %>% dplyr::filter(Surveyyear == 2020 & samp_frame == 1)
+moose_20 <- moose_14_20 |> dplyr::filter(Surveyyear == 2020 & samp_frame == 1)
 moose_14_20 <- semi_join(moose_14_20, moose_20, by = c("ID"))
-moose_14_20 %>% group_by(Surveyyear) %>% count()
+moose_14_20 |> group_by(Surveyyear) |> count()
 
 
 # totalvar <- var(moose_14_20$totalmoosena, na.rm = TRUE)
@@ -46,23 +46,23 @@ moose_14_20 %>% group_by(Surveyyear) %>% count()
 #   stcov = "productsum", estmethod = "reml"
 # )
 
-moose_14_20 <- moose_14_20 %>% mutate(Stratname = str_to_upper(Stratname))
+moose_14_20 <- moose_14_20 |> mutate(Stratname = str_to_upper(Stratname))
 
 
-moose_14_20 <- moose_14_20 %>% mutate(strat2020 = if_else(Surveyyear == 2020,
+moose_14_20 <- moose_14_20 |> mutate(strat2020 = if_else(Surveyyear == 2020,
                                                           true = Stratname,
-                                                          false = NA_character_)) %>%
-  arrange(xcoords, ycoords, Surveyyear) %>%
+                                                          false = NA_character_)) |>
+  arrange(xcoords, ycoords, Surveyyear) |>
   fill(strat2020, .direction = "up")
 
-moose_14_20 <- moose_14_20 %>%
+moose_14_20 <- moose_14_20 |>
   mutate(pred_ind = if_else(samp_frame == 1 & Surveyyear == 2020,
                                           true = 1, 
                                           false = 0))
 
-moose_high <- moose_14_20 %>% dplyr::filter(strat2020 == "HIGH")
-moose_high <- moose_high %>% mutate(Surveyyear2 = Surveyyear - min(Surveyyear) + 1)
-moose_sampled_high <- moose_high %>% dplyr::filter(!is.na(totalmoosena))
+moose_high <- moose_14_20 |> dplyr::filter(strat2020 == "HIGH")
+moose_high <- moose_high |> mutate(Surveyyear2 = Surveyyear - min(Surveyyear) + 1)
+moose_sampled_high <- moose_high |> dplyr::filter(!is.na(totalmoosena))
 
 # s_cor <- "exponential"
 # t_cor <- "exponential"
@@ -105,10 +105,10 @@ pred_obj
 # cov_parms_high <- unclass(ps_reml_mod_high$CovarianceParameters)
 
 
-moose_low <- moose_14_20 %>% dplyr::filter(strat2020 == "LOW")
-moose_low <- moose_low %>% mutate(Surveyyear2 = Surveyyear - min(Surveyyear) + 1)
-moose_sampled_low <- moose_low %>% dplyr::filter(!is.na(totalmoosena))
-moose_low %>% group_by(Surveyyear) %>% count()
+moose_low <- moose_14_20 |> dplyr::filter(strat2020 == "LOW")
+moose_low <- moose_low |> mutate(Surveyyear2 = Surveyyear - min(Surveyyear) + 1)
+moose_sampled_low <- moose_low |> dplyr::filter(!is.na(totalmoosena))
+moose_low |> group_by(Surveyyear) |> count()
 
 stlm_obj_low <- stlmfit(formula = totalmoosena ~ 1, data = moose_low,
                         xcoordcol = "xcoords", ycoordcol = "ycoords",

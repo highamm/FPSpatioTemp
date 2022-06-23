@@ -44,11 +44,11 @@ sample_spatiotemp <- function(obj, n = 100, samp_type = "random") {
   set.seed(obj$seed)
   
   if (samp_type == "random") {
-    df_samp <- df %>% dplyr::sample_n(size = n)
+    df_samp <- df |> dplyr::sample_n(size = n)
   } else if (samp_type == "time_strat") {
-    df_samp <- df %>% group_by(times) %>% dplyr::sample_n(size = ceiling(n / length(unique(df$times))))
+    df_samp <- df |> group_by(times) |> dplyr::sample_n(size = ceiling(n / length(unique(df$times))))
   } else if (samp_type == "space_strat") {
-    df_samp <- df %>% dplyr::group_by(xcoords, ycoords) %>% dplyr::sample_n(size = ceiling(n / length(unique(cbind(df$xcoords, df$ycoords)))))
+    df_samp <- df |> dplyr::group_by(xcoords, ycoords) |> dplyr::sample_n(size = ceiling(n / length(unique(cbind(df$xcoords, df$ycoords)))))
   }
   
   df_unsamp <- dplyr::anti_join(df, df_samp)

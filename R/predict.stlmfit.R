@@ -27,7 +27,7 @@
 #'       
 #' samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
 #' samp_data <- samp_obj$df_full
-#' samp_data <- samp_data %>% 
+#' samp_data <- samp_data |> 
 #' dplyr::mutate(predwts = dplyr::if_else(times == max(times),
 #'  true = 1, false = 0))
 #' samp_data$x <- rnorm(nrow(samp_data), 0, 1)
@@ -127,7 +127,6 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   zhatu <- Sigma_ucurrs %*% Sigma_ssi %*% (z.density -
                                              muhats) + muhatu
   ##totalpred_equiv <- sum(zhatu) + sum(density[ind_sa == 1 & data[[wtscol]] == 1])
-  
   W <- t(Xu) - t(Xs) %*% Sigma_ssi %*% Sigma_su
   Vmat <- solve(t(Xs) %*% Sigma_ssi %*% Xs)
   sitecov <- Sigma_uu - Sigma_us %*% Sigma_ssi %*% Sigma_su +

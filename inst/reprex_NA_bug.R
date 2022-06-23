@@ -53,7 +53,7 @@ stlmm(
 ## does not error
 stlmm(
   formula = resp ~ 1,
-  data = df %>% dplyr::filter(!is.na(resp)),
+  data = df |> dplyr::filter(!is.na(resp)),
   xcoord = "xcoord",
   ycoord = "ycoord",
   tcoord = "year",

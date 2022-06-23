@@ -25,10 +25,10 @@ sim_fun <- function(nx = 10, ny = 10, ntime = 5, betavec = 10,
                                 samp_type = "random")
   
   samp_df <- samp_obj$df_full
-  truetotal <- samp_df %>% dplyr::filter(times == max(times)) %>%
+  truetotal <- samp_df |> dplyr::filter(times == max(times)) |>
     dplyr::summarise(truetotal = sum(response))
   
-  samp_df <- samp_df %>%
+  samp_df <- samp_df |>
     dplyr::mutate(wts = dplyr::if_else(times == max(times),
                                        true = 1, false = 0))
   

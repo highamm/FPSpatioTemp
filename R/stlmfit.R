@@ -43,13 +43,12 @@
 #'       
 #' samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
 #' samp_data <- samp_obj$df_full
-#' samp_data <- samp_data %>%
+#' samp_data <- samp_data |>
 #'  dplyr::mutate(predwts = dplyr::if_else(times == max(times),
 #'   true = 1, false = 0))
 #' samp_data$x <- rnorm(nrow(samp_data), 0, 1)
 #' stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,
-#'  xcoordcol = "xcoords",
-#' ycoordcol = "ycoords", tcol = "times") 
+#'  xcoordcol = "xcoords", ycoordcol = "ycoords", tcol = "times") 
 #' @import stats
 #' @export stlmfit
              
@@ -61,9 +60,8 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   
   ## order the data so that sites are in the same order within each time
   
-  data <- data %>% dplyr::ungroup() %>%
+  data <- data |> dplyr::ungroup() |>
     dplyr::arrange_(tcol, xcoordcol, ycoordcol) 
-  ## data %>% arrange(!! rlang::sym(c("tcol")))
 
   
   ## make data frame of only predictors
@@ -123,8 +121,8 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   ## create Zs and Zt matrices
   N <- nrow(data)
   nspat <- N / length(uniquetimes)
-  onetime <- diag(1, nspat) %>% as.data.frame()
-  Zs <- onetime %>% slice(rep(row_number(), ntime)) %>% as.matrix()
+  onetime <- diag(1, nspat) |> as.data.frame()
+  Zs <- onetime |> slice(rep(row_number(), ntime)) |> as.matrix()
   
   
   Zt <- lapply(1:ntime, matrix, data = 0, nrow = nspat, ncol = ntime)
@@ -168,8 +166,11 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   data_sa <- datanomiss[ind_sa, ]
   data_un <- datanomiss[ind_un, ]
   
-  # data_sampled <- data %>% dplyr::filter(!is.na(yvar))
+  # data_sampled <- data |> dplyr::filter(!is.na(yvar))
 
+  ## mike does use the -3h / range parameterization in stlmm()
+  ## want to convert this to -h / range_1 after estimation
+  
   fast_est <- DumelleEtAl2021STLMM::stlmm(
     formula = formula,
     data = data_sa,
@@ -213,36 +214,39 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   
   parmest <- unclass(fast_est$CovarianceParameters)
   sigma_parsil_spat_hat <- parmest[1]
-  range_hat <- parmest[7]
+  range_hat <- parmest[7] / 3  ## dividing by 3 to cancel dumelle alternative parameterization
   sigma_nugget_spat_hat <- parmest[2]
   
   sigma_parsil_time_hat <- parmest[3]
-  rhotime_hat <- parmest[8]
+  rhotime_hat <- parmest[8] / 3
   sigma_nugget_time_hat  <- parmest[4]
   
   sigma_parsil_spacetime_hat <- parmest[5]
   sigma_nugget_spacetime_hat <- parmest[6]
 
+  parmest[7] <- range_hat
+  parmest[8] <- rhotime_hat
   
   
   
   if (CorModel == "exponential") {
-    Rs_hat <- exp(-(3 * (Dismat / range_hat)))
+    Rs_hat <- exp(-(Dismat / range_hat)) ## not multiplying by 3 because it's already been adjusted
   }
   
   comp_1 <- sigma_parsil_spat_hat * Zs %*% Rs_hat %*% t(Zs)
   comp_2 <- sigma_nugget_spat_hat * Zs %*% t(Zs)
   
   if (CorModel == "exponential") {
-    Rt_hat <- exp(-(3 * (H / rhotime_hat)))
+    Rt_hat <- exp(-(H / rhotime_hat))
   }
 
   comp_3 <- sigma_parsil_time_hat * Zt %*% Rt_hat %*% t(Zt)
   comp_4 <- sigma_nugget_time_hat * Zt %*% t(Zt)
   
-  comp_5 <- diag(sigma_nugget_spacetime_hat, nrow = N)
+  comp_5 <- sigma_parsil_spacetime_hat * (Zs %*% Rs_hat %*% t(Zs)) * (Zt %*% Rt_hat %*% t(Zt))
   
-  comp_6 <- sigma_parsil_spacetime_hat * (Zs %*% Rs_hat %*% t(Zs)) * (Zt %*% Rt_hat %*% t(Zt))
+  comp_6 <- diag(sigma_nugget_spacetime_hat, nrow = N)
+
   
   Sigmaest <- comp_1 + comp_2 + comp_3 + comp_4 + comp_5 + comp_6
   
@@ -250,17 +254,12 @@ stlmfit <- function(formula, data, xcoordcol, ycoordcol, tcol,
   Sigma.ssi <- solve(Sigma.ss) ## can output this so it doesn't
   ## also get inverted in predict.stlmfit()
   
-  betahat <- fast_est$Coefficients
+  betahat <- as.vector(fast_est$Coefficients)
+  names(betahat) <- c("Intercept", all.vars(formula)[-1])
   
   stlmfit_obj <- list(data = data, Sigmaest = Sigmaest, Xall = Xall, 
-                      z.density = zdensity_samp, parms = list(betahat = betahat, sigma_parsil_spat = sigma_parsil_spat_hat,
-                               range = range_hat,
-                               sigma_nugget_spat = sigma_nugget_spat_hat,
-                               sigma_parsil_time = sigma_parsil_time_hat,
-                               rho = rhotime_hat,
-                               sigma_nugget_time = sigma_nugget_time_hat,
-                               sigma_nugget_spacetime = sigma_nugget_spacetime_hat,
-                               sigma_parsil_spacetime = sigma_parsil_spacetime_hat))
+                      z_density = zdensity_samp, cov_parms = parmest,
+                      fixed_parms = betahat)
   
   class(stlmfit_obj) <- "stlmfit"
   return(stlmfit_obj)

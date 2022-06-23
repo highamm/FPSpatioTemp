@@ -402,11 +402,13 @@ and \(oc\) denote unobserved sites in past years, unobserved sites in
 current years, observed sites in past years, and observed sites in
 current years, respectively.
 
-\(\bm{\lambda}_o\) can then be rewritten as \mbox{} \begin{equation}
+\(\bm{\lambda}_o\) can then be rewritten as \mbox{} \begin{equation} 
+\label{equation:lambdacurrentpred}
 \bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{uc}' (\bm{\Sigma}_{uc, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{uc}(\bm{\Sigma}_{uc, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{b}_{uc}' \mathbf{X}_{uc}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
 \end{equation}
 
 with a prediction variance of \mbox{} \begin{equation}
+\label{equation:lambdacurrentvar}
 \bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_{c}' \bm{\Sigma}_{c, o} \bm{\lambda}_o + \mathbf{b}_{c}' \bm{\Sigma}_{c, c} \mathbf{b}_{c},
 \end{equation} \noindent where \(c\) denotes observations in the most
 current time point.
@@ -420,11 +422,11 @@ current time point.
 \end{figure}
 
 Abundance surveys are performed in the Taylor Corridor of the TOK region
-of Alaska annually (Figure \ref{fig:tokplot}. In particular, surveys
+of Alaska annually (Figure \ref{fig:tokplot}). In particular, surveys
 were conducted every year from 2014 through 2020, except for the year
 2016, during which there was not sufficient snow cover to perform a
 survey. There are a total of 381 unique spatial locations, which we
-refer to as ``sites'', and a total of 7 unique time points in the data
+refer to as ``sites,'' and a total of 7 unique time points in the data
 set, including the missing year of 2016.
 
 In each year of the survey, an aerial team of biologists selects some of
@@ -434,13 +436,16 @@ the year 2020. Throughout the 7 unique time points, some sites are
 surveyed as many as four or five different times while others are never
 surveyed.
 
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-4-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-4-2.pdf}
+
 Before each the survey begins in each year, biologists stratify the
 sites into a \texttt{"HIGH"} stratum and a \texttt{"LOW"} stratum. There
 are 230 sites in the \texttt{"HIGH"} stratum while there are 151 sites
 in the \texttt{"LOW"} stratum. A map of the sites in the TOK region is
 given in Figure (make figure and put in figure number).
 
-\subsection{Model Fitting}
+\subsection{Model Fitting} \label{subsection:modelfit}
 
 We fit the product-sum covariance model defined in equation
 \ref{equation:model} using REML, with stratum as a covariate in the
@@ -476,12 +481,64 @@ decreases to 0. In fact, the model estimates that, no matter what the
 time distance is, when two response values are 20 or more units apart,
 the covariance is nearly 0 units.
 
+The estimated vector of fixed effects, using \texttt{"HIGH"} as the
+reference group, is \(\bm{\beta}\) = (11.26, -9.76). Therefore the
+overall mean for sites in the \texttt{"HIGH"} stratum is estimated to be
+11.26 moose while the overall mean for sites in the \texttt{"LOW"}
+stratum is estimated to be 1.5 moose.
+
 \begin{figure}
 \centering
 \includegraphics{fpspatiotemp_manu_files/figure-latex/covplot-1.pdf}
 \caption{\label{fig:covplot} Estimated covariance from the fitted
 parameters in a product-sum model.}
 \end{figure}
+
+\subsection{Prediction}
+
+We now use the model in subsection \ref{subsection:modelfit} to predict
+the total abundance across all sites in the year 2020, the most recent
+year of the survey. Plugging in estimates of the covariance parameters
+into equations \ref{equation:lambdacurrentpred} and
+\ref{equation:lambdacurrentvar} and letting elements of \(\mathbf{b}_a\)
+be 1's for data points in 2020 and 0's otherwise, we obtain a prediction
+of 2874 moose and a standard error of 234 moose. A 90\% normal-based
+prediction interval for the total abundance in 2020 is (2489, 3259)
+moose. Sitewise predictions for sites in 2020 are given in the map in
+Figure \ref{fig:sitepredmap}.
+
+\begin{figure}
+\centering
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-9-1.pdf}
+\caption{\label{fig:sitepredmap} A map of the predictions for the sites
+in the year 2020.}
+\end{figure}
+
+For comparison, we use the spatial \texttt{sptotal} package (CITE) to
+compute the prediction for the total abundance of moose in the year 2020
+(CITE Ver Hoef 2008). We also use the standard simple random sampling
+estimator \(\bar{y} \cdot \frac{n_s}{n_{o}}\), where \(\bar{y}\) is the
+sample mean for the data points in 2020, \(n_s\) is the total number of
+sites in 2020, and \(n_o\) is the number of observed data points in
+2020. The simple random sampling estimator has a standard error for the
+total abundance of
+\(n_s^2 \cdot \frac{\hat{\sigma}^2}{n_o} \cdot (1 - \frac{n_o}{n_s})\).
+
+For the purely spatial model, the prediction for the total number of
+moose in 2020 in the region is 2870 moose with a standard error of 319
+moose. For the simple random sampling estimator, the estimated total
+number of moose in 2020 in the region is 3052 with a standard error of
+\texttt{se\_srs}. While the predictions for the total are similarly
+across the three methods, we see that the spatiotemporal model is most
+efficient (\(SE\) = 234). We lose some of that efficiency by ignoring
+the data in previous years but still assuming that the data are
+spatially correlated (as in the model fit with \texttt{sptotal}). And,
+we lose even more efficiency by taking advantage of neither the temporal
+nor the spatial correlation (as in the simple random sample estimator).
+
+Then, use it for every year since (without multiple comparisons)
+
+Mention Bayesian
 
 Moose surveys in the TOC region were historically analyzed without
 explicitly using any data from surveys in past years. Therefore, we

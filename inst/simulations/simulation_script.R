@@ -6,7 +6,7 @@ seed <- sample(1e9, size = 1)
 sim_fun <- function(nx = 10, ny = 10, ntime = 5, betavec = 10,
                     sigma_parsil_spat = 0.9, range = 5,
                     sigma_nugget_spat = 0.1, sigma_parsil_time = 0.7,
-                    rho = 0.8, sigma_nugget_time = 0.3,
+                    rho = 3, sigma_nugget_time = 0.3,
                     sigma_nugget_spacetime = 0.4, n = 100,
                     pred_level = 0.90) {
   
@@ -34,10 +34,10 @@ sim_fun <- function(nx = 10, ny = 10, ntime = 5, betavec = 10,
                                 samp_type = "random")
 
   samp_df <- samp_obj$df_full
-  truetotal <- samp_df %>% dplyr::filter(times == max(times)) %>%
+  truetotal <- samp_df |> dplyr::filter(times == max(times)) |>
     dplyr::summarise(truetotal = sum(response))
   
-  samp_df <- samp_df %>%
+  samp_df <- samp_df |>
     dplyr::mutate(wts = dplyr::if_else(times == max(times),
                                        true = 1, false = 0))
   
@@ -76,7 +76,7 @@ sim_1 <- sim_fun()
 ## don't really need this anymore
 nrep <- 1
 sim_output <- replicate(nrep, sim_fun(), simplify = "matrix")                 
-sim_output_df <- t(sim_output) %>% as_tibble()  
+sim_output_df <- t(sim_output) |> as_tibble()  
 
 sim_output_df <- tidyr::unnest(sim_output_df,
                                cols = c(pred, se, lb, ub, truetotal,
@@ -90,12 +90,12 @@ sim_output_df <- tidyr::unnest(sim_output_df,
                                         parms.sigma_nugget_spacetime,
                                         parms.sigma_parsil_spacetime))
 
-sim_output_df <- sim_output_df %>%
+sim_output_df <- sim_output_df |>
   mutate(conf_ind = if_else(truetotal >= lb & truetotal <= ub,
                             true = 1, false = 0),
          seed = seed)
 
-sim_output_df %>% summarise(coverage = mean(conf_ind),
+sim_output_df |> summarise(coverage = mean(conf_ind),
                             rmspe = sqrt(sum((pred - truetotal) ^ 2)),
                             medci = median(ub - lb),
                             meanse = mean(se))

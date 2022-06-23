@@ -11,21 +11,22 @@
 #' @param betavec is the parameter vector for the fixed effects
 #' @param XDesign is the fixed effects design matrix
 #' @param sigma_parsil_spat is the spatial partial sill
-#' @param range is the spatial range for an exponential covariance
 #' @param sigma_nugget_spat is the spatial nugget
 #' @param sigma_parsil_time is the temporal partial sill
-#' @param rho is the temporal autocorrelation
 #' @param sigma_nugget_time is the temporal nugget
+#' @param sigma_parsil_spacetime is the spatiotemporal partial sill
 #' @param sigma_nugget_spacetime is the independent variance parameter
+#' @param range_s is the spatial range for an exponential covariance
+#' @param range_t is the temporal range for exponential covariance
 #' @param seed a seed
 #' @return a list with \itemize{
 #'     \item a data frame \code{out_df} containing the \code{response}, spatial coordinates \code{xcoords} and \code{ycoords}, and time points \code{times}
 #'     }
 #' @examples 
 #' sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-#'        sigma_parsil_spat = 0.5, range = 4, sigma_nugget_spat = 0.5,
-#'        sigma_parsil_time = 0.5, rho = 0.7, sigma_nugget_time = 0.5,
-#'        sigma_nugget_spacetime = 0.5)
+#'        sigma_parsil_spat = 0.5, sigma_nugget_spat = 0.5,
+#'        sigma_parsil_time = 0.5, sigma_nugget_time = 0.5,
+#'        sigma_nugget_spacetime = 0.5, range_s = 4, range_t = 2)
 #' @importFrom dplyr slice row_number
 #' @importFrom tidyr expand_grid
 #' @importFrom tibble tibble
@@ -33,11 +34,13 @@
 
 sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
                            XDesign = matrix(1, nrow = nx * ny * ntime),
-                           sigma_parsil_spat = 0.9, range = 5, 
+                           sigma_parsil_spat = 0.9, 
                            sigma_nugget_spat = 0.1, 
-                           sigma_parsil_time = 0.7, rho = 0.8,
+                           sigma_parsil_time = 0.7,
                            sigma_nugget_time = 0.3,
+                           sigma_parsil_spacetime = 0.3,
                            sigma_nugget_spacetime = 0.4,
+                           range_s = 5, range_t = 2,
                            seed = round(runif(1, min = 1, max = 10000000))) {
   
   set.seed(seed)
@@ -56,11 +59,11 @@ sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
   N <- ntime * nspat
 
   ## construct spatial correlation matrix
-  Rs <- exp(-distancemat / range)
+  Rs <- exp(-distancemat / range_s)
   
   ## build Zs, spatial random effects design matrix.
-  onetime <- diag(1, nspat) %>% as.data.frame()
-  Zs <- onetime %>% dplyr::slice(rep(dplyr::row_number(), ntime)) %>%
+  onetime <- diag(1, nspat) |> as.data.frame()
+  Zs <- onetime |> dplyr::slice(rep(dplyr::row_number(), ntime)) |>
     as.matrix()
   
   ## build spatial components of overall variance
@@ -70,7 +73,7 @@ sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
   
   ## construct temporal correlation matrix
   H <- abs(outer(times, times, "-")) 
-  Rt <- rho ^ H 
+  Rt <- exp(-(H / range_t))
   
   ## build Zt, temporal random effects design matrix
   Zt <- lapply(1:ntime, matrix, data = 0, nrow = nspat, ncol = ntime)
@@ -84,9 +87,11 @@ sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
   comp_4 <- sigma_nugget_time * Zt %*% t(Zt)
   
   ## build independent error component of overall variance
-  comp_5 <- diag(sigma_nugget_spacetime, nrow = N)
+  comp_5 <- sigma_parsil_spacetime * (Zs %*% Rs %*% t(Zs)) *
+    (Zt %*% Rt %*% t(Zt))
+  comp_6 <- diag(sigma_nugget_spacetime, nrow = N)
   
-  Sigma <- comp_1 + comp_2 + comp_3 + comp_4 + comp_5
+  Sigma <- comp_1 + comp_2 + comp_3 + comp_4 + comp_5 + comp_6
   
   epsilon <- t(chol(Sigma)) %*% rnorm(N)
   
