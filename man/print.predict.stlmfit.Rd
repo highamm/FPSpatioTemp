@@ -25,7 +25,7 @@ obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
       
 samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
 samp_data <- samp_obj$df_full
-samp_data <- samp_data \%>\% 
+samp_data <- samp_data |> 
 dplyr::mutate(predwts = dplyr::if_else(times == max(times),
  true = 1, false = 0))
 stlmfit_obj <- stlmfit(formula = response_na ~ 1, data = samp_data,

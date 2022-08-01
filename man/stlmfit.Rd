@@ -7,11 +7,12 @@
 stlmfit(
   formula,
   data,
-  xcoordcol,
-  ycoordcol,
-  tcol,
+  xcoord,
+  ycoord,
+  tcoord,
   areacol = NULL,
-  CorModel = "exponential"
+  cor_model_sp = "exponential",
+  cor_model_t = "exponential"
 )
 }
 \arguments{
@@ -20,16 +21,16 @@ response variable as well as covariates for predicting the response on the unsam
 
 \item{data}{is a data frame or tibble with the response column, the covariates to be used for the block kriging, the spatio-temporal coordinates for all of the sites.}
 
+\item{areacol}{is the name of the column in the data frame 
+with the site areas
+NOTE: package has not yet been tested for use of this argument.}
+
 \item{xcoordcol}{is the name of the column in the data frame with x coordinates or longitudinal coordinates.}
 
 \item{ycoordcol}{is the name of the column in the data frame with y coordinates or latitudinal coordinates.}
 
 \item{tcol}{is the name of the column in the data frame with 
 the time points.}
-
-\item{areacol}{is the name of the column in the data frame 
-with the site areas
-NOTE: package has not yet been tested for use of this argument.}
 
 \item{CorModel}{a correlation model for the spatial correlation ("Exponential" is the only choice for now).}
 }
@@ -57,8 +58,6 @@ parameters, and temporal autocorrelation parameters, given spatial
 coordinates, time points and a model formula.
 NOTE: Current version has not been tested with any fixed effects
 in the design matrix X
-NOTE: Current version only does Maximum Likelihood, though REML 
-will be added.
 }
 \examples{
 obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
@@ -68,11 +67,10 @@ obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
       
 samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
 samp_data <- samp_obj$df_full
-samp_data <- samp_data \%>\%
+samp_data <- samp_data |>
  dplyr::mutate(predwts = dplyr::if_else(times == max(times),
   true = 1, false = 0))
 samp_data$x <- rnorm(nrow(samp_data), 0, 1)
 stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,
- xcoordcol = "xcoords",
-ycoordcol = "ycoords", tcol = "times") 
+ xcoordcol = "xcoords", ycoordcol = "ycoords", tcol = "times") 
 }

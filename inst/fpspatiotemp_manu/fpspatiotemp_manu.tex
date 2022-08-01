@@ -418,7 +418,7 @@ current time point.
 \subsection{Data Description}
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{/Users/highamm/Desktop/FPSpatioTemp/inst/fpspatiotemp_manu/20E_survey_area_overview} \caption{\label{fig:tokplot} A map of the Taylor Corridor in the TOK region of Alaska.}\label{fig:tokplot}
+\includegraphics[width=0.5\linewidth]{20E_survey_area_overview} \caption{\label{fig:tokplot} A map of the Taylor Corridor in the TOK region of Alaska.}\label{fig:tokplot}
 \end{figure}
 
 Abundance surveys are performed in the Taylor Corridor of the TOK region
@@ -460,7 +460,7 @@ the estimated parameters from the model fit.
   \hline
  & $\hat{\sigma}^2_{\delta}$ & $\hat{\phi}$ & $\hat{\sigma}^2_{\gamma}$ & $\hat{\sigma}^2_{\tau}$ & $\hat{\rho}$ & $\hat{\sigma}^2_{\eta}$ & $\hat{\sigma}^2_{\omega}$ & $\hat{\sigma}^2_{\nu}$ \\ 
   \hline
-1 & 16.9 & 13.3 & 3.8 & 0.9 & 6.9 & 0.2 & 30.8 & 24.0 \\ 
+ & 16.9 & 13.3 & 3.8 & 0.9 & 6.9 & 0.2 & 30.8 & 24.0 \\ 
    \hline
 \end{tabular}
 \caption{Table of estimated covariance parameters in the model.} 
@@ -471,7 +471,7 @@ To help interpret what some of these fitted covariance parameter
 estimates mean, we can construct a fitted covariance plot (Figure
 \ref{fig:covplot}). Note that the centroids of two sites directly
 adjacent to one another are about 4 units apart. So, we see from Figure
-@ref(fig:covplot) that the covariance between random response values
+\ref{fig:covplot} that the covariance between random response values
 from sites that are adjacent is estimated to be about 20 units if the
 response values are in the same year. The covariance between random
 responses values from adjacent sites is estimated to be about 10 units
@@ -536,20 +536,6 @@ spatially correlated (as in the model fit with \texttt{sptotal}). And,
 we lose even more efficiency by taking advantage of neither the temporal
 nor the spatial correlation (as in the simple random sample estimator).
 
-Then, use it for every year since (without multiple comparisons)
-
-Mention Bayesian
-
-Moose surveys in the TOC region were historically analyzed without
-explicitly using any data from surveys in past years. Therefore, we
-compare the spatiotemporal prediction and prediction interval with a
-spatial model fit with the \(\texttt{sptotal}\) package using only the
-data from the year 2020. The prediction total abundance is 2888 moose
-with a 95\% prediction interval of (2306, 3469) moose. We see that the
-predictions are somewhat similar, but that, because the strictly spatial
-analysis ignores information from past years, the prediction interval
-for the spatiotemporal analysis is more narrow.
-
 \section{Simulation} \label{section:Simulation}
 
 \begin{itemize}
@@ -559,10 +545,18 @@ for the spatiotemporal analysis is more narrow.
   current year only) as reference comparisons.
 \end{itemize}
 
-For a preliminary simulation, we use a grid of 100 spatial sites and 5
-time points. The spatiotemporal process is simulated as a sum-with-error
-model with an exponential spatial correlation structure and an
-exponential temporal correlation structure with the following parameters
+For a preliminary simulation, we simulate a response vector
+\(\mathbf{y}\) on a \(20 \times 20\) grid of 400 spatial sites and 10
+time points. \(\mathbf{y}\) is multivariate normal with mean
+\(\mathbf{10}\) and covariance \(\bm{\Sigma}\) defined in equation
+\ref{equation:var} with the following covariance parameters:
+
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-24-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-24-2.pdf}
+
+The spatiotemporal process is simulated as a sum-with-error model with
+an exponential spatial correlation structure and an exponential temporal
+correlation structure with the following parameters
 
 The mean is
 

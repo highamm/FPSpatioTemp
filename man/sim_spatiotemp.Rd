@@ -10,40 +10,43 @@ sim_spatiotemp(
   ntime = 5,
   betavec = 0,
   XDesign = matrix(1, nrow = nx * ny * ntime),
-  sigma_parsil_spat = 0.9,
-  range = 5,
-  sigma_nugget_spat = 0.1,
-  sigma_parsil_time = 0.7,
-  rho = 0.8,
-  sigma_nugget_time = 0.3,
-  sigma_nugget_spacetime = 0.4,
+  sp_de = 0.9,
+  sp_ie = 0.1,
+  t_de = 0.7,
+  t_ie = 0.3,
+  spt_de = 0.3,
+  spt_ie = 0.4,
+  sp_range = 1,
+  t_range = 2,
   seed = round(runif(1, min = 1, max = 1e+07))
 )
 }
 \arguments{
-\item{nx}{is the number of x coordinates for a spatial grid}
+\item{nx}{is the number of x coordinates for a spatial grid on the unit square}
 
-\item{ny}{is the number of y coordinates for a temporal grid}
+\item{ny}{is the number of y coordinates for a spatial grid on the unit square}
 
-\item{ntime}{is the number of time points}
+\item{ntime}{is the number of equally spaced time points. The time points are each 1 unit apart.}
 
 \item{betavec}{is the parameter vector for the fixed effects}
 
 \item{XDesign}{is the fixed effects design matrix}
 
-\item{sigma_parsil_spat}{is the spatial partial sill}
+\item{sp_de}{is the spatial partial sill}
 
-\item{range}{is the spatial range for an exponential covariance}
+\item{sp_ie}{is the spatial nugget}
 
-\item{sigma_nugget_spat}{is the spatial nugget}
+\item{t_de}{is the temporal partial sill}
 
-\item{sigma_parsil_time}{is the temporal partial sill}
+\item{t_ie}{is the temporal nugget}
 
-\item{rho}{is the temporal autocorrelation}
+\item{spt_de}{is the spatiotemporal partial sill}
 
-\item{sigma_nugget_time}{is the temporal nugget}
+\item{spt_ie}{is the independent variance parameter}
 
-\item{sigma_nugget_spacetime}{is the independent variance parameter}
+\item{sp_range}{is the spatial range for an exponential covariance}
+
+\item{t_range}{is the temporal range for exponential covariance}
 
 \item{seed}{a seed}
 }
@@ -54,13 +57,12 @@ a list with \itemize{
 }
 \description{
 The primary purpose of \code{sim_spatiotemp.R} is to simulate
-spatiotemporal data from (for now) a linear sum-with-error model
-that has both spatial covariance, temporal covariance, and 
-completely independent random error.
+spatiotemporal data from a product-sum model.
 }
 \examples{
 sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-       sigma_parsil_spat = 0.5, range = 4, sigma_nugget_spat = 0.5,
-       sigma_parsil_time = 0.5, rho = 0.7, sigma_nugget_time = 0.5,
-       sigma_nugget_spacetime = 0.5)
+       sp_de = 0.5, sp_ie = 0.5,
+       t_de = 0.5, t_ie = 0.5,
+       spt_de = 0.5, spt_ie = 0.5,
+       sp_range = 4, t_range = 2)
 }
