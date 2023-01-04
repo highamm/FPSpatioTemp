@@ -1,4 +1,4 @@
-#' Spatio-Temporal Model Fit
+#' Spatiotemporal Model Fit
 #' 
 #' Estimates regression coefficients, spatial autocorrelation
 #' parameters, and temporal autocorrelation parameters, given spatial

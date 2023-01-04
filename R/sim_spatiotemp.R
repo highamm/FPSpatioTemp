@@ -5,7 +5,7 @@
 #' 
 #' @param nx is the number of x coordinates for a spatial grid on the unit square
 #' @param ny is the number of y coordinates for a spatial grid on the unit square
-#' @param ntime is the number of equally spaced time points. The time points are each 1 unit apart.
+#' @param ntime is the number of equally spaced time points on the [0, 1] interval.
 #' @param betavec is the parameter vector for the fixed effects
 #' @param XDesign is the fixed effects design matrix
 #' @param sp_de is the spatial partial sill
@@ -39,7 +39,7 @@ sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
                            t_ie = 0.3,
                            spt_de = 0.3,
                            spt_ie = 0.4,
-                           sp_range = 1, t_range = 2,
+                           sp_range = sqrt(2) / 3, t_range = 1 / 3,
                            seed = round(runif(1, min = 1, max = 10000000))) {
   
   set.seed(seed)
@@ -55,7 +55,7 @@ sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
   
   ## calculate N, the total number of sites
   nspat <- nrow(distancemat)
-  times <- 1:ntime
+  times <- seq(from = 0, to = 1, length.out = ntime)
   ntime <- length(times)
   N <- ntime * nspat
 

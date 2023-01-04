@@ -69,6 +69,7 @@ plot_t <- function(xcoords, ycoords, times, response, alpha = 0.4) {
 #' @param t_epstol a range of values used for colours for various temporal distances
 #' @param xaxis_var is \code{"spatial"} if the spatial distances should go on the 
 #' x-axis and \code{"temporal"} if the temporal distances should go on the x-axis
+#' @param ... extra options to be passed to `\code{ggplot}`
 #' 
 #' @return a plot with covariance on the y-axis and temporal distance on the x-axis
 #' coloured by various spatial distances in \code{sp_epstol}.
@@ -91,10 +92,12 @@ plot_t <- function(xcoords, ycoords, times, response, alpha = 0.4) {
 #'  
 #' plot_cov(stlmfit_obj = stlmfit_obj, sp_epstol = c(0.01, 0.1, 0.5, Inf),
 #' t_epstol = c(0.2, 1, 4))
+#' @import ggplot2
+#' @export plot_cov
 
 plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
                          t_epstol = c(0.2, 2, 6),
-                         xaxis_var = "temporal") {
+                         xaxis_var = "temporal", ... ) {
   
   cov_parms <- stlmfit_obj$cov_parms
   
@@ -164,7 +167,7 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
   if (xaxis_var == "temporal") {
     
     ggplot(data = t_plot_pos) +
-      geom_line(mapping = aes(x = h_t, y = sigma, colour = as.factor(h_s)), size = 1.5) +
+      geom_line(mapping = aes(x = h_t, y = sigma, colour = as.factor(h_s)), size = 1.5, ...) +
       geom_point(data = t_plot_zero, mapping = aes(x = h_t, y = sigma, colour = as.factor(h_s)), size = 4) +
       scale_colour_viridis_d(name = "Spatial Distance", begin = 0, end = 0.9) +
       theme_minimal() +
@@ -179,7 +182,7 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
       scale_colour_viridis_d(end = 0.9) +
       theme_minimal()  +
       labs(x = "Spatial Distance",
-           y = "Estimated Covariance")
+           y = "Covariance")
     
   } else {
     

@@ -18,9 +18,9 @@ echo "Number of Nodes Allocated      = $SLURM_JOB_NUM_NODES"
 echo "Number of Tasks Allocated      = $SLURM_NTASKS"
 echo "Number of Cores/Task Allocated = $SLURM_CPUS_PER_TASK"
 
-module load R/4.0.0
+module load R
 
-Rscript /home/mhigham/simulation_script.R 
+Rscript /home/higham/simulation_script.R 
 
 echo -n "Finished program at: "
 date
