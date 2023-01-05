@@ -3,6 +3,8 @@
 #' The primary purpose of \code{sim_spatiotemp.R} is to simulate
 #' spatiotemporal data from a product-sum model.
 #' 
+#' @param resp_type is the distribution of the response variable (either
+#' \code{"normal"} or \code{"lognormal"})
 #' @param nx is the number of x coordinates for a spatial grid on the unit square
 #' @param ny is the number of y coordinates for a spatial grid on the unit square
 #' @param ntime is the number of equally spaced time points on the [0, 1] interval.
@@ -31,7 +33,8 @@
 #' @importFrom tibble tibble
 #' @export sim_spatiotemp
 
-sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
+sim_spatiotemp <- function(resp_type = "normal", 
+                           nx = 10, ny = 10, ntime = 5, betavec = 0,
                            XDesign = matrix(1, nrow = nx * ny * ntime),
                            sp_de = 0.9, 
                            sp_ie = 0.1, 
@@ -99,6 +102,9 @@ sim_spatiotemp <- function(nx = 10, ny = 10, ntime = 5, betavec = 0,
   
   response <- as.vector(XDesign %*% betavec + epsilon)
   
+  if (resp_type == "lognormal") {
+    response <- exp(response)
+  }
   ## reminder: base R's expand.grid doesn't work with matrices or
   ## data frames
   space_time_info <- tidyr::expand_grid(times, allcoords)

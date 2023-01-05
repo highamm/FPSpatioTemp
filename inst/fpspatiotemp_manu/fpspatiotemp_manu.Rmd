@@ -740,6 +740,7 @@ FPSpatioTemp::plot_cov(fit_fake, sp_epstol = c(1, Inf),
 
 ```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
 library(tidyverse)
+library(here)
 
 files <- list.files(here("inst/simulations/raw_sims"), full.names = TRUE)
 
@@ -749,10 +750,20 @@ sims_df <- bind_rows(sims_readin)
 ggplot(data = sims_df, aes(x = (pred - truetotal))) +
   geom_histogram(colour = "black", fill = "white", bins = 15)
 
-sims_df |> summarise(coverage = mean(conf_ind),
+sims_df |> group_by(n_sim, sp_de_sim, sp_range_sim) |> summarise(coverage = mean(conf_ind),
                             rmspe = sqrt(mean((pred - truetotal) ^ 2)),
                             medci = median(ub - lb),
-                            meanse = mean(se))
+                            meanse = mean(se),
+                            coverage_sptot = mean(conf_ind_sptot),
+                            rmspe_sptot = sqrt(mean((pred_sptot - truetotal) ^ 2)),
+                            medci_sptot = median(ub_sptot - lb_sptot),
+                            meanse_sptot = mean(se_sptot),
+                            coverage_srs = mean(conf_ind_srs),
+                            rmspe_srs = sqrt(mean((pred_srs - truetotal) ^ 2)),
+                            medci_srs = median(ub_srs - lb_srs),
+                            meanse_srs = mean(se_srs)) |>
+  relocate(rmspe, rmspe_sptot, rmspe_srs) |>
+  view()
 
 cov_parm_matrix <- sims_df |> select(sp_de, sp_ie, sp_range,
                                      t_de, t_ie, t_range,

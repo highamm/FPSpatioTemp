@@ -25,9 +25,12 @@
 \newtheorem{remark}{Remark}
 \newtheorem{notation}{Notation}
 
-% see https://stackoverflow.com/a/47122900
 
-% Pandoc citation processing
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
 
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
@@ -36,22 +39,22 @@
 
 \begin{document}
 
+
 \articletype{ARTICLE TEMPLATE}
 
 \title{An Application of Spatiotemporal Modeling to Finite Population
 Abundance Prediction}
 
 
-\author{\name{Matt Higham$^{a}$, Carly Hammond, John Merickel, Jeff
-Wells$^{b}$, add more$^{c, \dagger, \ddagger}$}
-\affil{$^{a}$St.~Lawrence University Canton, NY 13617; $^{b}$fill in
-later; $^{c}$fill in later}
+\author{\name{Matt Higham$^{a}$, Carly Hammond$^{b}$, Jeff Wells$^{b}$}
+\affil{$^{a}$St.~Lawrence University Canton, NY 13617; $^{b}$Alaska
+Department of Fish and Game Fairbanks, AK 99701}
 }
 
 \thanks{CONTACT Matt
 Higham. Email: \href{mailto:mhigham@stlawu.edu}{\nolinkurl{mhigham@stlawu.edu}}, Carly
-Hammond, John Merickel, Jeff Wells. Email: fill these in later, add
-more. Email: \href{mailto:leutnant@fh-muenster.de}{\nolinkurl{leutnant@fh-muenster.de}}}
+Hammond. Email: \href{mailto:carly.hammond@alaska.gov}{\nolinkurl{carly.hammond@alaska.gov}}, Jeff
+Wells. Email: \href{mailto:jeff.wells@alaska.gov}{\nolinkurl{jeff.wells@alaska.gov}}}
 
 \maketitle
 
@@ -87,9 +90,8 @@ the realized total or mean that is more precise than predictions from a
 spatial model using only counts from the most recent survey year.
 
 Though the framework of the motivation is given with an example on moose
-surveys, this type of analysis could be useful for many examples
-involving prediction in a finite region with spatial sites that are
-surveyed regularly.
+surveys, this type of analysis could be useful for other monitoring
+systems with a finite number of sites that are regularly surveyed.
 
 \subsection{Background}
 
@@ -106,18 +108,18 @@ correction to the variance of the predictor
 ecological monitoring in spatiotemporal prediction, we are often most
 interested in predicting the total abundance for the most recent year of
 the survey. In this case, the finite population correction should adjust
-based on the number of sites surveyed in the current year of the survey,
-so that, for example, the prediction variance is zero if all sites in
-the current year are sampled.
+based on the number of sites surveyed in the most recent year of the
+survey, so that, for example, the prediction variance is zero if all
+sites in the sampling frame in the most recent year are surveyed.
 
 The rest of this paper is organized as follows. In Section
 \ref{section:Methods}, we couple spatiotemporal modeling with finite
 population prediction to develop the Best-Linear-Unbiased-Predictor for
-any linear function of site abundance, including the total abundance
-across all sites. In Section \ref{section:Application}, we apply the
-predictor to a moose data set in the TOC region of Alaska. In Section
-\ref{section:Simulation}, we conduct a brief simulation study to examine
-the properties of the predictor. Finally, in Section
+any linear function of a general response variable, including the total
+abundance across all sites. In Section \ref{section:Application}, we
+apply the predictor to a moose data set in the TOC region of Alaska. In
+Section \ref{section:Simulation}, we conduct a brief simulation study to
+examine the properties of the predictor. Finally, in Section
 \ref{section:Discussion}, we conclude and give directions for future
 research.
 
@@ -128,9 +130,10 @@ We first detail the spatiotemporal model. Because of the heavy use of
 notation in the spatiotemporal model development, we first introduce a
 purely spatial model (without temporal variability) and a purely
 temporal model (without spatial variability). We then build the
-spatiotemporal model and develop a finite population correction factor
-to give a Best-Linear-Unbiased-Predictor (BLUP) and its prediction
-variance for total abundance in a given year.
+spatiotemporal model from these two base components and develop a finite
+population correction factor to give a Best-Linear-Unbiased-Predictor
+(BLUP) and its prediction variance for any linear function of the
+response.
 
 \subsection{Spatial Model} \label{subsection:spatialmodel}
 
@@ -153,17 +156,18 @@ error and independent error components: \mbox{} \begin{equation}
 
 \noindent In equation \ref{equation:spatialmodel}, \(\mathbf{Z}_{s}\) is
 an \(n_s \times n_s\) matrix of \(0\)'s and \(1\)'s, where the values in
-a row corresponding to a data point at location \(\mathbf{s}_{i}\) are a
-\(1\) in the \(i^{th}\) column and a \texttt{0} in all other columns.
-Note that, without temporal replication, \(\mathbf{Z}_s\) is the
-identity matrix so is not necessary to include in equation
+a row corresponding to a data point at location \(\mathbf{s}_{i}\) are
+\(1\) in the \(i^{th}\) column and a \(0\) in all other columns. Note
+that, without temporal replication, \(\mathbf{Z}_s\) is the identity
+matrix so is not necessary to include in equation
 \ref{equation:spatialmodel}. \(\bm{\delta}\) is a random vector
 independent of \(\bm{\gamma}\) with mean \(\mathbf{0}\) and covariance
-\(cov(\bm{\delta}) = \sigma^2_{\delta} \mathbf{R}_{s}\), where
-\(\mathbf{R}_s\) is a spatial correlation matrix and
+\(\mathop{\mathrm{{cov}}}(\bm{\delta}) = \sigma^2_{\delta} \mathbf{R}_{s}\),
+where \(\mathbf{R}_s\) is a spatial correlation matrix and
 \(\sigma^2_{\delta}\) is sometimes called the spatial partial sill.
 \(\bm{\gamma}\) is also a random vector with mean \(\mathbf{0}\) but has
-covariance \(cov(\bm{\gamma}) = \sigma^2_{\gamma} \mathbf{I}_{s}\),
+covariance
+\(\mathop{\mathrm{{cov}}}(\bm{\gamma}) = \sigma^2_{\gamma} \mathbf{I}_{s}\),
 where \(\mathbf{I}_s\) is the \(n_s \times n_s\) identity matrix and
 \(\sigma^2_{\gamma}\) is sometimes called the spatial nugget.
 
@@ -185,9 +189,9 @@ increases.
 \subsection{Temporal Model} \label{subsection:temporalmodel}
 
 Next, we consider a temporal linear model for a response variable
-\(Y_t(t_j)\), \(j = 1, 2, \ldots, n_{t}\), where the vector \(t_j\)
-contains the time for the \(j^{th}\) time point and \(n_t\) is the
-number of time points in the data. Then, a temporal model for
+\(Y_t(t_j)\), \(j = 1, 2, \ldots, n_{t}\), where \(t_j\) contains the
+time index for the \(j^{th}\) time point and \(n_t\) is the number of
+time points in the data. Then, a temporal model for
 \(\mathbf{y}_t(t_j)\), a vector of the \(Y_t(t_j)\), is \mbox{}
 \begin{equation}
 \mathbf{y}_t(t_j) = \mathbf{X}_t \bm{\beta}_t + \bm{\epsilon}_t(t_j),
@@ -209,12 +213,13 @@ that, without spatial replication, \(\mathbf{Z}_t\) is the identity
 matrix so is not necessary to include in equation
 \ref{equation:temporalmodel}. \(\bm{\tau}\) is a random vector
 independent of \(\bm{\eta}\) with mean \(\mathbf{0}\) and covariance
-\(cov(\bm{\tau}) = \sigma^2_{\tau} \mathbf{R}_{t}\), where
-\(\mathbf{R}_t\) is a spatial correlation matrix and \(\sigma^2_{\tau}\)
-is sometimes called the temporal partial sill. \(\bm{\eta}\) is also a
-random vector with mean \(\mathbf{0}\) but has covariance
-\(cov(\bm{\eta}) = \sigma^2_{\eta} \mathbf{I}_{t}\), where
-\(\mathbf{I}_t\) is the \(n_t \times n_t\) identity matrix and
+\(\mathop{\mathrm{{cov}}}(\bm{\tau}) = \sigma^2_{\tau} \mathbf{R}_{t}\),
+where \(\mathbf{R}_t\) is a temporal correlation matrix and
+\(\sigma^2_{\tau}\) is sometimes called the temporal partial sill.
+\(\bm{\eta}\) is also a random vector with mean \(\mathbf{0}\) but has
+covariance
+\(\mathop{\mathrm{{cov}}}(\bm{\eta}) = \sigma^2_{\eta} \mathbf{I}_{t}\),
+where \(\mathbf{I}_t\) is the \(n_t \times n_t\) identity matrix and
 \(\sigma^2_{\eta}\) is sometimes called the temporal nugget.
 
 There are many common parameterizations of \(\mathbf{R}_{t}\). One
@@ -229,9 +234,9 @@ and \(j'\) at \(m_{jj'}\) units apart, row \(j\) and column \(j'\) of
 \end{equation} \noindent where \(\rho\) is a temporal range parameter
 controlling the decay rate of the covariance as time units between two
 data points increases. Note that the exponential form of
-\(\mathbf{R}_t\) is equivalent to an AR(1) (CITE) time series model if
-the time points are equally spaced and the correlation parameter is
-greater than zero.
+\(\mathbf{R}_t\) is equivalent to an AR(1) time series model if the time
+points are equally spaced and the correlation parameter is greater than
+zero \citep{schabenberger2017statistical}.
 
 \subsection{Spatiotemporal Model}
 
@@ -241,19 +246,19 @@ time. Let \(Y(\mathbf{s}_{i}, t_j)\), \(i = 1, 2, \ldots, n_{s}\) and
 \(j = 1, 2, \ldots, n_{t}\), be a random variable, where
 \(\mathbf{s}_i\) and \(n_s\) are defined in subsection
 \ref{subsection:spatialmodel} and \(t_j\) and \(n_t\) are defined in
-subsection \ref{subsection:temporalmodel}. With each spatial location at
-each time point, the total number of data points is
-\(n_{s} \cdot n_{t} \equiv N\). Then, a spatiotemporal model for
-\(\mathbf{y}(\mathbf{s}_{i}, t_j)\), a vector of the
-\(Y(\mathbf{s}_{i}, t_j)\), is \mbox{} \begin{equation}
+subsection \ref{subsection:temporalmodel}. If each spatial location is
+represented at every time point, a vector of the
+\(Y(\mathbf{s}_{i}, t_j)\), denoted \(\mathbf{y}(\mathbf{s}_{i}, t_j)\),
+has length \(n_{s} \cdot n_{t} \equiv N\). Then, a spatiotemporal model
+for \(\mathbf{y}(\mathbf{s}_{i}, t_j)\) is \mbox{} \begin{equation}
 \mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, t_j),
 \end{equation}
 
 \noindent where \(\mathbf{X}\) is a design matrix for the fixed effects
 and \(\bm{\beta}\) is a parameter vector of fixed effects. The error
 \(\bm{\epsilon}(\mathbf{s}_{i}, t_j)\) can be decomposed into spatial
-and temporal components, as in \citet{dumelle2021linear}. Perhaps the
-simplest model would be to simply model the error
+and temporal components, as in \citet{dumelle2021linear}. A simple model
+incorporates spatial error and temporal error in
 \(\bm{\epsilon}(\mathbf{s}_{i}, t_j)\) by summing the spatial and
 temporal errors defined in equation \ref{equation:spatialmodel} and
 equation \ref{equation:temporalmodel}: \mbox{} \begin{equation}
@@ -270,24 +275,25 @@ temporal covariance function generating
 positive definite, the sum of the spatial and temporal components is not
 necessarily strictly positive definite (\citet{myers1990variograms}).
 
-A more flexible, given in \citet{dumelle2021linear}, is a product-sum
-linear mixed model \mbox{} \begin{equation} \label{equation:model}
-\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu},
+A more flexible option that is always positive definite, given in
+\citet{dumelle2021linear}, is the product-sum linear mixed model:
+\mbox{} \begin{equation} \label{equation:model}
+\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu}.
 \end{equation}
 
 \noindent In equation \ref{equation:model}, \(\bm{\omega}\) is a random
 vector of length \(N\) with mean \(\mathbf{0}\) and covariance
-\(cov(\bm{\omega}) = \sigma^2_{\omega} \mathbf{R}_{st}\) where
-\(\mathbf{R}_{st}\) is a spatiotemporal correlation matrix and
+\(\mathop{\mathrm{{cov}}}(\bm{\omega}) = \sigma^2_{\omega} \mathbf{R}_{st}\)
+where \(\mathbf{R}_{st}\) is a spatiotemporal correlation matrix and
 \(\sigma^2_{\omega}\) is sometimes called the spatiotemporal partial
 sill. \(\bm{\nu}\) is also a random vector of length \(n\) with mean
 \(\mathbf{0}\) but has covariance
-\(cov(\bm{\nu}) = \sigma^2_{\nu} \mathbf{I}_{st}\), where
-\(\mathbf{I}_{st}\) is the \(N \times N\) identity matrix and
+\(\mathop{\mathrm{{cov}}}(\bm{\nu}) = \sigma^2_{\nu} \mathbf{I}_{st}\),
+where \(\mathbf{I}_{st}\) is the \(N \times N\) identity matrix and
 \(\sigma^2_{\nu}\) is sometimes called the spatiotemporal nugget.
 
-A common formulation for \(\mathbf{R}_{st}\) is \mbox{}
-\begin{equation*}
+In the product-sum linear mixed model, the formulation for
+\(\mathbf{R}_{st}\) is \mbox{} \begin{equation*}
 \mathbf{R}_{st} \equiv \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' \odot \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t',
 \end{equation*}
 
@@ -299,7 +305,7 @@ independent of each other, then
 
 \begin{equation}
 \label{equation:var}
-var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' + \sigma^2_{\gamma} \mathbf{Z}_{s} \mathbf{I}_{s} \mathbf{Z}_{s}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\omega} \mathbf{R}_{st} + \sigma^2_{\nu} \mathbf{I}_{st}.
+\mathop{\mathrm{{var}}}(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' + \sigma^2_{\gamma} \mathbf{Z}_{s} \mathbf{I}_{s} \mathbf{Z}_{s}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\omega} \mathbf{R}_{st} + \sigma^2_{\nu} \mathbf{I}_{st}.
 \end{equation}
 
 Note that the model in equation \ref{equation:model} does not have any
@@ -308,45 +314,43 @@ variance of \(\mathbf{y}\). However, if we also assume that
 \(\mathbf{y}\) is multivariate normal (with mean
 \(\mathbf{X} \bm{\beta} \equiv \bm{\mu}\) and variance \(\bm{\Sigma}\)
 (Equation \ref{equation:var})), then all model parameters can be easily
-estimated with Maximum Likelihood or Restricted Maximum Likelihood.
+estimated with Maximum Likelihood (ML) or Restricted Maximum Likelihood
+(REML).
 
 \subsection{Finite Population Kriging}
 
 The model in equation \ref{equation:model} is for the \(N\)-length
 vector \(\mathbf{y}\). However, often we do not have the resources to
-sample or observe every spatial site in every year. Throughout this
-section, let the subscript \(o\) denote observations that were observed
-(both past and present), the subscript \(u\) denote observations that
-were unobserved, and the subscript \(a\) denote all observations. Then,
-we can re-order the response vector so that \mbox{} \begin{equation}
+sample or observe every spatial site in every year. Therefore, we may
+have an interest in prediction of the response values on sites that were
+not observed. Throughout this section, let the subscript \(o\) denote
+data points that were surveyed (both past and present), the subscript
+\(u\) denote data points that were not surveyed, and the subscript \(a\)
+denote all observations. Then, we can re-order the response vector so
+that \mbox{} \begin{equation}
 \mathbf{y}_a = [\mathbf{y}_u', \mathbf{y}_o']'.
 \end{equation}
 
-Let
-\(\mathbf{\tilde{y}}_a = [\mathbf{\tilde{y}}_u', \mathbf{\tilde{y}}_o']'\)
-denote the fixed, realized values of the response variable for one
-data-generating process. Our primary goal is to use the model developed
-in equation \ref{equation:model} to predict values for
-\(\mathbf{\tilde{y}}_{u}\) from the observed data in
-\(\mathbf{\tilde{y}}_{o}\). That is, we want to find optimal weights
-\(\mathbf{a}'\) to apply to the observed data
-\(\mathbf{a}' \mathbf{\tilde{y}}_o\), such that
-\(\mathbf{a}' \mathbf{y}_o\) is the Best Linear Unbiased Predictor
+Our primary goal is to use the model developed in equation
+\ref{equation:model} to find optimal weights \(\mathbf{q}'\) to apply to
+the observed realizations of \(\mathbf{y}_o\) such that
+\(\mathbf{q}' \mathbf{y}_o\) is the Best Linear Unbiased Predictor
 (BLUP) for \(\mathbf{b}_a' \mathbf{y}_a\). For example, if we are
-interested in the total abundance across all years, then
-\(\mathbf{b}_a\) is a column vector of 1's, so that we are adding up all
-values of the response for a predictor of total abundance.
+interested in the total of the response across all years, then
+\(\mathbf{b}_a\) would be a column vector of 1's, so that we are adding
+up all values of the response for a predictor of total abundance across
+all spatial sites and time points.
 
 Unbiasedness implies that
 \(E(\mathbf{q'}\mathbf{y}_o) = E(\mathbf{b}_a'\mathbf{y}_a)\) for all
 \(\bm{\beta}\). So, denoting \(\mathbf{X}_o\) as the design matrix for
-sampled sites, \(\mathbf{q'} \mathbf{X}_o \bm{\beta}\) =
+surveyed data points, \(\mathbf{q'} \mathbf{X}_o \bm{\beta}\) =
 \(\mathbf{b'} \mathbf{X} \bm{\beta}\) for every \(\bm{\beta}\), implying
 that \(\mathbf{q'} \mathbf{X}_o = \mathbf{b'}_a \mathbf{X}_a\).
 
-The kriging weights are then found by finding \(\bm{\lambda}_s\), an
+Kriging weights are then found by finding \(\bm{\lambda}_o\), an
 \(n_o \times 1\) vector, such that \mbox{} \begin{equation}
-E\{(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)\} - E\{(\bm{\lambda'}_o\mathbf{y}_o - \mathbf{b'}_a \mathbf{z}_a)(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)\}
+E\{(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)\} - E\{(\bm{\lambda'}_o\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)\}
 \end{equation} \noindent is greater than 0 for all \(\mathbf{q'}\). The
 prediction equations are
 
@@ -374,28 +378,27 @@ denotes the \(n_o \times n_o\) submatrix of \(\bm{\Sigma}\)
 corresponding only to rows and columns of observed data points and
 \(\bm{\Sigma}_{u, o}\) denotes the \((N - n_o) \times n_o\) submatrix of
 \(\bm{\Sigma}\) corresponding to rows of data points that were not
-observed and columns of observations that were observed Then, the
-optimal prediction weights \(\bm{\lambda}_o\) are an \(n_o \times 1\)
-vector: \mbox{} \begin{equation}
+observed and columns of data points that were observed. Then, the
+optimal prediction weights are \mbox{} \begin{equation}
 \bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
-\end{equation} \noindent Then, the BLUP for
-\(\mathbf{b}'_a \mathbf{y}_a\) is \mbox{} \begin{equation}
-\hat{\mathbf{b}'_a \mathbf{y}_a} = \bm{\lambda}_o' \mathbf{\tilde{y}}_o,
+\end{equation} \noindent The BLUP for \(\mathbf{b}'_a \mathbf{y}_a\) is
+\mbox{} \begin{equation}
+\widehat{\mathbf{b}'_a \mathbf{y}_a} = \bm{\lambda}_o' \mathbf{y}_o,
 \end{equation} \noindent with a prediction variance of \mbox{}
 \begin{equation}
 E((\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)) = \\
 \bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_a' \bm{\Sigma}_{a, o} \bm{\lambda}_o + \mathbf{b}_a' \bm{\Sigma}_{a, a} \mathbf{b}_a.
 \end{equation}
 
-A common prediction of interest is the total abundance in the most
-recent time point of the survey. Then, \(\mathbf{b}_a\) is a vector of
-1's and 0's, where the \(k^{th}\) element of \(\mathbf{b}_a\) is a \(1\)
-if the \(k^{th}\) element of \(\mathbf{y}_a\) is from the most current
-time point of the survey and the \(k^{th}\) element of \(\mathbf{b}_a\)
-is a 0 otherwise. If we order \(\mathbf{y}_a\) with the unobserved, past
-data points first, the unobserved, current data points second, the
-observed, past data points third, and the observed, current data points
-fourth, then \mbox{} \begin{equation}
+A common predictor of interest is the total abundance in the most recent
+time point of the survey. Then, \(\mathbf{b}_a\) is a vector of 1's and
+0's, where the \(k^{th}\) element of \(\mathbf{b}_a\) is a \(1\) if the
+\(k^{th}\) element of \(\mathbf{y}_a\) is from the most recent time
+point of the survey and the \(k^{th}\) element of \(\mathbf{b}_a\) is a
+0 otherwise. If we order \(\mathbf{y}_a\) by (1) the unobserved, past
+data points, (2) the unobserved, current data points, (3) the observed,
+past data points, and (4) the observed, current data points, then
+\mbox{} \begin{equation}
 \mathbf{b}_a = [\mathbf{b}_{up}^\prime, \mathbf{b}_{uc}', \mathbf{b}_{op}', , \mathbf{b}_{oc}']' = [\mathbf{0}', \mathbf{1}', \mathbf{0}', \mathbf{1}']',
 \end{equation} \noindent where the subscripts \(up\), \(uc\), \(op\),
 and \(oc\) denote unobserved sites in past years, unobserved sites in
@@ -434,16 +437,21 @@ the 381 sites to survey. The number of sites in the sampling frame that
 are selected varies from a low of 76 in the year 2019 to a high of 90 in
 the year 2020. Throughout the 7 unique time points, some sites are
 surveyed as many as four or five different times while others are never
-surveyed.
+surveyed (Figure \ref{fig:tokplotyears}).
 
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-4-1.pdf}
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-4-2.pdf}
+\begin{figure}
+\centering
+\includegraphics{fpspatiotemp_manu_files/figure-latex/tokplotyears-1.pdf}
+\caption{\label{fig:tokplotyears} Layout of the spatial sites used to
+survey moose in the Taylor corridor of the TOK region of Alaska.}
+\end{figure}
 
-Before each the survey begins in each year, biologists stratify the
-sites into a \texttt{"HIGH"} stratum and a \texttt{"LOW"} stratum. There
-are 230 sites in the \texttt{"HIGH"} stratum while there are 151 sites
-in the \texttt{"LOW"} stratum. A map of the sites in the TOK region is
-given in Figure (make figure and put in figure number).
+Before the survey begins in each year, biologists stratify the sites
+into a \texttt{"HIGH"} stratum and a \texttt{"LOW"} stratum. There are
+230 sites in the \texttt{"HIGH"} stratum while there are 151 sites in
+the \texttt{"LOW"} stratum. The goal of the following analysis is to
+predict the total abundance of moose across all spatial sites in the
+year \texttt{2020}, the most recent year of the survey.
 
 \subsection{Model Fitting} \label{subsection:modelfit}
 
@@ -460,26 +468,25 @@ the estimated parameters from the model fit.
   \hline
  & $\hat{\sigma}^2_{\delta}$ & $\hat{\phi}$ & $\hat{\sigma}^2_{\gamma}$ & $\hat{\sigma}^2_{\tau}$ & $\hat{\rho}$ & $\hat{\sigma}^2_{\eta}$ & $\hat{\sigma}^2_{\omega}$ & $\hat{\sigma}^2_{\nu}$ \\ 
   \hline
- & 16.9 & 13.3 & 3.8 & 0.9 & 6.9 & 0.2 & 30.8 & 24.0 \\ 
+ & 16.9 & 4.44 & 3.8 & 0.9 & 2.29 & 0.2 & 30.8 & 24.0 \\ 
    \hline
 \end{tabular}
-\caption{Table of estimated covariance parameters in the model.} 
+\caption{Estimated covariance parameters in the model. $\hat{\sigma}^2_{\delta}$, $\hat{\sigma}^2_{\tau}$, and $\hat{\sigma}^2_{\eta}$ are the estimated spatial, temporal, and spatiotemporal partial sills, respectively, $\hat{\phi}$ and $\hat{\rho}$ are the estimated spatial and temporal range parameters, and $\hat{\sigma}^2_{\gamma}$, $\hat{\sigma}^2_{\omega}$, and $\hat{\sigma}^2_{\nu}$ are the estimated spatial, temporal, and spatiotemporal nuggets.} 
 \label{paramest}
 \end{table}
 
 To help interpret what some of these fitted covariance parameter
 estimates mean, we can construct a fitted covariance plot (Figure
 \ref{fig:covplot}). Note that the centroids of two sites directly
-adjacent to one another are about 4 units apart. So, we see from Figure
-\ref{fig:covplot} that the covariance between random response values
-from sites that are adjacent is estimated to be about 20 units if the
-response values are in the same year. The covariance between random
-responses values from adjacent sites is estimated to be about 10 units
-if the response values are 6 years apart. As the spatial distance
-between two sites increases, the covariance between the response values
-decreases to 0. In fact, the model estimates that, no matter what the
-time distance is, when two response values are 20 or more units apart,
-the covariance is nearly 0 units.
+adjacent to one another are about 4 units apart. As the spatial distance
+between two sites increases (dark colour to light colour), the
+covariance between the response values decreases to 0. In fact, the
+model estimates the covariance to be nearly 0 when two sites are 20 or
+more units apart, no matter what the temporal distance is. Note that the
+fact that the covariance is larger than 0 when temporal distance is 6
+and the spatial distance is either 0 implies that including surveys
+before 2014 could improve precision of the predictor for the total
+abundance in 2020 even more.
 
 The estimated vector of fixed effects, using \texttt{"HIGH"} as the
 reference group, is \(\bm{\beta}\) = (11.26, -9.76). Therefore the
@@ -490,8 +497,8 @@ stratum is estimated to be 1.5 moose.
 \begin{figure}
 \centering
 \includegraphics{fpspatiotemp_manu_files/figure-latex/covplot-1.pdf}
-\caption{\label{fig:covplot} Estimated covariance from the fitted
-parameters in a product-sum model.}
+\caption{\label{fig:covplot} Estimated covariance of the errors from the
+fitted parameters in a product-sum model.}
 \end{figure}
 
 \subsection{Prediction}
@@ -509,142 +516,142 @@ Figure \ref{fig:sitepredmap}.
 
 \begin{figure}
 \centering
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-9-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-8-1.pdf}
 \caption{\label{fig:sitepredmap} A map of the predictions for the sites
-in the year 2020.}
+in the year 2020. A site with a grey dot in the center means that the
+site was sampled in 2020.}
 \end{figure}
 
-For comparison, we use the spatial \texttt{sptotal} package (CITE) to
-compute the prediction for the total abundance of moose in the year 2020
-(CITE Ver Hoef 2008). We also use the standard simple random sampling
-estimator \(\bar{y} \cdot \frac{n_s}{n_{o}}\), where \(\bar{y}\) is the
-sample mean for the data points in 2020, \(n_s\) is the total number of
-sites in 2020, and \(n_o\) is the number of observed data points in
-2020. The simple random sampling estimator has a standard error for the
-total abundance of
+For comparison, we use the spatial \texttt{sptotal} package
+\citep{higham2021sptotal} to compute the prediction for the total
+abundance of moose in the year 2020 \citep{ver2008spatial}. We also use
+the standard simple random sampling estimator \mbox{} \begin{equation*}
+\bar{y} \cdot \frac{n_s}{n_{o}},
+\end{equation*} \noindent where \(\bar{y}\) is the sample mean for the
+data points in 2020, \(n_s\) is the total number of sites in 2020, and
+\(n_o\) is the number of observed data points in 2020. The simple random
+sampling estimator has a variance for the total abundance of
 \(n_s^2 \cdot \frac{\hat{\sigma}^2}{n_o} \cdot (1 - \frac{n_o}{n_s})\).
+Note that the purely spatial model fit with \texttt{sptotal} and the
+simple random sampling estimator \textbf{only} use data from 2020.
 
 For the purely spatial model, the prediction for the total number of
 moose in 2020 in the region is 2870 moose with a standard error of 319
 moose. For the simple random sampling estimator, the estimated total
-number of moose in 2020 in the region is 3052 with a standard error of
-\texttt{se\_srs}. While the predictions for the total are similarly
-across the three methods, we see that the spatiotemporal model is most
-efficient (\(SE\) = 234). We lose some of that efficiency by ignoring
-the data in previous years but still assuming that the data are
-spatially correlated (as in the model fit with \texttt{sptotal}). And,
-we lose even more efficiency by taking advantage of neither the temporal
-nor the spatial correlation (as in the simple random sample estimator).
+number of moose in 2020 in the region is 3052 moose with a standard
+error of 374 moose. While the predictions for the total are somewhat
+similar across the three methods, we see that the spatiotemporal model
+is most efficient (\(SE\) = 234 moose compared to 319 moose for the
+purely spatial model and 374 moose for the simple random sampling
+estimator that ignores both spatial and temporal information).
 
 \section{Simulation} \label{section:Simulation}
 
-\begin{itemize}
-\tightlist
-\item
-  possibly include \texttt{sptotal} (on current year only) and SRS (on
-  current year only) as reference comparisons.
-\end{itemize}
-
 For a preliminary simulation, we simulate a response vector
-\(\mathbf{y}\) on a \(20 \times 20\) grid of 400 spatial sites and 10
-time points. \(\mathbf{y}\) is multivariate normal with mean
-\(\mathbf{10}\) and covariance \(\bm{\Sigma}\) defined in equation
-\ref{equation:var} with the following covariance parameters:
+\(\mathbf{y}\) on a \(20 \times 20\) grid of 400 spatial sites on the
+unit square and 10 equally-spaced integer time points from \texttt{1} to
+\texttt{10}. \(\mathbf{y}\) is multivariate normal with mean
+\(\mathbf{10}\) and product-sum covariance matrix \(\bm{\Sigma}\)
+defined in equation \ref{equation:var} with the following covariance
+parameters:
 
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrr}
+  \hline
+ & $\sigma^2_{\delta}$ & $\sigma^2_{\gamma}$ & $\phi$ & $\sigma^2_{\tau}$ & $\sigma^2_{\eta}$ & $\rho$ & $\sigma^2_{\omega}$ & $\sigma^2_{\nu}$ \\
+  \hline
+& 0.9 & 0.1 & 5 & 0.7 & 0.3 & 3 & 0.4 & 0.9 \\
+   \hline
+\end{tabular}
+\caption{Covariance parameters used to simulate data. $\sigma^2_{\delta}$, $\sigma^2_{\tau}$, and $\sigma^2_{\eta}$ are the estimated spatial, temporal, and spatiotemporal partial sills, respectively, $\phi$ and $\rho$ are the estimated spatial and temporal range parameters, and $\sigma^2_{\gamma}$, $\sigma^2_{\omega}$, and $\sigma^2_{\nu}$ are the estimated spatial, temporal, and spatiotemporal nuggets.}
+\label{simparms}
+\end{table}
+
+Both \(\mathbf{R}_{s}\) and \(\mathbf{R}_t\) are generated from the
+exponential correlation function for the simulations. Of the 4000 total
+data points, \(n = 500\) are selected to be sampled in each iteration.
+Figure \ref{fig:simcovplot} shows the model covariance of the errors
+used to generate data sets.
+
+\begin{figure}
+\centering
 \includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-24-1.pdf}
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-24-2.pdf}
+\caption{\label{fig:simcovplot} The model covariance used in the
+simulations for a few spatial distances.}
+\end{figure}
 
-The spatiotemporal process is simulated as a sum-with-error model with
-an exponential spatial correlation structure and an exponential temporal
-correlation structure with the following parameters
+Table \ref{simrestab} shows the results from the short simulation study.
 
-The mean is
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+coverage & rmspe & median PI length \\ 
+  \hline
+0.89 & 39.59 & 126.77 \\ 
+   \hline
+\end{tabular}
+\caption{Summary metrics from the simulation study. Coverage is the prediction interval coverage (nominal of 0.90), rmspe is root mean squared prediction error, and median PI length is the median length of a prediction interval.} 
+\label{simrestab}
+\end{table}
 
-\begin{itemize}
-\tightlist
-\item
-  \(\beta\) = 10.
-\end{itemize}
+Note that, as it stands, this set of simulations is more of a ``proof of
+concept.'' Below is a proposal for the full simulation study.
 
-The spatial parameters are
-
-\begin{itemize}
-\tightlist
-\item
-  \(\sigma^2_{\delta}\) = 0.9,
-\item
-  \(\sigma^2_{\gamma}\) = 0.1,
-\item
-  \(\phi\) = 5.
-\end{itemize}
-
-The temporal parameters are
+\textbf{Methods to Compare}:
 
 \begin{itemize}
 \tightlist
 \item
-  \(\sigma^2_{\tau}\) = 0.7,
+  Spatiotemporal prediction
 \item
-  \(\sigma^2_{\eta}\) = 0.3,
+  Spatial prediction (\texttt{sptotal})
 \item
-  \(\rho\) = 0.8.
+  Simple Random Sample estimation with standard finite population
+  correction for the variance of the total
 \end{itemize}
 
-And, the spatiotemporal nugget is
+\textbf{Simulation Design}:
+
+The simulations will be run as a \(2 \times 4 \times 3\) factorial
+design with the following parameters and settings:
 
 \begin{itemize}
 \tightlist
 \item
-  \(\sigma^2_{\nu}\) = 0.4.
+  model correctly specified with gaussian errors and model incorrectly
+  specified with right-skewed errors (using a similar strategy as what
+  was used in Design v. Model simulation study).
+\item
+  no spatial or temporal covariance (independent error only), spatial
+  covariance only (no time covariance), temporal covariance only (no
+  spatial covariance), and spatiotemporal covariance.
+\item
+  small sample size, medium sample size, and large sample size.
 \end{itemize}
-
-The sample size \(n\) is 100 (of the 500 total data points). For 100
-iterations, the percentage of 90\% prediction intervals that covered the
-true total was 81\%.
-
-There are a few plausible reasons for this low coverage:
-
-\begin{itemize}
-\tightlist
-\item
-  there is something incorrect about the method or code used.
-\item
-  the sample size is only 100 sites, meaning that, on average, only 20
-  sites get selected per year. This small sample size may mean that the
-  8 parameters cannot be estimated accurately. I believe that this is
-  the actual cause of the lower than nominal coverage and hope to do a
-  larger simulation study next.
-\item
-  only 100 simulations were done.
-\end{itemize}
-
-Hampering investigation of this is the fact that the simulations take a
-long time to run. The \texttt{stmodel} package will be very helpful for
-this, as we can replace the slow code for fitting the spatiotemporal
-model with faster code from the package.
 
 \section{Discussion} \label{section:Discussion}
 
 \begin{itemize}
 \item
-  mention substantial reduction of se in the application (and,
-  presumably, the simulations).
+  substantial reduction of se in the application (and, presumably, the
+  simulations).
 \item
-  mention normal-based-related limitations
+  normal-based-related limitations
 \item
-  mention Bayesian approach, and its potential flaws
+  Bayesian approach, and its drawbacks
 \item
-  mention possible extension to imperfect detection
+  forecasting potential
 \item
-  mention forecasting potential
-\item
-  take-home message: monitoring programs that use regularly surveys
-  might consider incorporating time into their analysis to improve
-  precision of predictors (e.g.~NARS for lake assessments).
+  take-home message: monitoring programs that use regularly-scheduled
+  surveys might consider incorporating time into their analysis to
+  improve precision of predictors for the mean or total.
 \end{itemize}
 
 \bibliographystyle{tfcad}
 \bibliography{interactcadsample.bib}
+
 
 
 

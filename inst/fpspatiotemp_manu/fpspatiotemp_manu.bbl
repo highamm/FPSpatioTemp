@@ -1,4 +1,4 @@
-\begin{thebibliography}{8}
+\begin{thebibliography}{10}
 \newcommand{\enquote}[1]{``#1''}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\normalfont{#1}}
@@ -20,10 +20,16 @@ Gasaway, William~C, Stephen~D DuBois, Daniel~J Reed, and Samuel~J Harbo. 1986.
   \emph{Estimating moose population parameters from aerial surveys}. Technical
   {R}eport. University of Alaska. Institute of Arctic Biology.
 
-\bibitem[Higham et~al.(2021)]{higham2021adjusting}
-Higham, Matt, Jay Ver~Hoef, Lisa Madsen, and Andy Aderman. 2021. ``Adjusting a
-  finite population block kriging estimator for imperfect detection.''
-  \emph{Environmetrics} 32 (1): e2654.
+\bibitem[Higham et~al.(2021{\natexlab{a}})]{higham2021sptotal}
+Higham, Matt, Jay {Ver Hoef}, Bryce Frank, and Michael Dumelle.
+  2021{\natexlab{a}}. \emph{sptotal: Predicting Totals and Weighted Sums from
+  Spatial Data}. R package version 1.0.0,
+  \urlprefix\url{https://highamm.github.io/sptotal/index.html}.
+
+\bibitem[Higham et~al.(2021{\natexlab{b}})]{higham2021adjusting}
+Higham, Matt, Jay Ver~Hoef, Lisa Madsen, and Andy Aderman. 2021{\natexlab{b}}.
+  ``Adjusting a finite population block kriging estimator for imperfect
+  detection.'' \emph{Environmetrics} 32 (1): e2654.
 
 \bibitem[Kellie and DeLong(2006)]{kellie_geospatial_2006}
 Kellie, Kalin~A, and Robert~A DeLong. 2006. \emph{Geospatial survey operations
@@ -40,6 +46,10 @@ Peters, Wibke, Mark Hebblewhite, Kirby~G Smith, Shevenell~M Webb, Nathan Webb,
   aerial moose population estimation methods and evaluating sightability in
   west-central Alberta, Canada.'' \emph{Wildlife Society Bulletin} 38 (3):
   639--649.
+
+\bibitem[Schabenberger and Gotway(2017)]{schabenberger2017statistical}
+Schabenberger, Oliver, and Carol~A Gotway. 2017. \emph{Statistical methods for
+  spatial data analysis: Texts in statistical science}. Chapman and Hall/CRC.
 
 \bibitem[Ver~Hoef(2008)]{ver2008spatial}
 Ver~Hoef, Jay~M. 2008. ``Spatial methods for plot-based sampling of wildlife
