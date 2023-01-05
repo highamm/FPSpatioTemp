@@ -34,5 +34,5 @@ xcoords = c(1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2),
 ycoords = c(1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1),
 resp = c(rnorm(5, 10, 4), NA, NA, rnorm(4, 10, 4)))
 data_unordered <- dplyr::sample_n(example_df, size = nrow(example_df))
-data_ord <- order_spt(data = data_unordered, xcoord = xcoords, ycoord = ycoords, tcoord = times)$full_data
+data_ord <- order_spt(data = data_unordered, xcoord = "xcoords", ycoord = "ycoords", tcoord = "times")$full_data
 }

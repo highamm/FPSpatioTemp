@@ -5,6 +5,7 @@
 \title{Simulation of Spatiotemporal Data}
 \usage{
 sim_spatiotemp(
+  resp_type = "normal",
   nx = 10,
   ny = 10,
   ntime = 5,
@@ -16,17 +17,20 @@ sim_spatiotemp(
   t_ie = 0.3,
   spt_de = 0.3,
   spt_ie = 0.4,
-  sp_range = 1,
-  t_range = 2,
+  sp_range = sqrt(2)/3,
+  t_range = 1/3,
   seed = round(runif(1, min = 1, max = 1e+07))
 )
 }
 \arguments{
+\item{resp_type}{is the distribution of the response variable (either
+\code{"normal"} or \code{"lognormal"})}
+
 \item{nx}{is the number of x coordinates for a spatial grid on the unit square}
 
 \item{ny}{is the number of y coordinates for a spatial grid on the unit square}
 
-\item{ntime}{is the number of equally spaced time points. The time points are each 1 unit apart.}
+\item{ntime}{is the number of equally spaced time points on the [0, 1] interval.}
 
 \item{betavec}{is the parameter vector for the fixed effects}
 
