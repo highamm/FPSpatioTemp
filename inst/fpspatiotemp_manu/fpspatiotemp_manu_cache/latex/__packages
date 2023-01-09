@@ -13,3 +13,5 @@ knitr
 xtable
 sf
 sptotal
+kableExtra
+latex2exp

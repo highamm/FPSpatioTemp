@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{12}
 \newcommand{\enquote}[1]{``#1''}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\normalfont{#1}}
@@ -8,6 +8,17 @@
 Boertje, Rodney~D, Mark~A Keech, Donald~D Young, Kalin~A Kellie, and C~Tom
   Seaton. 2009. ``Managing for elevated yield of moose in interior Alaska.''
   \emph{The Journal of Wildlife Management} 73 (3): 314--327.
+
+\bibitem[Brus(2021)]{brus2021statistical}
+Brus, Dick~J. 2021. ``Statistical approaches for spatial sample survey:
+  Persistent misconceptions and new developments.'' \emph{European Journal of
+  Soil Science} 72 (2): 686--703.
+
+\bibitem[Dumelle et~al.(2022)]{dumelle2022comparison}
+Dumelle, Michael, Matt Higham, Jay~M Ver~Hoef, Anthony~R Olsen, and Lisa
+  Madsen. 2022. ``A comparison of design-based and model-based approaches for
+  finite population spatial sampling and inference.'' \emph{Methods in Ecology
+  and Evolution} 13 (9): 2018--2029.
 
 \bibitem[Dumelle et~al.(2021)]{dumelle2021linear}
 Dumelle, Michael, Jay~M Ver~Hoef, Claudio Fuentes, and Alix Gitelman. 2021. ``A

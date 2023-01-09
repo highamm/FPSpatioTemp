@@ -18,10 +18,10 @@
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{ver2008spatial}
 \citation{gasaway1986estimating,kellie_geospatial_2006,boertje2009managing,peters2014contrasting}
-\citation{ver2008spatial,higham2021adjusting}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Motivation}{1}{subsection.1.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Background}{1}{subsection.1.2}}
+\citation{ver2008spatial,higham2021adjusting}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Background}{2}{subsection.1.2}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Methods}{2}{section.2}}
 \newlabel{section:Methods}{{2}{2}{Methods}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Spatial Model}{2}{subsection.2.1}}
@@ -41,6 +41,7 @@
 \newlabel{equation:model}{{9}{4}{Spatiotemporal Model}{equation.2.9}{}}
 \newlabel{equation:var}{{10}{4}{Spatiotemporal Model}{equation.2.10}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Finite Population Kriging}{5}{subsection.2.4}}
+\newlabel{subsection:fpbk}{{2.4}{5}{Finite Population Kriging}{subsection.2.4}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  A map of the Taylor Corridor in the TOK region of Alaska.}}{6}{figure.1}}
 \newlabel{fig:tokplot}{{1}{6}{A map of the Taylor Corridor in the TOK region of Alaska}{figure.1}{}}
 \newlabel{fig:tokplot}{{1}{6}{A map of the Taylor Corridor in the TOK region of Alaska}{figure.1}{}}
@@ -62,25 +63,39 @@
 \citation{ver2008spatial}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces  A map of the predictions for the sites in the year 2020. A site with a grey dot in the center means that the site was sampled in 2020.}}{9}{figure.4}}
 \newlabel{fig:sitepredmap}{{4}{9}{A map of the predictions for the sites in the year 2020. A site with a grey dot in the center means that the site was sampled in 2020}{figure.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  The model covariance used in the simulations for a few spatial distances.}}{10}{figure.5}}
-\newlabel{fig:simcovplot}{{5}{10}{The model covariance used in the simulations for a few spatial distances}{figure.5}{}}
+\citation{higham2021sptotal}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Simulation}{10}{section.4}}
 \newlabel{section:Simulation}{{4}{10}{Simulation}{section.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Covariance parameters used to simulate data. $\sigma ^2_{\delta }$, $\sigma ^2_{\tau }$, and $\sigma ^2_{\eta }$ are the estimated spatial, temporal, and spatiotemporal partial sills, respectively, $\phi $ and $\rho $ are the estimated spatial and temporal range parameters, and $\sigma ^2_{\gamma }$, $\sigma ^2_{\omega }$, and $\sigma ^2_{\nu }$ are the estimated spatial, temporal, and spatiotemporal nuggets.}}{10}{table.2}}
-\newlabel{simparms}{{2}{10}{Covariance parameters used to simulate data. $\sigma ^2_{\delta }$, $\sigma ^2_{\tau }$, and $\sigma ^2_{\eta }$ are the estimated spatial, temporal, and spatiotemporal partial sills, respectively, $\phi $ and $\rho $ are the estimated spatial and temporal range parameters, and $\sigma ^2_{\gamma }$, $\sigma ^2_{\omega }$, and $\sigma ^2_{\nu }$ are the estimated spatial, temporal, and spatiotemporal nuggets}{table.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Summary metrics from the simulation study. Coverage is the prediction interval coverage (nominal of 0.90), rmspe is root mean squared prediction error, and median PI length is the median length of a prediction interval.}}{10}{table.3}}
-\newlabel{simrestab}{{3}{10}{Summary metrics from the simulation study. Coverage is the prediction interval coverage (nominal of 0.90), rmspe is root mean squared prediction error, and median PI length is the median length of a prediction interval}{table.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Description}{10}{subsection.4.1}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Covariance parameters used to simulate data. $\sigma ^2_{\delta }$, $\sigma ^2_{\gamma }$, and $\phi $ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\tau }$, $\sigma ^2_{\eta }$, and $\rho $ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\omega }$ and $\sigma ^2_{\nu }$ are the spatiotemporal dependent error variance and spatiotemporal independent error variance.}}{10}{table.2}}
+\newlabel{tab:simparmtab}{{2}{10}{Covariance parameters used to simulate data. $\sigma ^2_{\delta }$, $\sigma ^2_{\gamma }$, and $\phi $ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\tau }$, $\sigma ^2_{\eta }$, and $\rho $ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\omega }$ and $\sigma ^2_{\nu }$ are the spatiotemporal dependent error variance and spatiotemporal independent error variance}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  The model covariance used in the simulations for the spatiotemporal scenario. Covariance is approximately 0 for errors from observations that are \(\sqrt  2\) distance units apart in space and 1 distance unit apart in time. The spatial dependent error variance (\(\sigma ^2_{\delta }\)), spatial independent error variance (\(\sigma ^2_{\gamma }\)), temporal dependent error variance (\(\sigma ^2_{\tau }\)), and temporal independent error variance (\(\sigma ^2_{\eta }\)) are shown with grey lines.}}{11}{figure.5}}
+\newlabel{fig:simcovplot}{{5}{11}{The model covariance used in the simulations for the spatiotemporal scenario. Covariance is approximately 0 for errors from observations that are \(\sqrt 2\) distance units apart in space and 1 distance unit apart in time. The spatial dependent error variance (\(\sigma ^2_{\delta }\)), spatial independent error variance (\(\sigma ^2_{\gamma }\)), temporal dependent error variance (\(\sigma ^2_{\tau }\)), and temporal independent error variance (\(\sigma ^2_{\eta }\)) are shown with grey lines}{figure.5}{}}
+\citation{brus2021statistical,dumelle2022comparison}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Results}{12}{subsection.4.2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces  root Mean-Squared-Prediction-Error for all simulation settings. The spatiotemporal model has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the spatial scenario, where response values within a time point are correlated across space but are uncorrelated with all response values from other time points.}}{13}{figure.6}}
+\newlabel{fig:rmspe}{{6}{13}{root Mean-Squared-Prediction-Error for all simulation settings. The spatiotemporal model has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the spatial scenario, where response values within a time point are correlated across space but are uncorrelated with all response values from other time points}{figure.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces  Prediction interval coverage for all simulation settings, where the prediction intervals are normal-based and the nominal level is 0.90. The predictor from the spatiotemporal model has close to appropriate coverage in all settings tested.}}{14}{figure.7}}
+\newlabel{fig:pi}{{7}{14}{Prediction interval coverage for all simulation settings, where the prediction intervals are normal-based and the nominal level is 0.90. The predictor from the spatiotemporal model has close to appropriate coverage in all settings tested}{figure.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{14}{section.5}}
+\newlabel{section:Discussion}{{5}{14}{Discussion}{section.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Appendix}{15}{section.6}}
+\newlabel{section:appendix}{{6}{15}{Appendix}{section.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces root Mean Squared Prediction Error (rMSPE) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatiotemporal model is lower than the rMSPE for the other two methods.}}{15}{table.3}}
+\newlabel{tab:simrmspetab}{{3}{15}{root Mean Squared Prediction Error (rMSPE) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatiotemporal model is lower than the rMSPE for the other two methods}{table.3}{}}
 \bibstyle{tfcad}
 \bibdata{interactcadsample.bib}
 \bibcite{boertje2009managing}{{1}{2009}{{Boertje et~al.}}{{}}}
-\bibcite{dumelle2021linear}{{2}{2021}{{Dumelle et~al.}}{{}}}
-\bibcite{gasaway1986estimating}{{3}{1986}{{Gasaway et~al.}}{{}}}
-\bibcite{higham2021sptotal}{{4}{2021{a}}{{Higham et~al.}}{{}}}
-\bibcite{higham2021adjusting}{{5}{2021{b}}{{Higham et~al.}}{{}}}
-\bibcite{kellie_geospatial_2006}{{6}{2006}{{Kellie and DeLong}}{{}}}
-\bibcite{myers1990variograms}{{7}{1990}{{Myers and Journel}}{{}}}
-\bibcite{peters2014contrasting}{{8}{2014}{{Peters et~al.}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{11}{section.5}}
-\newlabel{section:Discussion}{{5}{11}{Discussion}{section.5}{}}
-\bibcite{schabenberger2017statistical}{{9}{2017}{{Schabenberger and Gotway}}{{}}}
-\bibcite{ver2008spatial}{{10}{2008}{{Ver~Hoef}}{{}}}
+\bibcite{brus2021statistical}{{2}{2021}{{Brus}}{{}}}
+\bibcite{dumelle2022comparison}{{3}{2022}{{Dumelle et~al.}}{{}}}
+\bibcite{dumelle2021linear}{{4}{2021}{{Dumelle et~al.}}{{}}}
+\bibcite{gasaway1986estimating}{{5}{1986}{{Gasaway et~al.}}{{}}}
+\bibcite{higham2021sptotal}{{6}{2021{a}}{{Higham et~al.}}{{}}}
+\bibcite{higham2021adjusting}{{7}{2021{b}}{{Higham et~al.}}{{}}}
+\bibcite{kellie_geospatial_2006}{{8}{2006}{{Kellie and DeLong}}{{}}}
+\bibcite{myers1990variograms}{{9}{1990}{{Myers and Journel}}{{}}}
+\bibcite{peters2014contrasting}{{10}{2014}{{Peters et~al.}}{{}}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces root Mean Squared Prediction Error (rMSPE) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatiotemporal model is lower than the rMSPE for the other two methods.}}{16}{table.4}}
+\newlabel{tab:simpitab}{{4}{16}{root Mean Squared Prediction Error (rMSPE) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatiotemporal model is lower than the rMSPE for the other two methods}{table.4}{}}
+\bibcite{schabenberger2017statistical}{{11}{2017}{{Schabenberger and Gotway}}{{}}}
+\bibcite{ver2008spatial}{{12}{2008}{{Ver~Hoef}}{{}}}

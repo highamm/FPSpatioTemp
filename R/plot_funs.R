@@ -155,7 +155,7 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
   )
   
   t_plot_pos <- data |>
-    dplyr::filter((h_sp %in% c(0, sp_epstol)) & (h_t > 0.2))
+    dplyr::filter((h_sp %in% c(0, sp_epstol)) & (h_t > 0.02))
   t_plot_zero <- data |>
     dplyr::filter((h_sp %in% c(0, sp_epstol)) & (h_t == 0))
   
@@ -171,7 +171,7 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
       geom_point(data = t_plot_zero, mapping = aes(x = h_t, y = sigma, colour = as.factor(h_s)), size = 4) +
       scale_colour_viridis_d(name = "Spatial Distance", begin = 0, end = 0.9) +
       theme_minimal() +
-      labs(x = "Temporal Distance (years)",
+      labs(x = "Temporal Distance",
            y = "Estimated Covariance")
     
   } else if (xaxis_var == "spatial") {

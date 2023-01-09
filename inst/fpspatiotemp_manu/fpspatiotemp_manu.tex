@@ -36,6 +36,20 @@
 \usepackage[utf8]{inputenc}
 \def\tightlist{}
 
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
 
 \begin{document}
 
@@ -46,14 +60,22 @@
 Abundance Prediction}
 
 
-\author{\name{Matt Higham$^{a}$, Carly Hammond$^{b}$, Jeff Wells$^{b}$}
-\affil{$^{a}$St.~Lawrence University Canton, NY 13617; $^{b}$Alaska
-Department of Fish and Game Fairbanks, AK 99701}
+\author{\name{Matt Higham$^{a}$, Michael Dumelle$^{b}$, Carly
+Hammond$^{c}$, Jay Ver Hoef$^{d}$, Jeff Wells$^{c}$}
+\affil{$^{a}$St.~Lawrence University Department of Mathematics, Computer
+Science, and Statistics Canton, NY 13617; $^{b}$United States
+Environmental Protection Agency Corvallis, OR 97333; $^{c}$Alaska
+Department of Fish and Game Fairbanks, AK 99701; $^{d}$Marine Mammal
+Laboratory, Alaska Fisheries Science Center, National Oceanic and
+Atmospheric Administration Seattle, Washington 98115}
 }
 
 \thanks{CONTACT Matt
-Higham. Email: \href{mailto:mhigham@stlawu.edu}{\nolinkurl{mhigham@stlawu.edu}}, Carly
-Hammond. Email: \href{mailto:carly.hammond@alaska.gov}{\nolinkurl{carly.hammond@alaska.gov}}, Jeff
+Higham. Email: \href{mailto:mhigham@stlawu.edu}{\nolinkurl{mhigham@stlawu.edu}}, Michael
+Dumelle. Email: \href{mailto:Dumelle.Michael@epa.gov}{\nolinkurl{Dumelle.Michael@epa.gov}}, Carly
+Hammond. Email: \href{mailto:carly.hammond@alaska.gov}{\nolinkurl{carly.hammond@alaska.gov}}, Jay
+Ver
+Hoef. Email: \href{mailto:jay.verhoef@noaa.gov}{\nolinkurl{jay.verhoef@noaa.gov}}, Jeff
 Wells. Email: \href{mailto:jeff.wells@alaska.gov}{\nolinkurl{jeff.wells@alaska.gov}}}
 
 \maketitle
@@ -70,8 +92,8 @@ spatial; temporal; kriging;
 
 \subsection{Motivation}
 
-Moose surveys in Alaska and western Canada are often performed annually
-in many regions. The primary goal of these surveys is to predict moose
+Moose surveys in Alaska and western Canada are performed annually in
+many regions. The primary goal of these surveys is to predict moose
 abundance, the total number of moose, in the region. Because of time and
 money constraints, only some areas (sites) in the region of interest are
 selected to be in the survey. Biologists fly to these selected sites,
@@ -317,7 +339,7 @@ variance of \(\mathbf{y}\). However, if we also assume that
 estimated with Maximum Likelihood (ML) or Restricted Maximum Likelihood
 (REML).
 
-\subsection{Finite Population Kriging}
+\subsection{Finite Population Kriging} \label{subsection:fpbk}
 
 The model in equation \ref{equation:model} is for the \(N\)-length
 vector \(\mathbf{y}\). However, often we do not have the resources to
@@ -547,89 +569,188 @@ estimator that ignores both spatial and temporal information).
 
 \section{Simulation} \label{section:Simulation}
 
-For a preliminary simulation, we simulate a response vector
-\(\mathbf{y}\) on a \(20 \times 20\) grid of 400 spatial sites on the
-unit square and 10 equally-spaced integer time points from \texttt{1} to
-\texttt{10}. \(\mathbf{y}\) is multivariate normal with mean
-\(\mathbf{10}\) and product-sum covariance matrix \(\bm{\Sigma}\)
-defined in equation \ref{equation:var} with the following covariance
-parameters:
+\subsection{Description}
 
-\begin{table}[ht]
+To evaluate performance of the finite population spatiotemporal model,
+we conduct a small simulation study. We simulate a response vector
+\(\mathbf{y}\) of length \(N = 1000\) on a \(10 \times 10\) grid of 100
+spatial sites on the unit (\([0, 1] \times [0, 1]\)) square and 10
+equally-spaced time points in the interval \([0, 1]\) (so that each
+spatial site has a response value at each time point). \(\mathbf{y}\) is
+multivariate normal with mean \(\mathbf{0}\) and product-sum covariance
+matrix \(\bm{\Sigma}\) defined in equation \ref{equation:var} with the
+covariance parameters given in Table \ref{tab:simparmtab}.
+
+\begin{table}[H]
+
+\caption{\label{tab:simparmtab}Covariance parameters used to simulate data. $\sigma^2_{\delta}$, $\sigma^2_{\gamma}$, and $\phi$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\sigma^2_{\tau}$, $\sigma^2_{\eta}$, and $\rho$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\sigma^2_{\omega}$ and $\sigma^2_{\nu}$ are the spatiotemporal dependent error variance and spatiotemporal independent error variance.}
 \centering
-\begin{tabular}{rrrrrrrrr}
-  \hline
- & $\sigma^2_{\delta}$ & $\sigma^2_{\gamma}$ & $\phi$ & $\sigma^2_{\tau}$ & $\sigma^2_{\eta}$ & $\rho$ & $\sigma^2_{\omega}$ & $\sigma^2_{\nu}$ \\
-  \hline
-& 0.9 & 0.1 & 5 & 0.7 & 0.3 & 3 & 0.4 & 0.9 \\
-   \hline
+\begin{tabular}[t]{ccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Spatial} & \multicolumn{3}{c}{Temporal} & \multicolumn{2}{c}{Spatiotemporal} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7} \cmidrule(l{3pt}r{3pt}){8-9}
+scenario & $\sigma^2_{\delta}$ & $\sigma^2_{\gamma}$ & $\phi$ & $\sigma^2_{\tau}$ & $\sigma^2_{\eta}$ & $\rho$ & $\sigma^2_{\omega}$ & $\sigma^2_{\nu}$\\
+\midrule
+spatiotemporal & 0.5 & 0.17 & 0.47 & 0.5 & 0.17 & 0.33 & 0.5 & 0.17\\
+spatial & 0.0 & 0.00 & 0.47 & 0.0 & 0.00 & 0 & 1.5 & 0.50\\
+independent & 0.0 & 0.00 & 0 & 0.0 & 0.00 & 0 & 0.0 & 2.00\\
+\bottomrule
 \end{tabular}
-\caption{Covariance parameters used to simulate data. $\sigma^2_{\delta}$, $\sigma^2_{\tau}$, and $\sigma^2_{\eta}$ are the estimated spatial, temporal, and spatiotemporal partial sills, respectively, $\phi$ and $\rho$ are the estimated spatial and temporal range parameters, and $\sigma^2_{\gamma}$, $\sigma^2_{\omega}$, and $\sigma^2_{\nu}$ are the estimated spatial, temporal, and spatiotemporal nuggets.}
-\label{simparms}
 \end{table}
 
+The three scenarios in the table correspond to (1)
+\textbf{spatiotemporal}: a setting where there is spatiotemporal
+covariance in the random errors, (2) \textbf{spatial}: a setting where
+there is spatial covariance within a particular time point but errors in
+different time points are not correlated even when the errors come from
+the same spatial site, and (3) \textbf{independent}: all errors are
+independent regardless of spatial index and time index. In all
+scenarios, the total variance (summing all six variance parameters) is
+equal to 2.
+
 Both \(\mathbf{R}_{s}\) and \(\mathbf{R}_t\) are generated from the
-exponential correlation function for the simulations. Of the 4000 total
-data points, \(n = 500\) are selected to be sampled in each iteration.
+exponential correlation function with \(\phi\) and \(\rho\) as the range
+parameters in equations \ref{equation:spatcov} and
+\ref{equation:tempcov}. The values \(0.471\) and \(0.3333\) are chosen
+for \(\phi\) and \(\rho\), respectively, so that the effective ranges,
+\(3 \phi\) and \(3 \rho\), are equal to the maximum distance between two
+observations in space (\(\sqrt2 = 1.414\)) and the maximum distance
+between two observations in time (\(1\)). A value of 0 for \(\phi\) (or
+\(\rho\)) sets the \(\mathbf{R}_{s}\) matrix (or the \(\mathbf{R}_t\)
+matrix) to the identity matrix.
+
 Figure \ref{fig:simcovplot} shows the model covariance of the errors
-used to generate data sets.
+used to generate data for the spatiotemporal scenario.
 
 \begin{figure}
 \centering
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-24-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-27-1.pdf}
 \caption{\label{fig:simcovplot} The model covariance used in the
-simulations for a few spatial distances.}
+simulations for the spatiotemporal scenario. Covariance is approximately
+0 for errors from observations that are \(\sqrt2\) distance units apart
+in space and 1 distance unit apart in time. The spatial dependent error
+variance (\(\sigma^2_{\delta}\)), spatial independent error variance
+(\(\sigma^2_{\gamma}\)), temporal dependent error variance
+(\(\sigma^2_{\tau}\)), and temporal independent error variance
+(\(\sigma^2_{\eta}\)) are shown with grey lines.}
 \end{figure}
 
-Table \ref{simrestab} shows the results from the short simulation study.
+Each of these three scenarios is replicated for two different sample
+sizes: \(n = 250\) and \(n = 500\). A simple random sample of the 1000
+total observations is used to select units to be in the sample.
 
-\begin{table}[ht]
+Finally, the simulation experiment is repeated for a skewed response
+variable. To create the skewed response variable, a normally-distributed
+response is simulated according to the parameters given in Table
+\ref{tab:simparmtab}, except that each of the variance parameters (not
+including \(\phi\) and \(\rho\)) is divided by 2.89 so that the total
+variance is equal to 0.6931. The resulting response variable is then
+exponentiated so that the total variance after exponentiation is equal
+to 2. Note that, not only does exponentiation result in a right-skewed
+response variable, but exponentiating also allows for an assessment of
+how the model performs when the covariance is misspecified, as the
+resulting response variable no longer follows a tractable covariance
+function.
+
+Therefore, the simulation study has \(12\) total settings coming from a
+\(3 \times 2 \times 2\) factorial design. For each setting, we simulate
+1000 realizations. For each realization, we predict the total response
+for the ``most recent'' time point (when the time index is equal to 1 on
+the interval \([0, 1]\)), which we will henceforth call the ``current
+total'' using three methods. The first method uses the finite population
+kriging described in subsection \ref{subsection:fpbk} with the model
+covariance in equation \ref{equation:var}. The second method is a
+spatial model fit with the \texttt{sptotal} \texttt{R} package
+\citep{higham2021sptotal} that only uses data from the most recent time
+point. This method corresponds to how moose surveys are often currently
+analyzed, assuming that abundance is correlated across space in the
+survey but ignoring data from all previous surveys. Both of the first
+two methods estimate model parameters with Restricted Maximum Likelihood
+(REML). The third method uses a simple random sample (SRS) estimator
+with data from the most recent time point. The SRS estimator for the
+total is \(\bar{y} \cdot \frac{100}{n_1}\), where \(\bar{y}\) is the
+sample mean of the response in the most recent time point and \(n_1\) is
+the number of sampled locations in the most recent time point. The
+variance is
+\(n_1^2 \cdot \frac{\hat{\sigma}^2}{100} \cdot (1 - \frac{n_1}{100})\),
+where \(\hat{\sigma}^2\) is the sample variance of the response variable
+in the most recent time point.
+
+Note that the SRS method gives an estimator (not a predictor) and
+corresponding confidence interval (not a prediction interval) because
+the estimator treats the observed data as fixed, not as a random
+realization from a process
+\citep{brus2021statistical, dumelle2022comparison}. However, in the
+remaining text and tables, we refer to the ``current total'' response
+quantity obtained from the three methods as a ``prediction'' and to the
+corresponding interval as a ``prediction interval'' to limit
+unnecessarily verbose text.
+
+For each method, we record the root mean squared prediction error
+(rMSPE), \(\sqrt{(\sum_{i = 1}^{1000}(\hat{T}_i - T_i)^2) / 1000}\),
+where \(\hat{T}_i\) and \(T_i\) are the predicted and realized current
+totals, respectively, in the \(i^{th}\) iteration. We also create a
+normal-based 90\% prediction interval for the realized current total and
+record both the average prediction interval length and the proportion of
+iterations that the prediction interval covers the realized current
+total.
+
+\subsection{Results}
+
+Tables \ref{tab:simrmspetab} and \ref{tab:simpitab} in Section
+\ref{section:appendix} give the rMSPE and interval coverage of the three
+predictors in all 12 simulation settings. In Figure \ref{fig:rmspe}, we
+see that the spatiotemporal model outperforms both the purely spatial
+model and the simple random sample design-based estimator in all 12
+settings. In general, rMSPE is improvement is larger for the smaller
+sample size. In general, as \(n\) approaches \(N\), rMSPE for all
+approaches should become smaller and be exactly equal to 0 when
+\(n = N\).
+
+We also see that, in general, the smallest gains in rMSPE for the
+spatiotemporal model are made in the ``spatial'' simulation setting. In
+this setting, response values across space are only correlated within a
+given time point; therefore, the spatiotemporal model only does
+marginally better than the other two approaches because the data from
+the other time points are not correlated with the data in the most
+current time point. However, in both the independent setting and the
+spatial setting, the spatiotemporal model still outperforms the purely
+spatial model and the simple random sample design-based estimator
+because the spatiotemporal can still use the response values collected
+in previous time points to estimate the fixed effects structure of the
+model. ADD FOURTH SETTING HERE
+
+make graph of other two simulation settings for Normal distribution
+
+\begin{figure}
 \centering
-\begin{tabular}{rrr}
-  \hline
-coverage & rmspe & median PI length \\ 
-  \hline
-0.89 & 39.59 & 126.77 \\ 
-   \hline
-\end{tabular}
-\caption{Summary metrics from the simulation study. Coverage is the prediction interval coverage (nominal of 0.90), rmspe is root mean squared prediction error, and median PI length is the median length of a prediction interval.} 
-\label{simrestab}
-\end{table}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf}
+\caption{\label{fig:rmspe} root Mean-Squared-Prediction-Error for all
+simulation settings. The spatiotemporal model has the smallest rMSPE in
+all settings tested, though it is similar to the rMSPE of the other two
+methods in the spatial scenario, where response values within a time
+point are correlated across space but are uncorrelated with all response
+values from other time points.}
+\end{figure}
 
-Note that, as it stands, this set of simulations is more of a ``proof of
-concept.'' Below is a proposal for the full simulation study.
+Figure \ref{fig:pi} shows the interval coverage for the normal-based
+prediction intervals, where the nominal level is 0.90. We see that the
+spatiotemporal model predictor for the current total has approximate
+90\% coverage in all settings tested. The spatial model and the SRS
+design-based estimator have lower than nominal coverage in some settings
+because of the small sample size used (recall that the \(n = 250\)
+observed samples span 10 unique time points so that, on average, the
+spatial model and SRS design-based estimator only have 25 observed
+responses in the current time point).
 
-\textbf{Methods to Compare}:
-
-\begin{itemize}
-\tightlist
-\item
-  Spatiotemporal prediction
-\item
-  Spatial prediction (\texttt{sptotal})
-\item
-  Simple Random Sample estimation with standard finite population
-  correction for the variance of the total
-\end{itemize}
-
-\textbf{Simulation Design}:
-
-The simulations will be run as a \(2 \times 4 \times 3\) factorial
-design with the following parameters and settings:
-
-\begin{itemize}
-\tightlist
-\item
-  model correctly specified with gaussian errors and model incorrectly
-  specified with right-skewed errors (using a similar strategy as what
-  was used in Design v. Model simulation study).
-\item
-  no spatial or temporal covariance (independent error only), spatial
-  covariance only (no time covariance), temporal covariance only (no
-  spatial covariance), and spatiotemporal covariance.
-\item
-  small sample size, medium sample size, and large sample size.
-\end{itemize}
+\begin{figure}
+\centering
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-30-1.pdf}
+\caption{\label{fig:pi} Prediction interval coverage for all simulation
+settings, where the prediction intervals are normal-based and the
+nominal level is 0.90. The predictor from the spatiotemporal model has
+close to appropriate coverage in all settings tested.}
+\end{figure}
 
 \section{Discussion} \label{section:Discussion}
 
@@ -637,17 +758,101 @@ design with the following parameters and settings:
 \item
   substantial reduction of se in the application (and, presumably, the
   simulations).
+
+  \begin{itemize}
+  \tightlist
+  \item
+    if there is a very high amount of spatial correlation but a low
+    amount of temporal correlation (as in the second scenario), then
+    gains are minimal.
+  \end{itemize}
 \item
   normal-based-related limitations
 \item
-  Bayesian approach, and its drawbacks
+  Bayesian approach, and its drawbacks benefits to bayes: - models
+  counts as counts (better for predicting on one particular site) -
+  model more expandable (lots of zeroes eg.) benefits to ours: - much
+  quicker - assessed via a small simulation study - easier for
+  practitioner to fit (especially given software - no convergence
+  checks, priors to be tweaked, etc.)
 \item
-  forecasting potential
+  forecasting potential (maybe change application to remove all data
+  from 2020).
+\end{itemize}
+
+There is a substantial drop in efficiency when 2020 is not surveyed, but
+some monitoring programs may deem this worthy, or, might find this
+useful if a survey cannot be done one year because of poor conditions,
+changes in personnel, etc. (and it might drop more or not as much
+depending how the temporal correlation structure).
+
+\begin{itemize}
+\tightlist
 \item
   take-home message: monitoring programs that use regularly-scheduled
   surveys might consider incorporating time into their analysis to
   improve precision of predictors for the mean or total.
 \end{itemize}
+
+\section{Appendix} \label{section:appendix}
+
+\begin{table}[H]
+
+\caption{\label{tab:simrmspetab}root Mean Squared Prediction Error (rMSPE) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatiotemporal model is lower than the rMSPE for the other two methods.}
+\centering
+\begin{tabular}[t]{cccccc}
+\toprule
+\multicolumn{3}{c}{Simulation Setting} & \multicolumn{3}{c}{rMSPE} \\
+\cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
+scenario & n & Response Type & spatiotemporal & spatial & srs\\
+\midrule
+independent & 250 & normal & 14.81 & 25.36 & 24.82\\
+spatial & 250 & normal & 18.62 & 19.30 & 21.35\\
+spatiotemporal & 250 & normal & 11.89 & 15.56 & 17.30\\
+\midrule
+independent & 500 & normal & 10.89 & 14.44 & 14.33\\
+spatial & 500 & normal & 10.17 & 10.30 & 12.43\\
+spatiotemporal & 500 & normal & 6.08 & 8.35 & 9.92\\
+\midrule
+independent & 250 & lognormal & 15.39 & 27.21 & 25.61\\
+spatial & 250 & lognormal & 20.41 & 21.13 & 22.16\\
+spatiotemporal & 250 & lognormal & 15.32 & 17.24 & 19.41\\
+\midrule
+independent & 500 & lognormal & 10.93 & 14.45 & 14.33\\
+spatial & 500 & lognormal & 10.93 & 11.19 & 12.65\\
+spatiotemporal & 500 & lognormal & 7.99 & 9.25 & 11.08\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+
+\caption{\label{tab:simpitab}root Mean Squared Prediction Error (rMSPE) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatiotemporal model is lower than the rMSPE for the other two methods.}
+\centering
+\begin{tabular}[t]{cccccc}
+\toprule
+\multicolumn{3}{c}{Simulation Setting} & \multicolumn{3}{c}{Coverage} \\
+\cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
+scenario & n & Response Type & spatiotemporal & spatial & srs\\
+\midrule
+independent & 250 & normal & 0.92 & 0.88 & 0.89\\
+spatial & 250 & normal & 0.89 & 0.86 & 0.89\\
+spatiotemporal & 250 & normal & 0.88 & 0.87 & 0.90\\
+\midrule
+independent & 500 & normal & 0.90 & 0.89 & 0.89\\
+spatial & 500 & normal & 0.89 & 0.88 & 0.90\\
+spatiotemporal & 500 & normal & 0.89 & 0.87 & 0.89\\
+\midrule
+independent & 250 & lognormal & 0.91 & 0.84 & 0.85\\
+spatial & 250 & lognormal & 0.88 & 0.83 & 0.87\\
+spatiotemporal & 250 & lognormal & 0.87 & 0.85 & 0.87\\
+\midrule
+independent & 500 & lognormal & 0.90 & 0.88 & 0.88\\
+spatial & 500 & lognormal & 0.89 & 0.87 & 0.88\\
+spatiotemporal & 500 & lognormal & 0.89 & 0.87 & 0.89\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \bibliographystyle{tfcad}
 \bibliography{interactcadsample.bib}
