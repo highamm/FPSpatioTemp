@@ -391,6 +391,7 @@ tab <- cov_vec |>
 ```
 
 ```{r, results = "hide"}
+library(kableExtra)
 colnames(tab) <- c("$\\hat{\\sigma}^2_{\\delta}$",
                    "$\\hat{\\sigma}^2_{\\gamma}$",
                    "$\\hat{\\phi}$",
@@ -399,9 +400,15 @@ colnames(tab) <- c("$\\hat{\\sigma}^2_{\\delta}$",
                    "$\\hat{\\rho}$",
                    "$\\hat{\\sigma}^2_{\\omega}$",
                    "$\\hat{\\sigma}^2_{\\nu}$") 
-library(xtable)
-xtable(tab, digits = 1, caption = "Estimated covariance parameters in the model.", label = "paramest") |>
-  print(sanitize.colnames.function = identity)
+
+knitr::kable(tab, caption = "Estimated covariance parameters in the model. $\\hat{\\sigma}^2_{\\delta}$, $\\hat{\\sigma}^2_{\\gamma}$, and $\\hat{\\phi}$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\\hat{\\sigma}^2_{\\tau}$, $\\hat{\\sigma}^2_{\\eta}$, and $\\hat{\\rho}$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\\hat{\\sigma}^2_{\\omega}$ and $\\hat{\\sigma}^2_{\\nu}$ are the spatiotemporal dependent error variance and spatiotemporal independent error variance.",
+               label = "paramest",
+             digits = 2, escape = FALSE,
+             booktabs = TRUE, linesep = "", align = "c") |>
+  add_header_above(c("Spatial" = 3, "Temporal" = 3,
+                     "Spatiotemporal" = 2))  |>
+    kable_styling(latex_options = "HOLD_position") ##|>
+ ## row_spec(c(3, 6, 9), hline_after = TRUE)
 ```
 
 \begin{table}[ht]
@@ -452,8 +459,6 @@ lb_all <- pred_obj_all$lb
 ub_all <- pred_obj_all$ub
 tab_stlmfit_all <- cbind(prediction_all, sqrt(predvar_all),
                           lb_all, ub_all)
-library(xtable)
-xtable(tab_stlmfit_all, digits = 0)
 ```
 
 We now use the model in subsection \ref{subsection:modelfit} to predict the total abundance across all sites in the year 2020, the most recent year of the survey. Plugging in estimates of the covariance parameters into equations \ref{equation:lambdacurrentpred} and \ref{equation:lambdacurrentvar} and letting elements of $\mathbf{b}_a$ be 1's for data points in 2020 and 0's otherwise, we obtain a prediction of `r round(as.numeric(prediction_all), 0)` moose and a standard error of `r round(as.numeric(sqrt(predvar_all)), 0)` moose. A 90% normal-based prediction interval for the total abundance in 2020 is (`r round(lb_all, 0)`, `r round(ub_all, 0)`) moose. Sitewise predictions for sites in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
@@ -723,27 +728,6 @@ sims_readin <- map(files, read_csv, col_names = TRUE)
 
 To evaluate performance of the finite population spatiotemporal model, we conduct a small simulation study. We simulate a response vector $\mathbf{y}$ of length $N = 1000$ on a $10 \times 10$ grid of 100 spatial sites on the unit ($[0, 1] \times [0, 1]$) square and 10 equally-spaced time points in the interval $[0, 1]$ (so that each spatial site has a response value at each time point). $\mathbf{y}$ is multivariate normal with mean $\mathbf{0}$ and product-sum covariance matrix $\bm{\Sigma}$ defined in equation \ref{equation:var} with the covariance parameters given in Table \ref{tab:simparmtab}.
 
-```{r, results = "asis", eval = FALSE}
-sim_parm_tab <- sims_readin[[1]] |> 
-  filter(resp_type_sim == "normal") |>
-  select(sp_de_sim, sp_ie_sim, sp_range_sim, 
-                           t_de_sim, t_ie_sim, t_range_sim,
-                           spt_de_sim, spt_ie_sim) |>
-  distinct() |>
-  arrange(spt_ie_sim) |>
-  mutate(method = c("spatiotemporal", "spatial", "independent")) |>
-  relocate(method)
-
-names(sim_parm_tab) <- c("method", "$\\sigma^2_{\\delta}$",
-                         "$\\sigma^2_{\\gamma}$", "$\\phi$",
-                         "$\\sigma^2_{\\tau}$", "$\\sigma^2_{\\eta}$",
-                         "$\\rho$", "$\\sigma^2_{\\omega}$",
-                         "$\\sigma^2_{\\nu}$")
-xtable::xtable(sim_parm_tab, caption = "Covariance parameters used to simulate data. $\\sigma^2_{\\delta}$, $\\sigma^2_{\\gamma}$, and $\\phi$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\\sigma^2_{\\tau}$, $\\sigma^2_{\\eta}$, and $\\rho$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. and  are the spatial, temporal, and spatiotemporal partial sills, respectively,  and  are the estimated spatial and temporal range parameters, and , $\\sigma^2_{\\omega}$, and $\\sigma^2_{\\nu}$ are the estimated spatial, temporal, and spatiotemporal nuggets.",
-               label = "simparmtab") |>
-  print(sanitize.text.function = function(x){x})
-```
-
 ```{r, results = "asis"}
 library(kableExtra)
 sim_parm_tab <- sims_readin[[1]] |> 
@@ -753,7 +737,7 @@ sim_parm_tab <- sims_readin[[1]] |>
                            spt_de_sim, spt_ie_sim) |>
   distinct() |>
   arrange(spt_ie_sim) |>
-  mutate(method = c("spatiotemporal",
+  mutate(method = c("spatiotemporal", "temporal_ie",
                     "spatial", "independent")) |>
   relocate(method)
 
@@ -831,38 +815,35 @@ For each method, we record the root mean squared prediction error (rMSPE), $\sqr
 
 \subsection{Results}
 
-Tables \ref{tab:simrmspetab} and \ref{tab:simpitab} in Section \ref{section:appendix} give the rMSPE and interval coverage of the three predictors in all 12 simulation settings. In Figure \ref{fig:rmspe}, we see that the spatiotemporal model outperforms both the purely spatial model and the simple random sample design-based estimator in all 12 settings. In general, rMSPE is improvement is larger for the smaller sample size. In general, as $n$ approaches $N$, rMSPE for all approaches should become smaller and be exactly equal to 0 when $n = N$. 
+Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and \ref{tab:simpitab} in Section \ref{section:appendix} give the rMSPE , bias and interval coverage of the three predictors in all 12 simulation settings. In Figure \ref{fig:rmspe}, we see that the spatiotemporal model outperforms both the purely spatial model and the simple random sample design-based estimator in all 12 settings. In general, rMSPE is improvement is larger for the smaller sample size. In general, as $n$ approaches $N$, rMSPE for all approaches should become smaller and be exactly equal to 0 when $n = N$. 
 
 We also see that, in general, the smallest gains in rMSPE for the spatiotemporal model are made in the "spatial" simulation setting. In this setting, response values across space are only correlated within a given time point; therefore, the spatiotemporal model only does marginally better than the other two approaches because the data from the other time points are not correlated with the data in the most current time point. However, in both the independent setting and the spatial setting, the spatiotemporal model still outperforms the purely spatial model and the simple random sample design-based estimator because the spatiotemporal can still use the response values collected in previous time points to estimate the fixed effects structure of the model.
-ADD FOURTH SETTING HERE
-
-
-make graph of other two simulation settings for Normal distribution
-
 
 ```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
 sims_df <- bind_rows(sims_readin) 
 
-ggplot(data = sims_df, aes(x = (pred - truetotal))) +
-  geom_histogram(colour = "black", fill = "white", bins = 15)
-
 sims_sum <- sims_df |> group_by(n_sim, sp_de_sim,
-                                sp_range_sim, resp_type_sim) |>
-  summarise(coverage = mean(conf_ind),
+                                sp_range_sim, t_ie_sim,
+                                resp_type_sim) |>
+  summarise(bias = mean((truetotal - pred)),
+            coverage = mean(conf_ind),
                             rmspe = sqrt(mean((pred - truetotal) ^ 2)),
                             medci = median(ub - lb),
                             meanse = mean(se),
+            bias_sptot = mean((truetotal - pred_sptot)),
                             coverage_sptot = mean(conf_ind_sptot),
                             rmspe_sptot = sqrt(mean((pred_sptot - truetotal) ^ 2)),
                             medci_sptot = median(ub_sptot - lb_sptot),
                             meanse_sptot = mean(se_sptot),
+            bias_srs = mean((truetotal - pred_srs)),
                             coverage_srs = mean(conf_ind_srs),
                             rmspe_srs = sqrt(mean((pred_srs - truetotal) ^ 2)),
                             medci_srs = median(ub_srs - lb_srs),
                             meanse_srs = mean(se_srs)) |>
   relocate(rmspe, rmspe_sptot, rmspe_srs) |>
   mutate(scenario = case_when(sp_de_sim == 0 & near(sp_range_sim, 0) ~ "independent",
-                              sp_de_sim == 0 ~ "spatial",
+                              sp_de_sim == 0 & t_ie_sim == 0 ~ "spatial",
+                              t_ie_sim == 1.5 ~ "temporal_ie",
                               TRUE ~ "spatiotemporal")) |>
   relocate(scenario)
 ```
@@ -885,6 +866,8 @@ ggplot(data = sims_rmspe_long, aes(x = n_sim |> factor(), y = rmspe, colour = me
   theme_bw()
 ```
 
+All methods appear relatively unbiased in all simulation settings: Table \ref{tab:simbiastab} shows that the bias of each method is small compared to the squares of the rMSPE values given in \ref{tab:simrmspetab}.
+
 Figure \ref{fig:pi} shows the interval coverage for the normal-based prediction intervals, where the nominal level is 0.90. We see that the spatiotemporal model predictor for the current total has approximate 90% coverage in all settings tested. The spatial model and the SRS design-based estimator have lower than nominal coverage in some settings because of the small sample size used (recall that the $n = 250$ observed samples span 10 unique time points so that, on average, the spatial model and SRS design-based estimator only have 25 observed responses in the current time point).
 
 ```{r, fig.cap = "\\label{fig:pi} Prediction interval coverage for all simulation settings, where the prediction intervals are normal-based and the nominal level is 0.90. The predictor from the spatiotemporal model has close to appropriate coverage in all settings tested."}
@@ -905,8 +888,25 @@ ggplot(data = sims_pi_long, aes(x = n_sim |> factor(), y = coverage, colour = me
   theme_bw()
 ```
 
-
-```{r}
+```{r, eval = FALSE}
+sims_bias_long <- sims_sum |> pivot_longer(starts_with("bias"),
+                                            names_to = "method",
+                                            values_to = "bias") |>
+  ungroup() |>
+  mutate(method = fct_recode(method, "Spatiotemporal Model" = "bias",
+                             "Spatial Model (sptotal)" = "bias_sptot",
+         "SRS" = "bias_srs")) |>
+  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "lognormal")))
+ggplot(data = sims_bias_long, aes(x = n_sim |> factor(), y = bias, colour = method)) +
+  geom_jitter(width = 0.1) +
+  facet_grid(resp_type_sim ~ scenario) +
+  scale_colour_viridis_d(end = 0.9) +
+  labs(x = "n", y = "Bias",
+       colour = "Method") +
+  theme_bw()
+```  
+  
+```{r, eval = FALSE}
 sim_parm_sp <- sim_parm_tab |> filter(scenario == "spatial") 
 cov_parms_sp <- c(sim_parm_sp |> pull(2), sim_parm_sp |> pull(3),
                    sim_parm_sp |> pull(4), sim_parm_sp |> pull(5),
@@ -957,10 +957,9 @@ p3 <- FPSpatioTemp::plot_cov(fit_fake, sp_epstol = c(0.01, max_sp),
         - easier for practitioner to fit (especially given software - no convergence checks, priors to be tweaked, etc.)
         
     
+An additional possible benefit of the spatiotemporal model compated to a purely spatial model is the potential for forecasting abundance before a survey is done. For example, in our application, we can refit the model without any of the observed counts from the 2020 survey and examine the prediction for the total abundance in 2020. Table \ref{tab:forecast} compares the model with the 2020 data used and the model without the 2020 data used. We see that, while there is a substantial loss in precision by excluding the 2020 data (as we would expect), the prediction is not very different from the prediction with the 2020 data included and the prediction interval might be narrow enough to still be useful to biologists. We might also consider using such an approach if there is a year during which a survey cannot be completed for logistical reasons. For example, in the TOC region of Alaska, a moose survey was not conducted at all in the year 2016 because there was insufficient snow cover for the survey. The spatiotemporal could still be applied to get a prediction for moose abundance using survey data from previous years.
 
-* forecasting potential (maybe change application to remove all data from 2020).
-
-```{r, cache = TRUE, results = "hide"}
+```{r, cache = TRUE}
 fit_obj_all_fore <- stlmfit(formula = totalmoosena ~ newstrat,
                        data = moose_final_all |> 
                          mutate(totalmoosena = if_else(Surveyyear == 2020,
@@ -975,8 +974,18 @@ lb_all_fore <- pred_obj_all_fore$lb
 ub_all_fore <- pred_obj_all_fore$ub
 tab_stlmfit_all_fore <- cbind(prediction_all_fore, sqrt(predvar_all_fore),
                           lb_all_fore, ub_all_fore)
-tab_stlmfit_all
-tab_stlmfit_all_fore
+```
+
+```{r}
+fore_tab <- rbind(tab_stlmfit_all, tab_stlmfit_all_fore)
+colnames(fore_tab) <- c("Prediction", "SE", "90\\% LB", "90\\% UB")
+rownames(fore_tab) <- c("2020 Data Included", "2020 Data Excluded")
+
+knitr::kable(fore_tab, caption = "Results from analysis on the TOC moose survey data with the 2020 survey included and excluded. We can see that, even with 2020 data excluded, we can obtain a prediction for moose abundance in 2020, though there is substantial loss in precision.",
+               label = "forecast",
+             digits = 0, escape = FALSE,
+             booktabs = TRUE, linesep = "", align = "c")  |>
+    kable_styling(latex_options = "HOLD_position")
 ```
 
 There is a substantial drop in efficiency when 2020 is not surveyed, but some monitoring programs may deem this worthy, or, might find this useful if a survey cannot be done one year because of poor conditions, changes in personnel, etc. (and it might drop more or not as much depending how the temporal correlation structure).
@@ -1005,6 +1014,25 @@ knitr::kable(rmspe_tab, caption = "root Mean Squared Prediction Error (rMSPE) fo
 ```
 
 ```{r}
+bias_tab <- sims_sum |> ungroup() |>
+  select(scenario, n_sim, resp_type_sim, starts_with("bias")) |>
+  rename(spatiotemporal = "bias",
+         spatial = "bias_sptot",
+         srs = "bias_srs",
+         n = "n_sim", `Response Type` = "resp_type_sim") |>
+  arrange(desc(`Response Type`))
+
+knitr::kable(bias_tab, caption = "Bias (Realized Current Total - Predicted Current Total) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, all methods appear fairly unbiased.",
+               label = "simbiastab",
+             digits = 2, escape = FALSE,
+             booktabs = TRUE, linesep = "", align = "c") |>
+  ##print(sanitize.text.function = function(x){x}) |> 
+  add_header_above(c("Simulation Setting" = 3, "Bias"=3))  |>
+    kable_styling(latex_options = "HOLD_position") |>
+  row_spec(c(3, 6, 9), hline_after = TRUE)
+```
+
+```{r}
 pi_tab <- sims_sum |> ungroup() |>
   select(scenario, n_sim, resp_type_sim, starts_with("coverage")) |>
   rename(spatiotemporal = "coverage",
@@ -1013,7 +1041,7 @@ pi_tab <- sims_sum |> ungroup() |>
          n = "n_sim", `Response Type` = "resp_type_sim") |>
   arrange(desc(`Response Type`))
 
-knitr::kable(pi_tab, caption = "root Mean Squared Prediction Error (rMSPE) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatiotemporal model is lower than the rMSPE for the other two methods.",
+knitr::kable(pi_tab, caption = "Prediction interval coverage for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90.",
                label = "simpitab",
              digits = 2, escape = FALSE,
              booktabs = TRUE, linesep = "", align = "c") |>

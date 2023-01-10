@@ -624,7 +624,7 @@ used to generate data for the spatiotemporal scenario.
 
 \begin{figure}
 \centering
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-27-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-26-1.pdf}
 \caption{\label{fig:simcovplot} The model covariance used in the
 simulations for the spatiotemporal scenario. Covariance is approximately
 0 for errors from observations that are \(\sqrt2\) distance units apart
@@ -697,15 +697,15 @@ total.
 
 \subsection{Results}
 
-Tables \ref{tab:simrmspetab} and \ref{tab:simpitab} in Section
-\ref{section:appendix} give the rMSPE and interval coverage of the three
-predictors in all 12 simulation settings. In Figure \ref{fig:rmspe}, we
-see that the spatiotemporal model outperforms both the purely spatial
-model and the simple random sample design-based estimator in all 12
-settings. In general, rMSPE is improvement is larger for the smaller
-sample size. In general, as \(n\) approaches \(N\), rMSPE for all
-approaches should become smaller and be exactly equal to 0 when
-\(n = N\).
+Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and
+\ref{tab:simpitab} in Section \ref{section:appendix} give the rMSPE ,
+bias and interval coverage of the three predictors in all 12 simulation
+settings. In Figure \ref{fig:rmspe}, we see that the spatiotemporal
+model outperforms both the purely spatial model and the simple random
+sample design-based estimator in all 12 settings. In general, rMSPE is
+improvement is larger for the smaller sample size. In general, as \(n\)
+approaches \(N\), rMSPE for all approaches should become smaller and be
+exactly equal to 0 when \(n = N\).
 
 We also see that, in general, the smallest gains in rMSPE for the
 spatiotemporal model are made in the ``spatial'' simulation setting. In
@@ -718,13 +718,11 @@ spatial setting, the spatiotemporal model still outperforms the purely
 spatial model and the simple random sample design-based estimator
 because the spatiotemporal can still use the response values collected
 in previous time points to estimate the fixed effects structure of the
-model. ADD FOURTH SETTING HERE
-
-make graph of other two simulation settings for Normal distribution
+model.
 
 \begin{figure}
 \centering
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-28-1.pdf}
 \caption{\label{fig:rmspe} root Mean-Squared-Prediction-Error for all
 simulation settings. The spatiotemporal model has the smallest rMSPE in
 all settings tested, though it is similar to the rMSPE of the other two
@@ -732,6 +730,11 @@ methods in the spatial scenario, where response values within a time
 point are correlated across space but are uncorrelated with all response
 values from other time points.}
 \end{figure}
+
+All methods appear relatively unbiased in all simulation settings: Table
+\ref{tab:simbiastab} shows that the bias of each method is small
+compared to the squares of the rMSPE values given in
+\ref{tab:simrmspetab}.
 
 Figure \ref{fig:pi} shows the interval coverage for the normal-based
 prediction intervals, where the nominal level is 0.90. We see that the
@@ -745,7 +748,7 @@ responses in the current time point).
 
 \begin{figure}
 \centering
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-30-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf}
 \caption{\label{fig:pi} Prediction interval coverage for all simulation
 settings, where the prediction intervals are normal-based and the
 nominal level is 0.90. The predictor from the spatiotemporal model has
@@ -775,10 +778,39 @@ close to appropriate coverage in all settings tested.}
   quicker - assessed via a small simulation study - easier for
   practitioner to fit (especially given software - no convergence
   checks, priors to be tweaked, etc.)
-\item
-  forecasting potential (maybe change application to remove all data
-  from 2020).
 \end{itemize}
+
+An additional possible benefit of the spatiotemporal model compated to a
+purely spatial model is the potential for forecasting abundance before a
+survey is done. For example, in our application, we can refit the model
+without any of the observed counts from the 2020 survey and examine the
+prediction for the total abundance in 2020. Table \ref{tab:forecast}
+compares the model with the 2020 data used and the model without the
+2020 data used. We see that, while there is a substantial loss in
+precision by excluding the 2020 data (as we would expect), the
+prediction is not very different from the prediction with the 2020 data
+included and the prediction interval might be narrow enough to still be
+useful to biologists. We might also consider using such an approach if
+there is a year during which a survey cannot be completed for logistical
+reasons. For example, in the TOC region of Alaska, a moose survey was
+not conducted at all in the year 2016 because there was insufficient
+snow cover for the survey. The spatiotemporal could still be applied to
+get a prediction for moose abundance using survey data from previous
+years.
+
+\begin{table}[H]
+
+\caption{\label{tab:forecast}Results from analysis on the TOC moose survey data with the 2020 survey included and excluded. We can see that, even with 2020 data excluded, we can obtain a prediction for moose abundance in 2020, though there is substantial loss in precision.}
+\centering
+\begin{tabular}[t]{lcccc}
+\toprule
+  & Prediction & SE & 90\% LB & 90\% UB\\
+\midrule
+2020 Data Included & 2874 & 234 & 2489 & 3259\\
+2020 Data Excluded & 2757 & 417 & 2071 & 3444\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 There is a substantial drop in efficiency when 2020 is not surveyed, but
 some monitoring programs may deem this worthy, or, might find this
@@ -827,7 +859,36 @@ spatiotemporal & 500 & lognormal & 7.99 & 9.25 & 11.08\\
 
 \begin{table}[H]
 
-\caption{\label{tab:simpitab}root Mean Squared Prediction Error (rMSPE) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatiotemporal model is lower than the rMSPE for the other two methods.}
+\caption{\label{tab:simbiastab}Bias (Realized Current Total - Predicted Current Total) for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, all methods appear fairly unbiased.}
+\centering
+\begin{tabular}[t]{cccccc}
+\toprule
+\multicolumn{3}{c}{Simulation Setting} & \multicolumn{3}{c}{Bias} \\
+\cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
+scenario & n & Response Type & spatiotemporal & spatial & srs\\
+\midrule
+independent & 250 & normal & -0.16 & -0.30 & -0.37\\
+spatial & 250 & normal & -0.44 & -0.37 & -0.69\\
+spatiotemporal & 250 & normal & -0.01 & 0.17 & -0.63\\
+\midrule
+independent & 500 & normal & 0.01 & 0.05 & 0.00\\
+spatial & 500 & normal & -0.10 & -0.10 & -0.29\\
+spatiotemporal & 500 & normal & -0.05 & 0.02 & -0.47\\
+\midrule
+independent & 250 & lognormal & -0.17 & -1.20 & -0.37\\
+spatial & 250 & lognormal & -0.73 & -1.11 & -0.65\\
+spatiotemporal & 250 & lognormal & -0.06 & 0.15 & -0.24\\
+\midrule
+independent & 500 & lognormal & 0.35 & 0.18 & 0.31\\
+spatial & 500 & lognormal & -0.23 & -0.47 & -0.46\\
+spatiotemporal & 500 & lognormal & 0.00 & -0.12 & -0.61\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+
+\caption{\label{tab:simpitab}Prediction interval coverage for the spatiotemporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90.}
 \centering
 \begin{tabular}[t]{cccccc}
 \toprule
