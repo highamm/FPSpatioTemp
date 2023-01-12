@@ -484,17 +484,19 @@ design matrix, an exponential spatial correlation structure defined in
 structure defined in \ref{equation:tempcov}. Table \ref{paramest} gives
 the estimated parameters from the model fit.
 
-\begin{table}[ht]
+\begin{table}[H]
+
+\caption{\label{tab:paramest}Estimated covariance parameters in the model. $\hat{\sigma}^2_{\delta}$, $\hat{\sigma}^2_{\gamma}$, and $\hat{\phi}$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\hat{\sigma}^2_{\tau}$, $\hat{\sigma}^2_{\eta}$, and $\hat{\rho}$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\hat{\sigma}^2_{\omega}$ and $\hat{\sigma}^2_{\nu}$ are the spatiotemporal dependent error variance and spatiotemporal independent error variance.}
 \centering
-\begin{tabular}{rrrrrrrrr}
-  \hline
- & $\hat{\sigma}^2_{\delta}$ & $\hat{\phi}$ & $\hat{\sigma}^2_{\gamma}$ & $\hat{\sigma}^2_{\tau}$ & $\hat{\rho}$ & $\hat{\sigma}^2_{\eta}$ & $\hat{\sigma}^2_{\omega}$ & $\hat{\sigma}^2_{\nu}$ \\ 
-  \hline
- & 16.9 & 4.44 & 3.8 & 0.9 & 2.29 & 0.2 & 30.8 & 24.0 \\ 
-   \hline
+\begin{tabular}[t]{cccccccc}
+\toprule
+\multicolumn{3}{c}{Spatial} & \multicolumn{3}{c}{Temporal} & \multicolumn{2}{c}{Spatiotemporal} \\
+\cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6} \cmidrule(l{3pt}r{3pt}){7-8}
+$\hat{\sigma}^2_{\delta}$ & $\hat{\sigma}^2_{\gamma}$ & $\hat{\phi}$ & $\hat{\sigma}^2_{\tau}$ & $\hat{\sigma}^2_{\eta}$ & $\hat{\rho}$ & $\hat{\sigma}^2_{\omega}$ & $\hat{\sigma}^2_{\nu}$\\
+\midrule
+16.91 & 3.76 & 4.44 & 0.88 & 0.25 & 2.29 & 24.01 & 30.8\\
+\bottomrule
 \end{tabular}
-\caption{Estimated covariance parameters in the model. $\hat{\sigma}^2_{\delta}$, $\hat{\sigma}^2_{\tau}$, and $\hat{\sigma}^2_{\eta}$ are the estimated spatial, temporal, and spatiotemporal partial sills, respectively, $\hat{\phi}$ and $\hat{\rho}$ are the estimated spatial and temporal range parameters, and $\hat{\sigma}^2_{\gamma}$, $\hat{\sigma}^2_{\omega}$, and $\hat{\sigma}^2_{\nu}$ are the estimated spatial, temporal, and spatiotemporal nuggets.} 
-\label{paramest}
 \end{table}
 
 To help interpret what some of these fitted covariance parameter
@@ -502,13 +504,14 @@ estimates mean, we can construct a fitted covariance plot (Figure
 \ref{fig:covplot}). Note that the centroids of two sites directly
 adjacent to one another are about 4 units apart. As the spatial distance
 between two sites increases (dark colour to light colour), the
-covariance between the response values decreases to 0. In fact, the
-model estimates the covariance to be nearly 0 when two sites are 20 or
-more units apart, no matter what the temporal distance is. Note that the
-fact that the covariance is larger than 0 when temporal distance is 6
-and the spatial distance is either 0 implies that including surveys
-before 2014 could improve precision of the predictor for the total
-abundance in 2020 even more.
+covariance between the response values decreases to 0, with the
+\(\hat{\phi}\) parameter estimate controlling the rate of decay. In
+fact, the model estimates the covariance to be nearly 0 when two sites
+are 20 or more units apart, no matter what the temporal distance is.
+Note that the fact that the covariance is larger than 0 when the
+temporal distance is 6 and the spatial distance is 0 implies that
+including surveys before 2014 could improve precision of the predictor
+for the total abundance in 2020 even more.
 
 The estimated vector of fixed effects, using \texttt{"HIGH"} as the
 reference group, is \(\bm{\beta}\) = (11.26, -9.76). Therefore the
@@ -546,25 +549,30 @@ site was sampled in 2020.}
 
 For comparison, we use the spatial \texttt{sptotal} package
 \citep{higham2021sptotal} to compute the prediction for the total
-abundance of moose in the year 2020 \citep{ver2008spatial}. We also use
-the standard simple random sampling estimator \mbox{} \begin{equation*}
-\bar{y} \cdot \frac{n_s}{n_{o}},
-\end{equation*} \noindent where \(\bar{y}\) is the sample mean for the
-data points in 2020, \(n_s\) is the total number of sites in 2020, and
-\(n_o\) is the number of observed data points in 2020. The simple random
-sampling estimator has a variance for the total abundance of
-\(n_s^2 \cdot \frac{\hat{\sigma}^2}{n_o} \cdot (1 - \frac{n_o}{n_s})\).
-Note that the purely spatial model fit with \texttt{sptotal} and the
-simple random sampling estimator \textbf{only} use data from 2020.
+abundance of moose in the year 2020 with stratum as a covariate
+\citep{ver2008spatial}. We also use the standard stratified random
+sampling design-based estimator \mbox{} \begin{equation*}
+N_h \bar{y}_h + N_l \bar{y}_l
+\end{equation*} \noindent where \(\bar{y}_i\) is the sample mean for the
+data points in 2020 in the \(i^{th}\) stratum, \(N_i\) is the total
+number of sites in 2020 in the \(i^{th}\) stratum, and \(n_i\) is the
+number of observed data points in 2020 in the \(i^{th}\) stratum. The
+stratified random sampling design-based estimator has a variance for the
+total abundance of
+\(N_h^2 \cdot (1 - \frac{n_h}{N_h}) \cdot \frac{s^2_h}{n_h} + N_l^2 \cdot (1 - \frac{n_l}{N_l}) \cdot \frac{s^2_l}{n_l}\),
+where \(s^2_i\) is the sample variance of the observed data points in
+2020 in the \(i^{th}\) stratum. Both the purely spatial model fit with
+\texttt{sptotal} and the stratified random sampling design-based
+estimator \textbf{only} use data from 2020.
 
 For the purely spatial model, the prediction for the total number of
 moose in 2020 in the region is 2870 moose with a standard error of 319
 moose. For the simple random sampling estimator, the estimated total
-number of moose in 2020 in the region is 3052 moose with a standard
-error of 374 moose. While the predictions for the total are somewhat
+number of moose in 2020 in the region is 2853 moose with a standard
+error of 371 moose. While the predictions for the total are somewhat
 similar across the three methods, we see that the spatiotemporal model
 is most efficient (\(SE\) = 234 moose compared to 319 moose for the
-purely spatial model and 374 moose for the simple random sampling
+purely spatial model and 371 moose for the simple random sampling
 estimator that ignores both spatial and temporal information).
 
 \section{Simulation} \label{section:Simulation}
@@ -591,9 +599,10 @@ covariance parameters given in Table \ref{tab:simparmtab}.
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7} \cmidrule(l{3pt}r{3pt}){8-9}
 scenario & $\sigma^2_{\delta}$ & $\sigma^2_{\gamma}$ & $\phi$ & $\sigma^2_{\tau}$ & $\sigma^2_{\eta}$ & $\rho$ & $\sigma^2_{\omega}$ & $\sigma^2_{\nu}$\\
 \midrule
-spatiotemporal & 0.5 & 0.17 & 0.47 & 0.5 & 0.17 & 0.33 & 0.5 & 0.17\\
-spatial & 0.0 & 0.00 & 0.47 & 0.0 & 0.00 & 0 & 1.5 & 0.50\\
-independent & 0.0 & 0.00 & 0 & 0.0 & 0.00 & 0 & 0.0 & 2.00\\
+spatiotemporal & 0.5 & 0.17 & 0.47 & 0.5 & 0.17 & 0.33 & 0.50 & 0.17\\
+temporal iev & 0 & 0 & 0.47 & 0 & 1.50 & 0 & 0.25 & 0.25\\
+spatial & 0 & 0 & 0.47 & 0 & 0 & 0 & 1.50 & 0.50\\
+independent & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 2.00\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -624,7 +633,7 @@ used to generate data for the spatiotemporal scenario.
 
 \begin{figure}
 \centering
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-26-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-27-1.pdf}
 \caption{\label{fig:simcovplot} The model covariance used in the
 simulations for the spatiotemporal scenario. Covariance is approximately
 0 for errors from observations that are \(\sqrt2\) distance units apart
@@ -707,7 +716,7 @@ improvement is larger for the smaller sample size. In general, as \(n\)
 approaches \(N\), rMSPE for all approaches should become smaller and be
 exactly equal to 0 when \(n = N\).
 
-We also see that, in general, the smallest gains in rMSPE for the
+We also see that, in general, there are moderate gains in rMSPE for the
 spatiotemporal model are made in the ``spatial'' simulation setting. In
 this setting, response values across space are only correlated within a
 given time point; therefore, the spatiotemporal model only does
@@ -720,9 +729,19 @@ because the spatiotemporal can still use the response values collected
 in previous time points to estimate the fixed effects structure of the
 model.
 
+We see the smallest gains in rMSPE for the spatiotemporal model in the
+``temporal iev'' scenario. In this setting, most of the variability in
+the response comes from \(\sigma^2_{\eta}\), the temporal independent
+error variance. Therefore, data collected in different time points is
+not correlated, and, different time points can have very different
+realized totals. As expected, the spatiotemporal model performs no
+better than a purely spatial model for this scenario, but we can also
+say that the added complexity of the spatiotemporal model does not make
+it perform worse than the purely spatial model.
+
 \begin{figure}
 \centering
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-28-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf}
 \caption{\label{fig:rmspe} root Mean-Squared-Prediction-Error for all
 simulation settings. The spatiotemporal model has the smallest rMSPE in
 all settings tested, though it is similar to the rMSPE of the other two
@@ -748,7 +767,7 @@ responses in the current time point).
 
 \begin{figure}
 \centering
-\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf}
+\includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-30-1.pdf}
 \caption{\label{fig:pi} Prediction interval coverage for all simulation
 settings, where the prediction intervals are normal-based and the
 nominal level is 0.90. The predictor from the spatiotemporal model has
@@ -838,21 +857,25 @@ depending how the temporal correlation structure).
 \cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
 scenario & n & Response Type & spatiotemporal & spatial & srs\\
 \midrule
-independent & 250 & normal & 14.81 & 25.36 & 24.82\\
-spatial & 250 & normal & 18.62 & 19.30 & 21.35\\
-spatiotemporal & 250 & normal & 11.89 & 15.56 & 17.30\\
+independent & 250 & normal & 14.58 & 25.06 & 24.64\\
+spatial & 250 & normal & 17.10 & 18.39 & 20.49\\
+temporal iev & 250 & normal & 10.31 & 10.53 & 10.76\\
+spatiotemporal & 250 & normal & 11.18 & 14.97 & 17.23\\
 \midrule
-independent & 500 & normal & 10.89 & 14.44 & 14.33\\
-spatial & 500 & normal & 10.17 & 10.30 & 12.43\\
-spatiotemporal & 500 & normal & 6.08 & 8.35 & 9.92\\
+independent & 500 & normal & 10.84 & 14.91 & 14.71\\
+spatial & 500 & normal & 10.21 & 10.45 & 12.19\\
+temporal iev & 500 & normal & 6.12 & 6.22 & 6.50\\
+spatiotemporal & 500 & normal & 6.09 & 8.43 & 10.24\\
 \midrule
-independent & 250 & lognormal & 15.39 & 27.21 & 25.61\\
-spatial & 250 & lognormal & 20.41 & 21.13 & 22.16\\
-spatiotemporal & 250 & lognormal & 15.32 & 17.24 & 19.41\\
+independent & 250 & lognormal & 15.49 & 26.14 & 24.56\\
+spatial & 250 & lognormal & 19.28 & 20.55 & 22.03\\
+temporal iev & 250 & lognormal & 11.89 & 12.10 & 12.05\\
+spatiotemporal & 250 & lognormal & 14.28 & 18.35 & 19.46\\
 \midrule
-independent & 500 & lognormal & 10.93 & 14.45 & 14.33\\
-spatial & 500 & lognormal & 10.93 & 11.19 & 12.65\\
-spatiotemporal & 500 & lognormal & 7.99 & 9.25 & 11.08\\
+independent & 500 & lognormal & 11.22 & 15.38 & 15.04\\
+spatial & 500 & lognormal & 11.90 & 12.21 & 13.48\\
+temporal iev & 500 & lognormal & 7.34 & 7.32 & 7.82\\
+spatiotemporal & 500 & lognormal & 7.55 & 9.89 & 11.45\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -867,21 +890,25 @@ spatiotemporal & 500 & lognormal & 7.99 & 9.25 & 11.08\\
 \cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
 scenario & n & Response Type & spatiotemporal & spatial & srs\\
 \midrule
-independent & 250 & normal & -0.16 & -0.30 & -0.37\\
-spatial & 250 & normal & -0.44 & -0.37 & -0.69\\
-spatiotemporal & 250 & normal & -0.01 & 0.17 & -0.63\\
+independent & 250 & normal & 0.73 & 1.38 & 1.55\\
+spatial & 250 & normal & 0.57 & 0.52 & 0.76\\
+temporal iev & 250 & normal & 0.44 & 0.39 & 0.47\\
+spatiotemporal & 250 & normal & 0.48 & 0.27 & 0.45\\
 \midrule
-independent & 500 & normal & 0.01 & 0.05 & 0.00\\
-spatial & 500 & normal & -0.10 & -0.10 & -0.29\\
-spatiotemporal & 500 & normal & -0.05 & 0.02 & -0.47\\
+independent & 500 & normal & 0.46 & 0.60 & 0.67\\
+spatial & 500 & normal & 0.22 & 0.18 & 0.04\\
+temporal iev & 500 & normal & 0.15 & 0.14 & 0.07\\
+spatiotemporal & 500 & normal & 0.04 & 0.07 & 0.04\\
 \midrule
-independent & 250 & lognormal & -0.17 & -1.20 & -0.37\\
-spatial & 250 & lognormal & -0.73 & -1.11 & -0.65\\
-spatiotemporal & 250 & lognormal & -0.06 & 0.15 & -0.24\\
+independent & 250 & lognormal & 0.36 & 0.56 & 1.48\\
+spatial & 250 & lognormal & 0.01 & -0.19 & 0.26\\
+temporal iev & 250 & lognormal & 0.33 & 0.22 & 0.41\\
+spatiotemporal & 250 & lognormal & -0.07 & -0.85 & -0.49\\
 \midrule
-independent & 500 & lognormal & 0.35 & 0.18 & 0.31\\
-spatial & 500 & lognormal & -0.23 & -0.47 & -0.46\\
-spatiotemporal & 500 & lognormal & 0.00 & -0.12 & -0.61\\
+independent & 500 & lognormal & 0.32 & 0.29 & 0.66\\
+spatial & 500 & lognormal & 0.16 & -0.13 & 0.08\\
+temporal iev & 500 & lognormal & 0.24 & 0.15 & 0.08\\
+spatiotemporal & 500 & lognormal & -0.10 & -0.39 & -0.37\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -896,20 +923,24 @@ spatiotemporal & 500 & lognormal & 0.00 & -0.12 & -0.61\\
 \cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
 scenario & n & Response Type & spatiotemporal & spatial & srs\\
 \midrule
-independent & 250 & normal & 0.92 & 0.88 & 0.89\\
-spatial & 250 & normal & 0.89 & 0.86 & 0.89\\
-spatiotemporal & 250 & normal & 0.88 & 0.87 & 0.90\\
+independent & 250 & normal & 0.92 & 0.87 & 0.89\\
+spatial & 250 & normal & 0.92 & 0.87 & 0.90\\
+temporal iev & 250 & normal & 0.91 & 0.88 & 0.91\\
+spatiotemporal & 250 & normal & 0.90 & 0.88 & 0.91\\
 \midrule
-independent & 500 & normal & 0.90 & 0.89 & 0.89\\
-spatial & 500 & normal & 0.89 & 0.88 & 0.90\\
-spatiotemporal & 500 & normal & 0.89 & 0.87 & 0.89\\
+independent & 500 & normal & 0.90 & 0.86 & 0.88\\
+spatial & 500 & normal & 0.89 & 0.87 & 0.89\\
+temporal iev & 500 & normal & 0.89 & 0.87 & 0.89\\
+spatiotemporal & 500 & normal & 0.88 & 0.89 & 0.89\\
 \midrule
-independent & 250 & lognormal & 0.91 & 0.84 & 0.85\\
-spatial & 250 & lognormal & 0.88 & 0.83 & 0.87\\
-spatiotemporal & 250 & lognormal & 0.87 & 0.85 & 0.87\\
+independent & 250 & lognormal & 0.90 & 0.82 & 0.84\\
+spatial & 250 & lognormal & 0.89 & 0.84 & 0.88\\
+temporal iev & 250 & lognormal & 0.90 & 0.86 & 0.90\\
+spatiotemporal & 250 & lognormal & 0.89 & 0.86 & 0.89\\
 \midrule
-independent & 500 & lognormal & 0.90 & 0.88 & 0.88\\
-spatial & 500 & lognormal & 0.89 & 0.87 & 0.88\\
+independent & 500 & lognormal & 0.89 & 0.84 & 0.84\\
+spatial & 500 & lognormal & 0.90 & 0.84 & 0.87\\
+temporal iev & 500 & lognormal & 0.89 & 0.87 & 0.88\\
 spatiotemporal & 500 & lognormal & 0.89 & 0.87 & 0.89\\
 \bottomrule
 \end{tabular}

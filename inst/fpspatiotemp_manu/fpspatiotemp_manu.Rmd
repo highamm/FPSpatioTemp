@@ -1,6 +1,6 @@
 ---
 title: |
-  An Application of Spatiotemporal Modeling to Finite Population Abundance Prediction
+  An Application of Spatio-temporal Modeling to Finite Population Abundance Prediction
 type: ARTICLE TEMPLATE
 author:
   - name: Matt Higham
@@ -57,21 +57,27 @@ output: rticles::tf_article
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
                       fig.height = 4)
+library(tidyverse)
+library(here)
 ```
 
 \section{Introduction}
 
-\subsection{Motivation}
 
-Moose surveys in Alaska and western Canada are performed annually in many regions. The primary goal of these surveys is to predict moose abundance, the total number of moose, in the region. Because of time and money constraints, only some areas (sites) in the region of interest are selected to be in the survey. Biologists fly to these selected sites, count the number of moose, and can then use a spatial statistical model to find a prediction for the finite abundance for that year [@ver2008spatial]. 
+NOTE: Develop more generally first with general "abundance prediction" for a current year.
+
+NOTE: Rewrite this paragraph incorporating Schmidt references.
+
+
+Spatio-temporal data is indexed by both a spatial index, or site, and by a temporal index, or time point. Models for spatio-temporal data have applications in a wide variety of scientific fields [see @wikle2019spatio]. One such application is ecological monitoring of a particular variable (animal or plant abundance, rainfall, concentration of a compound in soil samples, etc.) across a region of interest throughout a period of time. 
+
+In such applications, we are often interested in a finite total blah blah blah blah (look at sptotal intro or FPBK intro for inspiration).
+
+For example, moose surveys are performed annually in many regions of Alaska and western Canada. The primary goal of these surveys is to predict moose abundance, the total number of moose, in the region. Because of time and money constraints, only some areas (sites) in the region of interest are selected to be in the survey. Biologists fly to these selected sites, count the number of moose, and can then use a spatial statistical model to find a prediction for the finite abundance for that year [@ver2008spatial]. 
 
 Though these surveys are annual, each survey is analysed completely independently of surveys from previous years [e.g. @gasaway1986estimating; @kellie_geospatial_2006; @boertje2009managing; @peters2014contrasting]. For example, a model for a survey conducted in the year 2019 only uses counts on sites that were sampled in that year. However, using counts from previous years in a model that incorporates both spatial and temporal correlation (spatiotemporal) could result in a prediction for the realized total or mean that is more precise than predictions from a spatial model using only counts from the most recent survey year. 
 
-Though the framework of the motivation is given with an example on moose surveys, this type of analysis could be useful for other monitoring systems with a finite number of sites that are regularly surveyed.
-
-\subsection{Background}
-
-* Add paragraph about background of spatiotemporal models
+NOTE: Add two paragraphs about general background of spatiotemporal models (using the Dumelle references).
 
 Prediction for a total, a subset of the total, or a mean in a finite number of spatial locations should incorporate a finite population correction to the variance of the predictor [@ver2008spatial; @higham2021adjusting]. In the context of ecological monitoring in spatiotemporal prediction, we are often most interested in predicting the total abundance for the most recent year of the survey. In this case, the finite population correction should adjust based on the number of sites surveyed in the most recent year of the survey, so that, for example, the prediction variance is zero if all sites in the sampling frame in the most recent year are surveyed.
 
@@ -80,57 +86,46 @@ The rest of this paper is organized as follows. In Section \ref{section:Methods}
 
 \section{Methods} \label{section:Methods}
 
-We now give details on the development of the predictor for abundance. We first detail the spatiotemporal model. Because of the heavy use of notation in the spatiotemporal model development, we first introduce a purely spatial model (without temporal variability) and a purely temporal model (without spatial variability). We then build the spatiotemporal model from these two base components and develop a finite population correction factor to give a Best-Linear-Unbiased-Predictor (BLUP) and its prediction variance for any linear function of the response.
+We now give details on the development of the spatio-temporal model and use the model to develop a finite population correction factor to give a Best-Linear-Unbiased-Predictor (BLUP) and its prediction variance for any linear function of the response vector. 
 
-\subsection{Spatial Model} \label{subsection:spatialmodel}
 
-First, we consider a spatial linear model for a response variable $Y_s(\mathbf{s}_{i})$, $i = 1, 2, \ldots, n_{s}$, where the vector $\mathbf{s}_i$ contains the coordinates for the $i^{th}$ spatial site location and $n_s$ is the number of spatial locations. Then, a spatial model for $\mathbf{y}_s(\mathbf{s}_{i})$, a vector of the $Y_s(\mathbf{s}_{i})$, is
+\subsection{Spatio-temporal Model}
+
+Let $Y(\mathbf{s}_{i}, t_j)$, $i = 1, 2, \ldots, n_{s}$ and $j = 1, 2, \ldots, n_{t}$, be a random variable, where the vector $\mathbf{s}_i$ contains the coordinates for the $i^{th}$ spatial site location, $n_s$ is the number of spatial locations, $t_j$ is the time index for the $j^{th}$ time point, and $n_t$ is the number of unique time points in the data. If each spatial location is represented at every time point, a vector of the $Y(\mathbf{s}_{i}, t_j)$, denoted $\mathbf{y}(\mathbf{s}_{i}, t_j)$, has length $n_{s} \cdot n_{t} \equiv N$. Then, a spatio-temporal model for $\mathbf{y}(\mathbf{s}_{i}, t_j)$ is
 \mbox{}
 \begin{equation}
-\mathbf{y}_s(\mathbf{s}_{i}) = \mathbf{X}_s \bm{\beta}_s + \bm{\epsilon}_s(\mathbf{s}_{i}),
+\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, t_j),
 \end{equation}
 
 \noindent
-where $\mathbf{X}_s$ is a design matrix for the fixed effects and $\bm{\beta}_s$ is a parameter vector of fixed effects. The error $\bm{\epsilon}_s(\mathbf{s}_{i})$ can be decomposed into spatial error and independent error components:
+where $\mathbf{X}$ is a design matrix for the fixed effects and $\bm{\beta}$ is a parameter vector of fixed effects. The error vector $\bm{\epsilon}(\mathbf{s}_{i}, t_j)$ can be decomposed into spatial, temporal, and spatio-temporal components:
 \mbox{}
-\begin{equation}
-\label{equation:spatialmodel}
-\bm{\epsilon}_s(\mathbf{s}_{i}) = \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma}.
+\begin{equation} \label{equation:basicmod}
+\bm{\epsilon}(\mathbf{s}_{i}, t_j) = \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu}.
 \end{equation}
 
-\noindent
-In equation \ref{equation:spatialmodel}, $\mathbf{Z}_{s}$ is an $n_s \times n_s$ matrix of $0$'s and $1$'s, where the values in a row corresponding to a data point at location $\mathbf{s}_{i}$ are $1$ in the $i^{th}$ column and a $0$ in all other columns. Note that, without temporal replication, $\mathbf{Z}_s$ is the identity matrix so is not necessary to include in equation \ref{equation:spatialmodel}. $\bm{\delta}$ is a random vector independent of $\bm{\gamma}$ with mean $\mathbf{0}$ and covariance $\cov(\bm{\delta}) = \sigma^2_{\delta} \mathbf{R}_{s}$, where $\mathbf{R}_s$ is a spatial correlation matrix and $\sigma^2_{\delta}$ is sometimes called the spatial partial sill. $\bm{\gamma}$ is also a random vector with mean $\mathbf{0}$ but has covariance $\cov(\bm{\gamma}) = \sigma^2_{\gamma} \mathbf{I}_{s}$, where $\mathbf{I}_s$ is the $n_s \times n_s$ identity matrix and $\sigma^2_{\gamma}$ is sometimes called the spatial nugget.
+In the spatial component of equation \ref{equation:basicmod}, $\mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma}$, the matrix  $\mathbf{Z}_{s}$ is an $N \times n_s$ matrix of $0$'s and $1$'s, where the values in a row corresponding to a data point at location $\mathbf{s}_{i}$ are $1$ in the $i^{th}$ column and $0$ in all other columns. $\bm{\delta}$ is a random vector with mean $\mathbf{0}$ and covariance $\cov(\bm{\delta}) = \sigma^2_{\delta} \mathbf{R}_{s}$, where $\mathbf{R}_s$ is an $n_s \times n_s$ spatial correlation matrix and $\sigma^2_{\delta}$ is called the spatial dependent error variance (or partial sill). The random vector $\bm{\gamma}$ also has mean $\mathbf{0}$ but has covariance $\cov(\bm{\gamma}) = \sigma^2_{\gamma} \mathbf{I}_{s}$, where $\mathbf{I}_s$ is the $n_s \times n_s$ identity matrix and $\sigma^2_{\gamma}$ is called the spatial independent error variance (or spatial nugget).
 
-There are many common parameterizations of $\mathbf{R}_{s}$. One common assumption is to assume the covariance function generating $\mathbf{R}_s$ is stationary and isotropic, depending only on the spatial distance between the data points. For example, the exponential covariance function is defined as follows. For observations at locations $i$ and $i'$ at $h_{ii'}$ distance apart, row $i$ and column $i'$ of $\mathbf{R}_{s}$ is equal to
+In the temporal component of \ref{equation:basicmod}, $\mathbf{Z}_{t}$ is an $N \times n_t$ matrix of $0$'s and $1$'s, where the values in a row corresponding to a data point at time point $t_j$ are $1$ in the $j^{th}$ column and $0$ in all other columns.  $\bm{\tau}$ is a random vector with mean $\mathbf{0}$ and covariance $\cov(\bm{\tau}) = \sigma^2_{\tau} \mathbf{R}_{t}$, where $\mathbf{R}_t$ is an $\n_t \times n_t$ temporal correlation matrix and $\sigma^2_{\tau}$ is called the temporal dependent error variance (or temporal partial sill). $\bm{\eta}$ is also a random vector with mean $\mathbf{0}$ but has covariance $\cov(\bm{\eta}) = \sigma^2_{\eta} \mathbf{I}_{t}$, where $\mathbf{I}_t$ is the $n_t \times n_t$ identity matrix and $\sigma^2_{\eta}$ is called the temporal independent error variance (or temporal nugget).
+
+In the spatio-temporal component of \ref{equation:basicmod}, $\bm{\omega}$ is a random vector with mean $\mathbf{0}$ and covariance $\cov(\bm{\omega}) = \sigma^2_{\omega} \mathbf{R}_{st}$ where $\mathbf{R}_{st}$ is an $N \times N$ spatio-temporal correlation matrix and $\sigma^2_{\omega}$ is sometimes called the spatio-temporal dependent error variance (or spatio-temporal partial sill). $\bm{\nu}$ is also a random vector with mean $\mathbf{0}$ but has covariance $\cov(\bm{\nu}) = \sigma^2_{\nu} \mathbf{I}_{st}$, where $\mathbf{I}_{st}$ is the $N \times N$ identity matrix and $\sigma^2_{\nu}$ is sometimes called the spatio-temporal independent error variance (or spatio-temporal nugget).
+
+Though there are a few types of models for the errors that can be built from \ref{equation:basicmod} [@dumelle2021linear] by setting certain error variances to 0 (e.g. sum-with-error model) and/or by allowing $\mathbf{R}_st$ to take certain forms (e.g. product-sum model), we focus only on the product-sum model formulation. In the product-sum model, $\mathbf{R}_{st}$ is
+\mbox{}
+\begin{equation*}
+\mathbf{R}_{st} \equiv \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' \odot \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t',
+\end{equation*}
+\noindent
+where $\odot$ is the Hadamard product operator. $\mathbf{R}_s$ can be parameterized in different ways, but one common assumption is to assume the covariance function generating $\mathbf{R}_s$ is second-order stationary (covariance between two data points only depends on the spatial distance, not the specific spatial locations) and isotropic (covariance behaves similarly in all directions). For example, the exponential covariance function is defined as follows. For observations at locations $i$ and $i'$ at $h_{ii'}$ distance apart, row $i$ and column $i'$ of $\mathbf{R}_{s}$ is equal to
 \mbox{}
 \begin{equation}
 \label{equation:spatcov}
 \text{exp}(-h_{ii'} / \phi),
 \end{equation}
-
 \noindent
-where $\phi$ is a spatial range parameter controlling the decay rate of the covariance as distance between two data points increases. 
+where $\phi$ is a spatial range parameter controlling the decay rate of the covariance as distance between two data points increases [@cressie2015statistics]. 
 
-\subsection{Temporal Model} \label{subsection:temporalmodel}
-
-Next, we consider a temporal linear model for a response variable $Y_t(t_j)$, $j = 1, 2, \ldots, n_{t}$, where $t_j$ contains the time index for the $j^{th}$ time point and $n_t$ is the number of time points in the data. Then, a temporal model for $\mathbf{y}_t(t_j)$, a vector of the $Y_t(t_j)$, is
-\mbox{}
-\begin{equation}
-\mathbf{y}_t(t_j) = \mathbf{X}_t \bm{\beta}_t + \bm{\epsilon}_t(t_j),
-\end{equation}
-
-\noindent
-where $\mathbf{X}_t$ is a design matrix for the fixed effects and $\bm{\beta}_t$ is a parameter vector of fixed effects. The error $\bm{\epsilon}_t(t_j)$ can be decomposed into temporal error and independent error components:
-\mbox{}
-\begin{equation}
-\label{equation:temporalmodel}
-\bm{\epsilon}_t(t_j) = \mathbf{Z}_{t} \bm{\tau} + \mathbf{Z}_{t} \bm{\eta}.
-\end{equation}
-
-\noindent
-In equation \ref{equation:temporalmodel}, $\mathbf{Z}_{t}$ is an $n_t \times n_t$ matrix of $0$'s and $1$'s, where the values in a row corresponding to a data point at time point $t_j$ are a $1$ in the $j^{th}$ column and a `0` in all other columns. Note that, without spatial replication, $\mathbf{Z}_t$ is the identity matrix so is not necessary to include in equation \ref{equation:temporalmodel}. $\bm{\tau}$ is a random vector independent of $\bm{\eta}$ with mean $\mathbf{0}$ and covariance $\cov(\bm{\tau}) = \sigma^2_{\tau} \mathbf{R}_{t}$, where $\mathbf{R}_t$ is a temporal correlation matrix and $\sigma^2_{\tau}$ is sometimes called the temporal partial sill. $\bm{\eta}$ is also a random vector with mean $\mathbf{0}$ but has covariance $\cov(\bm{\eta}) = \sigma^2_{\eta} \mathbf{I}_{t}$, where $\mathbf{I}_t$ is the $n_t \times n_t$ identity matrix and $\sigma^2_{\eta}$ is sometimes called the temporal nugget.
-
-There are many common parameterizations of $\mathbf{R}_{t}$. One common assumption is to assume the covariance function generating $\mathbf{R}_t$ is stationary, depending only on the temporal distance between the data points. For example, the exponential covariance function is defined as follows. For observations at time points $j$ and $j'$ at $m_{jj'}$ units apart, row $j$ and column $j'$ of $\mathbf{R}_{t}$ is equal to
+Similarly, one common assumption when parameterizing $\mathbf{R}_t$ is to assume the covariance function generating $\mathbf{R}_t$ is second-order stationary, depending only on the temporal distance between the data points. For example, the exponential covariance function is defined as follows. For observations at time points $j$ and $j'$ at $m_{jj'}$ units apart, row $j$ and column $j'$ of $\mathbf{R}_{t}$ is equal to
 \mbox{}
 \begin{equation}
 \label{equation:tempcov}
@@ -139,53 +134,25 @@ There are many common parameterizations of $\mathbf{R}_{t}$. One common assumpti
 \noindent
 where $\rho$ is a temporal range parameter controlling the decay rate of the covariance as time units between two data points increases. Note that the exponential form of $\mathbf{R}_t$ is equivalent to an AR(1) time series model if the time points are equally spaced and the correlation parameter is greater than zero [@schabenberger2017statistical].
 
-\subsection{Spatiotemporal Model}
-
-We now combine the spatial error components and temporal error components to formulate a model for data collected across both space and time. Let $Y(\mathbf{s}_{i}, t_j)$, $i = 1, 2, \ldots, n_{s}$ and $j = 1, 2, \ldots, n_{t}$, be a random variable, where $\mathbf{s}_i$ and $n_s$ are defined in subsection \ref{subsection:spatialmodel} and $t_j$ and $n_t$ are defined in subsection \ref{subsection:temporalmodel}. If each spatial location is represented at every time point, a vector of the $Y(\mathbf{s}_{i}, t_j)$, denoted $\mathbf{y}(\mathbf{s}_{i}, t_j)$, has length $n_{s} \cdot n_{t} \equiv N$. Then, a spatiotemporal model for $\mathbf{y}(\mathbf{s}_{i}, t_j)$ is
-\mbox{}
-\begin{equation}
-\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, t_j),
-\end{equation}
-
-\noindent
-where $\mathbf{X}$ is a design matrix for the fixed effects and $\bm{\beta}$ is a parameter vector of fixed effects. The error $\bm{\epsilon}(\mathbf{s}_{i}, t_j)$ can be decomposed into spatial and temporal components, as in @dumelle2021linear. A simple model incorporates spatial error and temporal error in  $\bm{\epsilon}(\mathbf{s}_{i}, t_j)$ by summing the spatial and temporal errors defined in equation \ref{equation:spatialmodel} and equation \ref{equation:temporalmodel}:
-\mbox{}
-\begin{equation}
-\label{equation:sumcovmodel}
-\bm{\epsilon}(\mathbf{s}_{i}, t_j) = \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_{t} \bm{\tau} + \mathbf{Z}_{t} \bm{\eta}.
-\end{equation}
-
-With spatial and temporal replication, $\mathbf{Z}_s$ is an $N \times n_s$ matrix while $\mathbf{Z}_t$ is an $N \times n_t$ matrix. However, even when the spatial covariance function generating $\mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma}$ and the temporal covariance function generating $\mathbf{Z}_{t} \bm{\tau} + \mathbf{Z}_{t} \bm{\eta}$ are strictly positive definite, the sum of the spatial and temporal components is not necessarily strictly positive definite (@myers1990variograms). 
-
-A more flexible option that is always positive definite, given in @dumelle2021linear, is the product-sum linear mixed model:
+The product-sum model for $\mathbf{y}(\mathbf{s}_{i}, t_j)$ is
 \mbox{}
 \begin{equation} \label{equation:model}
-\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu}.
+\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu},
 \end{equation}
 
-\noindent
-In equation \ref{equation:model}, $\bm{\omega}$ is a random vector of length $N$ with mean $\mathbf{0}$ and covariance $\cov(\bm{\omega}) = \sigma^2_{\omega} \mathbf{R}_{st}$ where $\mathbf{R}_{st}$ is a spatiotemporal correlation matrix and $\sigma^2_{\omega}$ is sometimes called the spatiotemporal partial sill. $\bm{\nu}$ is also a random vector of length $n$ with mean $\mathbf{0}$ but has covariance $\cov(\bm{\nu}) = \sigma^2_{\nu} \mathbf{I}_{st}$, where $\mathbf{I}_{st}$ is the $N \times N$ identity matrix and $\sigma^2_{\nu}$ is sometimes called the spatiotemporal nugget.
-
-In the product-sum linear mixed model, the formulation for $\mathbf{R}_{st}$ is
-\mbox{}
-\begin{equation*}
-\mathbf{R}_{st} \equiv \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' \odot \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t',
-\end{equation*}
-
-\noindent
-where $\odot$ is the Hadamard product operator.
-
-If we assume that $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, $\bm{\omega}$, and $\bm{\nu}$ are mutually independent of each other, then 
+where $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, $\bm{\omega}$, and $\bm{\nu}$ are mutually independent. $\mathbf{y}(\mathbf{s}_{i}, t_j)$ has mean $\mathbf{X} \bm{\beta}$ and variance
 
 \begin{equation}
 \label{equation:var}
 \var(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' + \sigma^2_{\gamma} \mathbf{Z}_{s} \mathbf{I}_{s} \mathbf{Z}_{s}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\omega} \mathbf{R}_{st} + \sigma^2_{\nu} \mathbf{I}_{st}.
 \end{equation}
 
-<!-- Just need MVN for estimation (model itself does not require it) -->
-Note that the model in equation \ref{equation:model} does not have any distributional assumptions: we only need to specify the mean and variance of $\mathbf{y}$. However, if we also assume that $\mathbf{y}$ is multivariate normal (with mean $\mathbf{X} \bm{\beta} \equiv \bm{\mu}$ and variance $\bm{\Sigma}$ (Equation \ref{equation:var})), then all model parameters can be easily estimated with Maximum Likelihood (ML) or Restricted Maximum Likelihood (REML). 
+There are a few reasons for why we choose to solely focus on the product-sum model. The product-sum model is flexible in its ability to model many kinds of spatial and temporal correlation [@de2015spatio]. @xu2015spatio claim that the model is the most widely used in practical applications. As long as $\mathbf{R}_s$ and $\mathbf{R}_t$ are positive definite and either $\sigma^2_{\omega} > 0$ or $\sigma^2_{\nu} > 0$, then the covariance matrix INSERT COV MATRIX FIRST is also positive definite [@de2001product; @de2001space].
 
-\subsection{Finite Population Kriging} \label{subsection:fpbk}
+DEFINE THETA AND THEN MOVE THIS TO THE PREVIOUS PARAGRAPH
+The model in equation \ref{equation:model} does not have any distributional assumptions: we only need to specify the mean and variance of $\mathbf{y}$. Restricted Maximum Likelihood (REML) can be used to estimate the fixed effects parameter vector $\bm{\beta}$ as well as the covariance parameters in $\bm{\Sigma}$, which we will refer to as $\bm{\theta} \equiv$ [$\sigma^2_{\delta}$, $\sigma^2_{\gamma}$, $\phi$, $\sigma^2_{\tau}$, $\sigma^2_{\eta}$, $\rho$, $\sigma^2_{\omega}$, $\sigma^2_{\nu}'$] [@patterson1971recovery; @harville1977maximum]. Even if $\mathbf{y}$ is not multivariate normal, the REML estimator for $\bm{\beta}$ is unbiased, consistent, and asymptotically normal [@fuller1973transformations; @schabenberger2017statistical], and the REML estimator for the parameter vector $\bm{\theta}$ is unbiased [@heyde1994quasi; @cressie1993asymptotic].
+
+\subsection{Finite Population Block Kriging} \label{subsection:fpbk}
 
 The model in equation \ref{equation:model} is for the $N$-length vector $\mathbf{y}$. However, often we do not have the resources to sample or observe every spatial site in every year. Therefore, we may have an interest in prediction of the response values on sites that were not observed. Throughout this section, let the subscript $o$ denote data points that were surveyed (both past and present), the subscript $u$ denote data points that were not surveyed, and the subscript $a$ denote all observations. Then, we can re-order the response vector so that
 \mbox{}
@@ -242,8 +209,6 @@ with a prediction variance of
 E((\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)) = \\
 \bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_a' \bm{\Sigma}_{a, o} \bm{\lambda}_o + \mathbf{b}_a' \bm{\Sigma}_{a, a} \mathbf{b}_a.
 \end{equation}
-
-
 
 <!-- which is equivalent to  -->
 
@@ -352,22 +317,24 @@ ggplot(data = shp) +
   theme_void()
 ```
 
-```{r tokplotyears, fig.cap = "\\label{fig:tokplotyears} Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska."}
+```{r tokplotyears, fig.cap = "\\label{fig:tokplotyears} Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska, coloured by moose count. The year 2016 is excluded because no survey was performed in that year."}
 moose_final_2020 <- moose_final_all ##|> filter(Surveyyear == 2020)
-moose_shp_2020 <- left_join(shp, moose_final_2020, by = "ID")
+moose_shp_2020 <- left_join(shp, moose_final_2020, by = "ID") |>
+  filter(Surveyyear != 2016)
 
 ggplot(data = moose_shp_2020) +
   geom_sf(aes(fill = totalmoosena)) +
   facet_wrap( ~Surveyyear, nrow = 2) +
   theme_void() +
-  scale_fill_viridis_c()
+  scale_fill_viridis_c() +
+  labs(fill = "Count")
 ```
 
 Before the survey begins in each year, biologists stratify the sites into a `"HIGH"` stratum and a `"LOW"` stratum. There are 230 sites in the `"HIGH"` stratum while there are 151 sites in the `"LOW"` stratum. The goal of the following analysis is to predict the total abundance of moose across all spatial sites in the year `2020`, the most recent year of the survey.
 
 \subsection{Model Fitting} \label{subsection:modelfit}
 
-We fit the product-sum covariance model defined in equation \ref{equation:model} using REML, with stratum as a covariate in the design matrix, an exponential spatial correlation structure defined in \ref{equation:spatcov}, and an exponential temporal correlation structure defined in \ref{equation:tempcov}. Table \ref{paramest} gives the estimated parameters from the model fit.
+We fit the product-sum covariance model defined in equation \ref{equation:model} using REML with stratum as a covariate in the design matrix, an exponential spatial correlation structure defined in \ref{equation:spatcov}, and an exponential temporal correlation structure defined in \ref{equation:tempcov}. Table \ref{tab:paramest} gives the estimated parameters from the model fit.
 
 <!-- The predicted total abundance is moose with a 95% prediction interval of moose. -->
 
@@ -390,7 +357,7 @@ tab <- cov_vec |>
   t()
 ```
 
-```{r, results = "hide"}
+```{r}
 library(kableExtra)
 colnames(tab) <- c("$\\hat{\\sigma}^2_{\\delta}$",
                    "$\\hat{\\sigma}^2_{\\gamma}$",
@@ -411,20 +378,7 @@ knitr::kable(tab, caption = "Estimated covariance parameters in the model. $\\ha
  ## row_spec(c(3, 6, 9), hline_after = TRUE)
 ```
 
-\begin{table}[ht]
-\centering
-\begin{tabular}{rrrrrrrrr}
-  \hline
- & $\hat{\sigma}^2_{\delta}$ & $\hat{\phi}$ & $\hat{\sigma}^2_{\gamma}$ & $\hat{\sigma}^2_{\tau}$ & $\hat{\rho}$ & $\hat{\sigma}^2_{\eta}$ & $\hat{\sigma}^2_{\omega}$ & $\hat{\sigma}^2_{\nu}$ \\ 
-  \hline
- & 16.9 & 4.44 & 3.8 & 0.9 & 2.29 & 0.2 & 30.8 & 24.0 \\ 
-   \hline
-\end{tabular}
-\caption{Estimated covariance parameters in the model. $\hat{\sigma}^2_{\delta}$, $\hat{\sigma}^2_{\tau}$, and $\hat{\sigma}^2_{\eta}$ are the estimated spatial, temporal, and spatiotemporal partial sills, respectively, $\hat{\phi}$ and $\hat{\rho}$ are the estimated spatial and temporal range parameters, and $\hat{\sigma}^2_{\gamma}$, $\hat{\sigma}^2_{\omega}$, and $\hat{\sigma}^2_{\nu}$ are the estimated spatial, temporal, and spatiotemporal nuggets.} 
-\label{paramest}
-\end{table}
-
-To help interpret what some of these fitted covariance parameter estimates mean, we can construct a fitted covariance plot (Figure \ref{fig:covplot}). Note that the centroids of two sites directly adjacent to one another are about 4 units apart. As the spatial distance between two sites increases (dark colour to light colour), the covariance between the response values decreases to 0. In fact, the model estimates the covariance to be nearly 0 when two sites are 20 or more units apart, no matter what the temporal distance is. Note that the fact that the covariance is larger than 0 when temporal distance is 6 and the spatial distance is either 0 implies that including surveys before 2014 could improve precision of the predictor for the total abundance in 2020 even more.
+To help interpret what some of these fitted covariance parameter estimates mean, we can construct a fitted covariance plot (Figure \ref{fig:covplot}). Note that the centroids of two sites directly adjacent to one another are about 4 units apart. As the spatial distance between two sites increases (dark colour to light colour), the covariance between the response values decreases to 0, with the $\hat{\phi}$ parameter estimate controlling the rate of decay. In fact, the model estimates the covariance to be nearly 0 when two sites are 20 or more units apart, no matter what the temporal distance is. Note that the fact that the covariance is larger than 0 when the temporal distance is 6 and the spatial distance is 0 implies that including surveys before 2014 could improve precision of the predictor for the total abundance in 2020 even more.
 
 The estimated vector of fixed effects, using `"HIGH"` as the reference group, is $\bm{\beta}$ = (`r fixed_vec[1]`, `r fixed_vec[2]`). Therefore the overall mean for sites in the `"HIGH"` stratum is estimated to be `r fixed_vec[1]` moose while the overall mean for sites in the `"LOW"` stratum is estimated to be `r fixed_vec[1] + fixed_vec[2]` moose.
 
@@ -444,9 +398,6 @@ FPSpatioTemp::plot_cov(fit_obj_all, sp_epstol = c(0.2, 4, 20, Inf),
          t_epstol = c(0.2, 2, 6),
          xaxis_var = "temporal")
 ```
-
-
-
 
 \subsection{Prediction}
                      
@@ -481,13 +432,14 @@ ggplot(data = moose_shp_preds_2020) +
   geom_point(data = moose_shp_preds_2020 |> filter(ind_sa == 1), aes(x = CentoidX, y = CentroidY), size = 0.3, colour = grey(.5))
 ```
 
-For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the prediction for the total abundance of moose in the year 2020 [@ver2008spatial]. We also use the standard simple random sampling estimator
+For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the prediction for the total abundance of moose in the year 2020 with stratum as a covariate [@ver2008spatial]. We also use the standard stratified random sampling design-based estimator
 \mbox{}
 \begin{equation*}
-\bar{y} \cdot \frac{n_s}{n_{o}},
+N_h \bar{y}_h + N_l \bar{y}_l
 \end{equation*}
 \noindent
-where $\bar{y}$ is the sample mean for the data points in 2020, $n_s$ is the total number of sites in 2020, and $n_o$ is the number of observed data points in 2020. The simple random sampling estimator has a variance for the total abundance of $n_s^2 \cdot \frac{\hat{\sigma}^2}{n_o} \cdot (1 - \frac{n_o}{n_s})$. Note that the purely spatial model fit with `sptotal` and the simple random sampling estimator __only__ use data from 2020.
+where $\bar{y}_i$ is the sample mean for the data points in 2020 in the $i^{th}$ stratum, $N_i$ is the total number of sites in 2020 in the $i^{th}$ stratum, and $n_i$ is the number of observed data points in 2020 in the $i^{th}$ stratum. The stratified random sampling design-based estimator has a variance for the total abundance of
+$N_h^2 \cdot (1 - \frac{n_h}{N_h}) \cdot \frac{s^2_h}{n_h} + N_l^2 \cdot (1 - \frac{n_l}{N_l}) \cdot \frac{s^2_l}{n_l}$, where $s^2_i$ is the sample variance of the observed data points in 2020 in the $i^{th}$ stratum. Both the purely spatial model fit with `sptotal` and the stratified random sampling design-based estimator __only__ use data from 2020.
 
 ```{r}
 moose_final_2020 <- moose_final_all |>
@@ -506,7 +458,8 @@ pred_sptotal <- round(as.vector(pred_obj_2020$FPBK_Prediction), 0)
 se_sptotal <- round(as.vector(sqrt(pred_obj_2020$PredVar)), 0)
 ```
 
-```{r}
+```{r, eval = FALSE}
+## simple random sampling estimator (not used)
 mean_srs <- mean(moose_final_2020$totalmoosena, na.rm = TRUE) 
 N_srs <- nrow(moose_final_2020)
 n_srs <- sum(!is.na(moose_final_2020$totalmoosena))
@@ -514,6 +467,19 @@ var_srs <- var(moose_final_2020$totalmoosena, na.rm = TRUE)
 
 pred_srs <- round(mean_srs * N_srs, 0)
 se_srs <- round(sqrt(N_srs ^ 2 * var_srs / n_srs * (1 - n_srs / N_srs)), 0)
+```
+
+```{r}
+## stratified random sampling estimator
+moose_2020_sum <- moose_final_2020 |> group_by(newstrat) |>
+  summarise(mean_moose = mean(totalmoosena, na.rm = TRUE),
+            var_moose = var(totalmoosena, na.rm = TRUE),
+            n_moose = sum(!is.na(totalmoosena)),
+            N_moose = n())
+moose_2020_srs <- moose_2020_sum |> summarise(pred_srs = sum(mean_moose * N_moose),
+                            se_srs = sum(sqrt(N_moose ^ 2 * (1 - n_moose / N_moose) * var_moose / n_moose)))
+pred_srs <- round(moose_2020_srs$pred_srs, 0)
+se_srs <- round(moose_2020_srs$se_srs, 0)
 ```
 
 For the purely spatial model, the prediction for the total number of moose in 2020 in the region is `r pred_sptotal` moose with a standard error of `r se_sptotal` moose. For the simple random sampling estimator, the estimated total number of moose in 2020 in the region is `r pred_srs` moose with a standard error of `r se_srs` moose. While the predictions for the total are somewhat similar across the three methods, we see that the spatiotemporal model is most efficient ($SE$ = `r round(as.numeric(sqrt(predvar_all)), 0)` moose compared to `r se_sptotal` moose for the purely spatial model and `r se_srs` moose for the simple random sampling estimator that ignores both spatial and temporal information). 
@@ -715,7 +681,7 @@ pis_sptotal <- pred_sptotal[1, 1] +
 \section{Simulation} \label{section:Simulation}
 
 
-```{r, eval = TRUE, cache = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
+```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
 library(tidyverse)
 library(here)
 
@@ -737,7 +703,7 @@ sim_parm_tab <- sims_readin[[1]] |>
                            spt_de_sim, spt_ie_sim) |>
   distinct() |>
   arrange(spt_ie_sim) |>
-  mutate(method = c("spatiotemporal", "temporal_ie",
+  mutate(method = c("spatiotemporal", "temporal iev",
                     "spatial", "independent")) |>
   relocate(method)
 
@@ -748,7 +714,7 @@ names(sim_parm_tab) <- c("scenario", "$\\sigma^2_{\\delta}$",
                          "$\\sigma^2_{\\nu}$")
 
 sim_parm_tab2 <- na_if(sim_parm_tab, 0)
-sim_parm_tab2 <- na_if(sim_parm_tab, 1e-10)
+sim_parm_tab2 <- na_if(sim_parm_tab2, 1e-10)
 options(knitr.kable.NA = '0')
 
 knitr::kable(sim_parm_tab2, caption = "Covariance parameters used to simulate data. $\\sigma^2_{\\delta}$, $\\sigma^2_{\\gamma}$, and $\\phi$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\\sigma^2_{\\tau}$, $\\sigma^2_{\\eta}$, and $\\rho$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\\sigma^2_{\\omega}$ and $\\sigma^2_{\\nu}$ are the spatiotemporal dependent error variance and spatiotemporal independent error variance.",
@@ -817,7 +783,9 @@ For each method, we record the root mean squared prediction error (rMSPE), $\sqr
 
 Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and \ref{tab:simpitab} in Section \ref{section:appendix} give the rMSPE , bias and interval coverage of the three predictors in all 12 simulation settings. In Figure \ref{fig:rmspe}, we see that the spatiotemporal model outperforms both the purely spatial model and the simple random sample design-based estimator in all 12 settings. In general, rMSPE is improvement is larger for the smaller sample size. In general, as $n$ approaches $N$, rMSPE for all approaches should become smaller and be exactly equal to 0 when $n = N$. 
 
-We also see that, in general, the smallest gains in rMSPE for the spatiotemporal model are made in the "spatial" simulation setting. In this setting, response values across space are only correlated within a given time point; therefore, the spatiotemporal model only does marginally better than the other two approaches because the data from the other time points are not correlated with the data in the most current time point. However, in both the independent setting and the spatial setting, the spatiotemporal model still outperforms the purely spatial model and the simple random sample design-based estimator because the spatiotemporal can still use the response values collected in previous time points to estimate the fixed effects structure of the model.
+We also see that, in general, there are moderate gains in rMSPE for the spatiotemporal model are made in the "spatial" simulation setting. In this setting, response values across space are only correlated within a given time point; therefore, the spatiotemporal model only does marginally better than the other two approaches because the data from the other time points are not correlated with the data in the most current time point. However, in both the independent setting and the spatial setting, the spatiotemporal model still outperforms the purely spatial model and the simple random sample design-based estimator because the spatiotemporal can still use the response values collected in previous time points to estimate the fixed effects structure of the model.
+
+We see the smallest gains in rMSPE for the spatiotemporal model in the "temporal iev" scenario. In this setting, most of the variability in the response comes from $\sigma^2_{\eta}$, the temporal independent error variance. Therefore, data collected in different time points is not correlated, and, different time points can have very different realized totals. As expected, the spatiotemporal model performs no better than a purely spatial model for this scenario, but we can also say that the added complexity of the spatiotemporal model does not make it perform worse than the purely spatial model.
 
 ```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
 sims_df <- bind_rows(sims_readin) 
@@ -843,7 +811,7 @@ sims_sum <- sims_df |> group_by(n_sim, sp_de_sim,
   relocate(rmspe, rmspe_sptot, rmspe_srs) |>
   mutate(scenario = case_when(sp_de_sim == 0 & near(sp_range_sim, 0) ~ "independent",
                               sp_de_sim == 0 & t_ie_sim == 0 ~ "spatial",
-                              t_ie_sim == 1.5 ~ "temporal_ie",
+                              sp_de_sim == 0 ~ "temporal iev",
                               TRUE ~ "spatiotemporal")) |>
   relocate(scenario)
 ```
@@ -1010,7 +978,7 @@ knitr::kable(rmspe_tab, caption = "root Mean Squared Prediction Error (rMSPE) fo
   ##print(sanitize.text.function = function(x){x}) |> 
   add_header_above(c("Simulation Setting" = 3, "rMSPE"=3))  |>
     kable_styling(latex_options = "HOLD_position") |>
-  row_spec(c(3, 6, 9), hline_after = TRUE)
+  row_spec(c(4, 8, 12), hline_after = TRUE)
 ```
 
 ```{r}
@@ -1029,7 +997,7 @@ knitr::kable(bias_tab, caption = "Bias (Realized Current Total - Predicted Curre
   ##print(sanitize.text.function = function(x){x}) |> 
   add_header_above(c("Simulation Setting" = 3, "Bias"=3))  |>
     kable_styling(latex_options = "HOLD_position") |>
-  row_spec(c(3, 6, 9), hline_after = TRUE)
+  row_spec(c(4, 8, 12), hline_after = TRUE)
 ```
 
 ```{r}
@@ -1048,5 +1016,5 @@ knitr::kable(pi_tab, caption = "Prediction interval coverage for the spatiotempo
   ##print(sanitize.text.function = function(x){x}) |> 
   add_header_above(c("Simulation Setting" = 3, "Coverage"=3))  |>
     kable_styling(latex_options = "HOLD_position") |>
-  row_spec(c(3, 6, 9), hline_after = TRUE)
+  row_spec(c(4, 8, 12), hline_after = TRUE)
 ```

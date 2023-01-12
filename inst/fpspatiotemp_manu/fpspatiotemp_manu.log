@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  9 JAN 2023 14:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  10 JAN 2023 09:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -964,64 +964,68 @@ Overfull \hbox (29.63393pt too wide) in paragraph at lines 466--468
  [][] 
  []
 
+
+LaTeX Warning: Reference `paramest' on page 7 undefined on input line 484.
+
 [7pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) 
 has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.512 
+l.501 
        <./fpspatiotemp_manu_files/figure-latex/tokplotyears-1.pdf>]
-<fpspatiotemp_manu_files/figure-latex/covplot-1.pdf, id=217, 457.71pt x 282.053
+<fpspatiotemp_manu_files/figure-latex/covplot-1.pdf, id=214, 457.71pt x 282.053
 76pt>
 File: fpspatiotemp_manu_files/figure-latex/covplot-1.pdf Graphic file (type pdf
 )
 <use fpspatiotemp_manu_files/figure-latex/covplot-1.pdf>
 Package pdftex.def Info: fpspatiotemp_manu_files/figure-latex/covplot-1.pdf use
-d on input line 521.
+d on input line 524.
 (pdftex.def)             Requested size: 457.7089pt x 282.05305pt.
 
-Overfull \hbox (49.7089pt too wide) in paragraph at lines 521--523
+Overfull \hbox (49.7089pt too wide) in paragraph at lines 524--526
  [][] 
  []
 
-[8pdfTeX warning (ext4): destination with the same identifier (name{table.1}) h
-as been already used, duplicate ignored
 
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.538 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-3}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.538 
-       <./fpspatiotemp_manu_files/figure-latex/covplot-1.pdf>]
-<fpspatiotemp_manu_files/figure-latex/unnamed-chunk-8-1.pdf, id=235, 248.93pt x
+<fpspatiotemp_manu_files/figure-latex/unnamed-chunk-8-1.pdf, id=219, 248.93pt x
  264.99pt>
 File: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (
 type pdf)
 <use fpspatiotemp_manu_files/figure-latex/unnamed-chunk-8-1.pdf>
 Package pdftex.def Info: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-8-1
-.pdf used on input line 541.
+.pdf used on input line 544.
 (pdftex.def)             Requested size: 248.92938pt x 264.98935pt.
-[9pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) 
-has been already used, duplicate ignored
+[8pdfTeX warning (ext4): destination with the same identifier (name{table.1}) h
+as been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.583 
-       <./fpspatiotemp_manu_files/figure-latex/unnamed-chunk-8-1.pdf>]
-<fpspatiotemp_manu_files/figure-latex/unnamed-chunk-26-1.pdf, id=261, 457.71pt 
+l.577 
+      ] [9pdfTeX warning (ext4): destination with the same identifier (name{fig
+ure.3}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.577 
+      pdfTeX warning (ext4): destination with the same identifier (name{figure.
+4}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.577 
+       <./fpspatiotemp_manu_files/figure-latex/covplot-1.pdf> <./fpspatiotemp_m
+anu_files/figure-latex/unnamed-chunk-8-1.pdf>]
+<fpspatiotemp_manu_files/figure-latex/unnamed-chunk-27-1.pdf, id=260, 457.71pt 
 x 280.04625pt>
-File: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-26-1.pdf Graphic file 
+File: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-27-1.pdf Graphic file 
 (type pdf)
-<use fpspatiotemp_manu_files/figure-latex/unnamed-chunk-26-1.pdf>
-Package pdftex.def Info: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-26-
-1.pdf used on input line 627.
+<use fpspatiotemp_manu_files/figure-latex/unnamed-chunk-27-1.pdf>
+Package pdftex.def Info: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-27-
+1.pdf used on input line 636.
 (pdftex.def)             Requested size: 457.7089pt x 280.04555pt.
 
-Overfull \hbox (49.7089pt too wide) in paragraph at lines 627--635
+Overfull \hbox (49.7089pt too wide) in paragraph at lines 636--644
  [][] 
  []
 
@@ -1030,45 +1034,44 @@ has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.678 
+l.650 
       ] [11pdfTeX warning (ext4): destination with the same identifier (name{fi
 gure.5}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.678 
-       <./fpspatiotemp_manu_files/figure-latex/unnamed-chunk-26-1.pdf>]
-<fpspatiotemp_manu_files/figure-latex/unnamed-chunk-28-1.pdf, id=297, 453.695pt
+l.650 
+       <./fpspatiotemp_manu_files/figure-latex/unnamed-chunk-27-1.pdf>] [12]
+<fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf, id=308, 453.695pt
  x 277.035pt>
-File: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-28-1.pdf Graphic file 
-(type pdf)
-<use fpspatiotemp_manu_files/figure-latex/unnamed-chunk-28-1.pdf>
-Package pdftex.def Info: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-28-
-1.pdf used on input line 725.
-(pdftex.def)             Requested size: 453.6939pt x 277.03432pt.
-
-Overfull \hbox (45.6939pt too wide) in paragraph at lines 725--731
- [][] 
- []
-
-[12] [13pdfTeX warning (ext4): destination with the same identifier (name{figur
-e.6}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.739 F
-       igure \ref{fig:pi} shows the interval coverage for the normal-based <./f
-pspatiotemp_manu_files/figure-latex/unnamed-chunk-28-1.pdf>]
-<fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf, id=325, 451.6875p
-t x 277.035pt>
 File: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf Graphic file 
 (type pdf)
 <use fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf>
 Package pdftex.def Info: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-
-1.pdf used on input line 751.
+1.pdf used on input line 744.
+(pdftex.def)             Requested size: 453.6939pt x 277.03432pt.
+
+Overfull \hbox (45.6939pt too wide) in paragraph at lines 744--750
+ [][] 
+ []
+
+[13pdfTeX warning (ext4): destination with the same identifier (name{figure.6})
+ has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.767 
+       <./fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf>]
+<fpspatiotemp_manu_files/figure-latex/unnamed-chunk-30-1.pdf, id=325, 451.6875p
+t x 277.035pt>
+File: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-30-1.pdf Graphic file 
+(type pdf)
+<use fpspatiotemp_manu_files/figure-latex/unnamed-chunk-30-1.pdf>
+Package pdftex.def Info: fpspatiotemp_manu_files/figure-latex/unnamed-chunk-30-
+1.pdf used on input line 770.
 (pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
 
-Overfull \hbox (43.68639pt too wide) in paragraph at lines 751--755
+Overfull \hbox (43.68639pt too wide) in paragraph at lines 770--774
  [][] 
  []
 
@@ -1077,39 +1080,39 @@ Overfull \hbox (43.68639pt too wide) in paragraph at lines 751--755
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.800 
-       <./fpspatiotemp_manu_files/figure-latex/unnamed-chunk-29-1.pdf>] [15pdfT
+l.819 
+       <./fpspatiotemp_manu_files/figure-latex/unnamed-chunk-30-1.pdf>] [15pdfT
 eX warning (ext4): destination with the same identifier (name{table.3}) has bee
 n already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.859 
+l.882 
       ] [16pdfTeX warning (ext4): destination with the same identifier (name{ta
 ble.4}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.917 
-      pdfTeX warning (ext4): destination with the same identifier (name{table.5
-}) has been already used, duplicate ignored
+l.915 
+      ] [17pdfTeX warning (ext4): destination with the same identifier (name{ta
+ble.5}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.917 
-      ] (./fpspatiotemp_manu.bbl [17pdfTeX warning (ext4): destination with the
+l.948 
+      ] (./fpspatiotemp_manu.bbl [18pdfTeX warning (ext4): destination with the
  same identifier (name{table.6}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.61 ...otway(2017)]{schabenberger2017statistical}
+l.54 ...eters et~al.(2014)]{peters2014contrasting}
                                                   ])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 925.
-[18]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 925.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 956.
+[19]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 956.
 (./fpspatiotemp_manu.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 925.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 925.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 956.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 956.
 Package rerunfilecheck Info: File `fpspatiotemp_manu.out' has not changed.
 (rerunfilecheck)             Checksum: 8AE3AFF93B4FF07A69262FDFE2FAADA2;964.
 
@@ -1117,18 +1120,21 @@ LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
 
 
+LaTeX Warning: There were undefined references.
+
+
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 925.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 956.
  ) 
 Here is how much of TeX's memory you used:
- 9715 strings out of 493014
- 136831 string characters out of 6133351
- 262382 words of memory out of 5000000
- 12956 multiletter control sequences out of 15000+600000
+ 9717 strings out of 493014
+ 136852 string characters out of 6133351
+ 258479 words of memory out of 5000000
+ 12957 multiletter control sequences out of 15000+600000
  17492 words of font info for 68 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,12n,35p,727b,448s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,12n,35p,824b,446s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy
 8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10
 .pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.
@@ -1155,10 +1161,10 @@ mf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2016/texmf
 dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2016/texmf-d
 ist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/2016/texmf-dis
 t/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on fpspatiotemp_manu.pdf (18 pages, 4781380 bytes).
+Output written on fpspatiotemp_manu.pdf (19 pages, 4785710 bytes).
 PDF statistics:
- 462 PDF objects out of 1000 (max. 8388607)
- 391 compressed objects within 4 object streams
- 81 named destinations out of 1000 (max. 500000)
+ 466 PDF objects out of 1000 (max. 8388607)
+ 394 compressed objects within 4 object streams
+ 82 named destinations out of 1000 (max. 500000)
  172 words of extra memory for PDF output out of 10000 (max. 10000000)
 
