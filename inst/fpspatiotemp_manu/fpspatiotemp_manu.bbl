@@ -1,4 +1,4 @@
-\begin{thebibliography}{12}
+\begin{thebibliography}{28}
 \newcommand{\enquote}[1]{``#1''}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\normalfont{#1}}
@@ -13,6 +13,36 @@ Boertje, Rodney~D, Mark~A Keech, Donald~D Young, Kalin~A Kellie, and C~Tom
 Brus, Dick~J. 2021. ``Statistical approaches for spatial sample survey:
   Persistent misconceptions and new developments.'' \emph{European Journal of
   Soil Science} 72 (2): 686--703.
+
+\bibitem[Cressie(2015)]{cressie2015statistics}
+Cressie, Noel. 2015. \emph{Statistics for spatial data - revised edition}. John
+  Wiley \& Sons.
+
+\bibitem[Cressie and Lahiri(1993)]{cressie1993asymptotic}
+Cressie, Noel, and Soumendra~Nath Lahiri. 1993. ``The asymptotic distribution
+  of REML estimators.'' \emph{Journal of multivariate analysis} 45 (2):
+  217--233.
+
+\bibitem[De~Cesare, Myers, and Posa(2001)]{de2001product}
+De~Cesare, Luigi, DE~Myers, and D~Posa. 2001. ``Product-sum covariance for
+  space-time modeling: an environmental application.'' \emph{Environmetrics:
+  The official journal of the International Environmetrics Society} 12 (1):
+  11--23.
+
+\bibitem[De~Iaco, Palma, and Posa(2015)]{de2015spatio}
+De~Iaco, S, M~Palma, and D~Posa. 2015. ``Spatio-temporal geostatistical
+  modeling for French fertility predictions.'' \emph{Spatial Statistics} 14:
+  546--562.
+
+\bibitem[De~Iaco, Myers, and Posa(2001)]{de2001space}
+De~Iaco, Sandra, Donald~E Myers, and Donato Posa. 2001. ``Space--time analysis
+  using a general product--sum model.'' \emph{Statistics \& Probability
+  Letters} 52 (1): 21--28.
+
+\bibitem[DeLong(2006)]{delong2006geospatial}
+DeLong, Robert~A. 2006. \emph{Geospatial population estimator software user's
+  guide}. Alaska Department of Fish and Game, Division of Wildlife
+  Conservation.
 
 \bibitem[Dumelle et~al.(2022)]{dumelle2022comparison}
 Dumelle, Michael, Matt Higham, Jay~M Ver~Hoef, Anthony~R Olsen, and Lisa
@@ -31,25 +61,45 @@ Gasaway, William~C, Stephen~D DuBois, Daniel~J Reed, and Samuel~J Harbo. 1986.
   \emph{Estimating moose population parameters from aerial surveys}. Technical
   {R}eport. University of Alaska. Institute of Arctic Biology.
 
-\bibitem[Higham et~al.(2021{\natexlab{a}})]{higham2021sptotal}
-Higham, Matt, Jay {Ver Hoef}, Bryce Frank, and Michael Dumelle.
-  2021{\natexlab{a}}. \emph{sptotal: Predicting Totals and Weighted Sums from
-  Spatial Data}. R package version 1.0.0,
-  \urlprefix\url{https://highamm.github.io/sptotal/index.html}.
+\bibitem[Harville(1977)]{harville1977maximum}
+Harville, David~A. 1977. ``Maximum likelihood approaches to variance component
+  estimation and to related problems.'' \emph{Journal of the American
+  statistical association} 72 (358): 320--338.
 
-\bibitem[Higham et~al.(2021{\natexlab{b}})]{higham2021adjusting}
-Higham, Matt, Jay Ver~Hoef, Lisa Madsen, and Andy Aderman. 2021{\natexlab{b}}.
-  ``Adjusting a finite population block kriging estimator for imperfect
-  detection.'' \emph{Environmetrics} 32 (1): e2654.
+\bibitem[Heyde(1994)]{heyde1994quasi}
+Heyde, CC. 1994. ``A quasi-likelihood approach to the REML estimating
+  equations.'' \emph{Statistics \& Probability Letters} 21 (5): 381--384.
+
+\bibitem[Higham et~al.(2021)]{higham2021sptotal}
+Higham, Matt, Jay {Ver Hoef}, Bryce Frank, and Michael Dumelle. 2021.
+  \emph{sptotal: Predicting Totals and Weighted Sums from Spatial Data}. R
+  package version 1.0.0,
+  \urlprefix\url{https://highamm.github.io/sptotal/index.html}.
 
 \bibitem[Kellie and DeLong(2006)]{kellie_geospatial_2006}
 Kellie, Kalin~A, and Robert~A DeLong. 2006. \emph{Geospatial survey operations
   manual}. Technical {R}eport. Alaska Department of Fish and Game.
 
-\bibitem[Myers and Journel(1990)]{myers1990variograms}
-Myers, Donald~E, and Andre Journel. 1990. ``Variograms with zonal anisotropies
-  and noninvertible kriging systems.'' \emph{Mathematical Geology} 22 (7):
-  779--785.
+\bibitem[Kellie, Colson, and Reynolds(2019)]{kellie2019challenges}
+Kellie, Kalin~Ann, Kassidy~E Colson, and Joel~H Reynolds. 2019.
+  \emph{Challenges to Monitoring Moose in Alaska}. Alaska Department of Fish
+  and Game, Division of Wildlife Conservation Juneau~….
+
+\bibitem[Lemos and Sans{\'o}(2009)]{lemos2009spatio}
+Lemos, Ricardo~T, and Bruno Sans{\'o}. 2009. ``A spatio-temporal model for
+  mean, anomaly, and trend fields of North Atlantic sea surface temperature.''
+  \emph{Journal of the American Statistical Association} 104 (485): 5--18.
+
+\bibitem[Mart{\'\i}nez-Beneito, L{\'o}pez-Quilez, and
+  Botella-Rocamora(2008)]{martinez2008autoregressive}
+Mart{\'\i}nez-Beneito, Miguel~A, Antonio L{\'o}pez-Quilez, and Paloma
+  Botella-Rocamora. 2008. ``An autoregressive approach to spatio-temporal
+  disease mapping.'' \emph{Statistics in medicine} 27 (15): 2874--2889.
+
+\bibitem[Patterson and Thompson(1971)]{patterson1971recovery}
+Patterson, H~Desmond, and Robin Thompson. 1971. ``Recovery of inter-block
+  information when block sizes are unequal.'' \emph{Biometrika} 58 (3):
+  545--554.
 
 \bibitem[Peters et~al.(2014)]{peters2014contrasting}
 Peters, Wibke, Mark Hebblewhite, Kirby~G Smith, Shevenell~M Webb, Nathan Webb,
@@ -58,12 +108,40 @@ Peters, Wibke, Mark Hebblewhite, Kirby~G Smith, Shevenell~M Webb, Nathan Webb,
   west-central Alberta, Canada.'' \emph{Wildlife Society Bulletin} 38 (3):
   639--649.
 
+\bibitem[Sahu and B{\"o}hning(2022)]{sahu2022bayesian}
+Sahu, Sujit~K, and Dankmar B{\"o}hning. 2022. ``Bayesian spatio-temporal joint
+  disease mapping of Covid-19 cases and deaths in local authorities of
+  England.'' \emph{Spatial Statistics} 49: 100519.
+
 \bibitem[Schabenberger and Gotway(2017)]{schabenberger2017statistical}
 Schabenberger, Oliver, and Carol~A Gotway. 2017. \emph{Statistical methods for
   spatial data analysis: Texts in statistical science}. Chapman and Hall/CRC.
 
+\bibitem[Schmidt et~al.(2022)]{schmidt2022bayesian}
+Schmidt, Joshua~H, Matthew~D Cameron, Kyle Joly, Jordan~M Pruszenski, Joel~H
+  Reynolds, and Mathew~S Sorum. 2022. ``Bayesian spatial modeling of moose
+  count data: increasing estimator efficiency and exploring ecological
+  hypotheses.'' \emph{The Journal of Wildlife Management} e22220.
+
+\bibitem[Smith(1980)]{smith1980central}
+Smith, Tony~E. 1980. ``A central limit theorem for spatial samples.''
+  \emph{Geographical Analysis} 12 (4): 299--324.
+
 \bibitem[Ver~Hoef(2008)]{ver2008spatial}
 Ver~Hoef, Jay~M. 2008. ``Spatial methods for plot-based sampling of wildlife
   populations.'' \emph{Environmental and Ecological Statistics} 15 (1): 3--13.
+
+\bibitem[Wickham(2016)]{wickham2016data}
+Wickham, Hadley. 2016. ``Data analysis.'' In \emph{ggplot2}, 189--201.
+  Springer.
+
+\bibitem[Wikle, Zammit-Mangion, and Cressie(2019)]{wikle2019spatio}
+Wikle, Christopher~K, Andrew Zammit-Mangion, and Noel Cressie. 2019.
+  \emph{Spatio-temporal Statistics with R}. Chapman and Hall/CRC.
+
+\bibitem[Xu and Shu(2015)]{xu2015spatio}
+Xu, Jiaqi, and Hong Shu. 2015. ``Spatio-temporal kriging based on the
+  product-sum model: some computational aspects.'' \emph{Earth Science
+  Informatics} 8 (3): 639--648.
 
 \end{thebibliography}
