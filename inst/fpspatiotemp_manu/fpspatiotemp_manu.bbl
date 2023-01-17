@@ -1,4 +1,4 @@
-\begin{thebibliography}{28}
+\begin{thebibliography}{29}
 \newcommand{\enquote}[1]{``#1''}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\normalfont{#1}}
@@ -89,6 +89,10 @@ Kellie, Kalin~Ann, Kassidy~E Colson, and Joel~H Reynolds. 2019.
 Lemos, Ricardo~T, and Bruno Sans{\'o}. 2009. ``A spatio-temporal model for
   mean, anomaly, and trend fields of North Atlantic sea surface temperature.''
   \emph{Journal of the American Statistical Association} 104 (485): 5--18.
+
+\bibitem[Lohr(2021)]{lohr2021sampling}
+Lohr, Sharon~L. 2021. \emph{Sampling: design and analysis}. Chapman and
+  Hall/CRC.
 
 \bibitem[Mart{\'\i}nez-Beneito, L{\'o}pez-Quilez, and
   Botella-Rocamora(2008)]{martinez2008autoregressive}

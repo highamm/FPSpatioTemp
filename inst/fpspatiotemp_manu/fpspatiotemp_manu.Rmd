@@ -696,7 +696,7 @@ sims_readin <- map(files, read_csv, col_names = TRUE)
 
 \subsection{Description}
 
-To evaluate performance of the finite population spatio-temporal model, we conduct a small simulation study. We simulate a response vector $\mathbf{y}$ of length $N = 1000$ on a $10 \times 10$ grid of 100 spatial sites on the unit ($[0, 1] \times [0, 1]$) square and 10 equally-spaced time points in the interval $[0, 1]$ (so that each spatial site has a response value at each time point). $\mathbf{y}$ is multivariate normal with mean $\mathbf{0}$ and product-sum covariance matrix $\bm{\Sigma}$ defined in equation \ref{equation:var} with the covariance parameters given in Table \ref{tab:simparmtab}.
+To evaluate performance of the finite population predictor with the spatio-temporal model, we conduct a simulation study. We simulate a response vector $\mathbf{y}$ of length $N = 1000$ on a $10 \times 10$ grid of 100 spatial sites on the unit ($[0, 1] \times [0, 1]$) square and 10 equally-spaced time points in the interval $[0, 1]$ (so that each spatial site has a response value at each time point). $\mathbf{y}$ is multivariate normal with mean $\mathbf{0}$ and product-sum covariance matrix $\bm{\Sigma}$ defined in equation \ref{equation:var} with the covariance parameters given in Table \ref{tab:simparmtab}.
 
 ```{r, results = "asis"}
 library(kableExtra)
@@ -707,8 +707,8 @@ sim_parm_tab <- sims_readin[[1]] |>
                            spt_de_sim, spt_ie_sim) |>
   distinct() |>
   arrange(spt_ie_sim) |>
-  mutate(method = c("spatiotemporal", "temporal iev",
-                    "spatial", "independent")) |>
+  mutate(method = c("all-dev", "t-iev",
+                    "spatial", "spt-iev")) |>
   relocate(method) |>
   filter(method != "spatial")
 
@@ -732,21 +732,19 @@ knitr::kable(sim_parm_tab2, caption = "Covariance parameters used to simulate da
 ```
 
 ```{r}
-sim_parm_spt <- sim_parm_tab |> filter(scenario == "spatiotemporal")
+sim_parm_spt <- sim_parm_tab |> filter(scenario == "all-dev")
 cov_parms_sim <- c(sim_parm_spt |> pull(2), sim_parm_spt |> pull(3),
                    sim_parm_spt |> pull(4), sim_parm_spt |> pull(5),
                    sim_parm_spt |> pull(6), sim_parm_spt |> pull(7),
                    sim_parm_spt |> pull(8), sim_parm_spt |> pull(9))
 ```
 
-The three scenarios in the table correspond to (1) __spatio-temporal__: a setting where there is spatio-temporal covariance in the random errors, (2) __temporal iev__: a setting where there the overall variance is dominated by the temporal independent error variance parameter, $\sigma^2_{\eta}$, and (3) __independent__: all errors are independent regardless of spatial index and time index. In all scenarios, the total variance (summing all six variance parameters) is equal to 2.
+The three scenarios in the table correspond to (1) __all-dev__: a scenario where there a substantial proportion of the overall variance comes from the spatial, temporal, and spatio-temporal dependent error variance parameters $\sigma^2_{\delta}, \sigma^2_{\tau},$ and $\sigma^2_{\omega}$, (2) __t-iev__: a scenario where there the overall variance is dominated by the temporal independent error variance parameter, $\sigma^2_{\eta}$, and (3) __spt-iev__: a scenario where all of the variability comes from $\sigma^2_{\nu}$ so that errors are independent regardless of spatial and time indeces. In all scenarios, summing all six variance parameters gives a total variance equal to two units squared.
 
-Both $\mathbf{R}_{s}$ and $\mathbf{R}_t$ are generated from the exponential correlation function with $\phi$ and $\rho$ as the range parameters in equations \ref{equation:spatcov} and \ref{equation:tempcov}. The values $0.471$ and $0.3333$ are chosen for $\phi$ and $\rho$, respectively, so that the effective ranges, $3 \phi$ and $3 \rho$, are equal to the maximum distance between two observations in space ($\sqrt2 = 1.414$) and the maximum distance between two observations in time ($1$). A value of 0 for $\phi$ (or $\rho$) sets the  $\mathbf{R}_{s}$ matrix (or the $\mathbf{R}_t$ matrix) to the identity matrix.
-
-Figure \ref{fig:simcovplot} shows the model covariance of the errors used to generate data for the spatio-temporal scenario.
+Both $\mathbf{R}_{s}$ and $\mathbf{R}_t$ are generated from the exponential correlation function with $\phi$ and $\rho$ as the range parameters in equations \ref{equation:spatcov} and \ref{equation:tempcov}. The values $0.471$ and $0.3333$ are chosen for $\phi$ and $\rho$, respectively, so that the effective ranges, $3 \phi$ and $3 \rho$, are equal to the maximum distance between two data points in space ($\sqrt2 = 1.414$) and the maximum distance between two data points in time ($1$). A value of 0 for $\phi$ (or $\rho$) sets the  $\mathbf{R}_{s}$ (or the $\mathbf{R}_t$) matrix to the identity matrix. Figure \ref{fig:simcovplot} shows the model covariance of the errors used to generate data for the "all-dev" scenario.
 
 
-```{r, fig.cap = "\\label{fig:simcovplot} The model covariance used in the simulations for the spatio-temporal scenario. Covariance is approximately 0 for errors from observations that are $\\sqrt2$ distance units apart in space and 1 distance unit apart in time. The spatial dependent error variance ($\\sigma^2_{\\delta}$), spatial independent error variance ($\\sigma^2_{\\gamma}$), temporal dependent error variance ($\\sigma^2_{\\tau}$), and temporal independent error variance ($\\sigma^2_{\\eta}$) are shown with grey lines."}
+```{r, fig.cap = "\\label{fig:simcovplot} The model covariance used in the simulations for the spatio-temporal scenario. Covariance is approximately 0 for errors from data points that are $\\sqrt2$ distance units apart in space or 1 distance unit apart in time. The spatial dependent error variance ($\\sigma^2_{\\delta}$), spatial independent error variance ($\\sigma^2_{\\gamma}$), temporal dependent error variance ($\\sigma^2_{\\tau}$), and temporal independent error variance ($\\sigma^2_{\\eta}$) are shown with grey lines."}
 library(latex2exp)
 
 fit_fake <- fit_obj_all
@@ -774,29 +772,27 @@ p +
             angle = 90, parse = TRUE, nudge_x = -0.01)
 ```
 
-Each of these three scenarios is replicated for two different sample sizes: $n = 250$ and $n = 500$. A simple random sample of the 1000 total observations is used to select units to be in the sample. 
+Each of these three scenarios is replicated for two different sample sizes: $n = 250$ and $n = 500$. A simple random sample of the 1000 total data points is used to select units to be in the sample. 
 
-Finally, the simulation experiment is repeated for a skewed response variable. To create the skewed response variable, a normally-distributed response is simulated according to the parameters given in Table \ref{tab:simparmtab}, except that each of the variance parameters (not including $\phi$ and $\rho$) is divided by 2.89 so that the total variance is equal to 0.6931. The resulting response variable is then exponentiated so that the total variance after exponentiation is equal to 2. Note that, not only does exponentiation result in a right-skewed response variable, but exponentiating also allows for an assessment of how the model performs when the covariance is mis-specified, as the resulting response variable no longer follows a tractable covariance function. 
+Finally, the simulation experiment is repeated for a skewed response variable. To create the skewed response variable, a normally-distributed response is simulated according to the parameters given in Table \ref{tab:simparmtab}, except that each of the variance parameters (not including $\phi$ and $\rho$) is divided by 2.89 so that the total variance is equal to 0.6931. This variable is then exponentiated so that the total variance after exponentiation is equal to two. Note that, not only does exponentiation result in a right-skewed response variable, but exponentiating also allows for an assessment of how the model performs when the covariance is mis-specified, as the resulting response variable is now simulated with an intractable covariance function form that is not used in the model fitting.
 
-Therefore, the simulation study has $12$ total settings coming from a $3 \times 2 \times 2$ factorial design. For each setting, we simulate 1000 realizations. For each realization, we predict the total response for the "most recent" time point (when the time index is equal to 1 on the interval $[0, 1]$), which we will henceforth call the "current total" using three methods. The first method uses the finite population kriging described in subsection \ref{subsection:fpbk} with the model covariance in equation \ref{equation:var}. The second method is a spatial model fit with the `sptotal` `R` package [@higham2021sptotal] that only uses data from the most recent time point. This method corresponds to how moose surveys are often currently analyzed (assuming that abundance is correlated across space in the survey but ignoring data from all previous surveys). Both of the first two methods estimate model parameters with Restricted Maximum Likelihood (REML). 
+Therefore, the simulation study has $12$ total settings coming from a $3 \times 2 \times 2$ (scenario $\times$ sample size $\times$ distribution shape) factorial design. For each setting, we simulate 1000 realizations of the response vector $\mathbf{y}$. For each realization, we use three methods to predict the total response for the "most current" time point, which is for response values when the time index is equal to 1 on the interval $[0, 1]$). We will henceforth call this total response for the most current time point quantity the "current total." 
 
-The third method uses a simple random sample (SRS) design-based estimator with data from the most recent time point. The SRS design-based estimator for the total is $\bar{y} \cdot \frac{100}{n_1}$, where $\bar{y}$ is the sample mean of the response in the most recent time point and $n_1$ is the number of sampled locations in the most recent time point. The variance is of the estimator is $n_1^2 \cdot \frac{\hat{\sigma}^2}{100} \cdot (1 - \frac{n_1}{100})$, where $\hat{\sigma}^2$ is the sample variance of the response variable in the most recent time point.
+The first method uses the finite population kriging described in subsection \ref{subsection:fpbk} with the spatio-temporal model covariance in equation \ref{equation:var}. REML estimation with the observed data $\mathbf{y}_o$ to obtain estimates for the covariance parameter vector $\bm{\theta}$. The second method is the FPBK spatial model fit with the \texttt{sptotal R} package [@higham2021sptotal] that only uses data from the most current time point. Again, the FPBK predictor corresponds to how moose surveys are often currently analyzed with the GSPE software.
 
-Note that the SRS method gives an estimator (not a predictor) and corresponding confidence interval (not a prediction interval) because the estimator treats the observed data as fixed, not as a random realization from a process [@brus2021statistical; @dumelle2022comparison]. However, in the remaining text and tables, we refer to the "current total" response quantity obtained from the three methods as a "prediction" and to the corresponding interval as a "prediction interval" to limit unnecessarily verbose text and tables.
+The third method uses a simple random sample (SRS) design-based estimator with data from the most current time point. The SRS design-based estimator for the total is $100 \cdot \bar{y}$, where $\bar{y}$ is the sample mean of the response in the most current time point. We use the commonly used variance [@lohr2021sampling] of $100^2 \cdot \frac{\hat{\sigma}^2}{n_1} \cdot (1 - \frac{n_1}{100})$, where $\hat{\sigma}^2$ is the sample variance of the response variable in the most current time point and is the number of sampled locations in the most current time point.
 
-For each method, we record the the root mean-squared-prediction-error (rMSPE), $\frac{1}{1000}\sqrt{(\sum_{i = 1}^{1000}(T_i - \hat{T}_i)^2)}$ and the bias as $\frac{1}{1000}\sum_{i = 1}^{1000}(T_i - \hat{T}_i)$, where $T_i$ and $\hat{T}_i$ are the realized and predicted current totals, respectively, in the $i^{th}$ iteration. We also create a normal-based 90% prediction interval for the realized current total and record $\frac{1}{1000} \sum_{i = 1}^{1000}I(LB_i < T_i < UB_i)$, where $I(LB_i < T_i < UB_i)$ is an indicator variable that is equal to $1$ if the realized total in iteration $i$, $T_i$ is between the lower bound ($LB_i$) and the upper bound ($UB_i$) of the prediction interval. 
+The SRS method gives an estimator, not a predictor, and a corresponding confidence interval, not a prediction interval, because the SRS design-based estimator treats the observed data as fixed, not as a random realization from a process [@brus2021statistical; @dumelle2022comparison]. However, in the remaining text and tables, we refer to the "current total" response quantity obtained from the three methods as a "prediction" and to the corresponding interval as a "prediction interval" to limit unnecessarily verbose text and tables.
+
+For each method, we calculate the root-mean-squared-prediction-error (rMSPE) as $\frac{1}{1000}\sqrt{(\sum_{i = 1}^{1000}(T_i - \hat{T}_i)^2)}$, where $T_i$ and $\hat{T}_i$ are the realized and predicted current totals, respectively, in the $i^{th}$ iteration. Bias is recorded as $\frac{1}{1000}\sum_{i = 1}^{1000}(T_i - \hat{T}_i)$. We also create a normal-based 90% prediction interval for the realized current total and record $\frac{1}{1000} \sum_{i = 1}^{1000}I(LB_i < T_i < UB_i)$, where $I(LB_i < T_i < UB_i)$ is an indicator variable that is equal to $1$ if the realized total in iteration $i$, $T_i$, is between the lower bound ($LB_i$) and the upper bound ($UB_i$) of the prediction interval. 
 
 <!-- Finally, we record the median prediction interval length as $\text{Median}(UB_i - LB_i)$. -->
 
 \subsection{Results}
 
-Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and \ref{tab:simpitab} in Section \ref{section:appendix} give the rmspe, bias, and interval coverage of the three predictors in all 12 simulation settings. In Figure \ref{fig:rmspe}, we see that the spatio-temporal model outperforms both the purely spatial model and the simple random sample design-based estimator in all of the "spatio-temporal" and "independent" scenarios. In general, rMSPE is improvement is larger for the smaller sample size. As $n$ approaches $N$, rMSPE for all approaches should become smaller and be exactly equal to 0 when $n = N$. 
+Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and \ref{tab:simpitab} in Section \ref{section:appendix} give the rMSPE, bias, and interval coverage of the three methods in all 12 simulation settings. In Figure \ref{fig:rmspe}, we see that the spatio-temporal model outperforms both the purely spatial model and the simple random sample design-based estimator in all of the "all-dev" and "spt-iev" scenarios. In general, rMSPE improvement is larger for the smaller sample size. As $n$ approaches $N$, rMSPE for all approaches should become smaller and be exactly equal to 0 when $n = N$. 
 
-For the "temporal iev" scenarios, we see that the spatio-temporal model does not offer improvement over the purely spatial model or the SRS design-based estimator. When a large proportion of the variability comes from $\sigma^2_{\tau}$,
-
-We also see that, in general, there are moderate gains in rMSPE for the spatio-temporal model are made in the "spatial" simulation setting. In this setting, response values across space are only correlated within a given time point; therefore, the spatio-temporal model only does marginally better than the other two approaches because the data from the other time points are not correlated with the data in the most current time point. However, in both the independent setting and the spatial setting, the spatio-temporal model still outperforms the purely spatial model and the simple random sample design-based estimator because the spatio-temporal can still use the response values collected in previous time points to estimate the fixed effects structure of the model.
-
-We see the smallest gains in rMSPE for the spatio-temporal model in the "temporal iev" scenario. This setting was chosen to explore how the spatio-temporal model would perform when most of the variability in the response comes from $\sigma^2_{\eta}$, which allows for data collected in different time points to not correlated, and, for different time points to have very different realized totals. As expected, the spatio-temporal model performs no better than a purely spatial model or the SRS design-based estimator for this scenario; however, we can also say that the added complexity of the spatio-temporal model does not perform any worse.
+We see the smallest gains in rMSPE for the spatio-temporal model in the "t-iev" scenario. This setting was chosen to explore how the spatio-temporal model would perform when most of the variability in the response comes from $\sigma^2_{\eta}$, which allows for data collected in different time points to be uncorrelated, and, for different time points to have very different realized totals. As expected, the spatio-temporal model performs no better than a purely spatial model or the SRS design-based estimator for this scenario; however, we can also say that the added complexity of the spatio-temporal model is not detrimental. 
 
 ```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
 sims_df <- bind_rows(sims_readin) 
@@ -820,15 +816,15 @@ sims_sum <- sims_df |> group_by(n_sim, sp_de_sim,
                             medci_srs = median(ub_srs - lb_srs),
                             meanse_srs = mean(se_srs)) |>
   relocate(rmspe, rmspe_sptot, rmspe_srs) |>
-  mutate(scenario = case_when(sp_de_sim == 0 & near(sp_range_sim, 0) ~ "independent",
+  mutate(scenario = case_when(sp_de_sim == 0 & near(sp_range_sim, 0) ~ "spt-iev",
                               sp_de_sim == 0 & t_ie_sim == 0 ~ "spatial",
-                              sp_de_sim == 0 ~ "temporal iev",
-                              TRUE ~ "spatiotemporal")) |>
+                              sp_de_sim == 0 ~ "t-iev",
+                              TRUE ~ "all-dev")) |>
   relocate(scenario) |>
   filter(scenario != "spatial")
 ```
 
-```{r, fig.cap = "\\label{fig:rmspe} root Mean-Squared-Prediction-Error for all simulation settings. The spatio-temporal model has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the spatial scenario, where response values within a time point are correlated across space but are uncorrelated with all response values from other time points."}
+```{r, fig.cap = "\\label{fig:rmspe} root-mean-squared-prediction-error (rMSPE) for all simulation settings. The spatio-temporal model has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the t-iev scenario."}
 sims_rmspe_long <- sims_sum |> pivot_longer(starts_with("rmspe"),
                                             names_to = "method",
                                             values_to = "rmspe") |>
@@ -837,7 +833,7 @@ sims_rmspe_long <- sims_sum |> pivot_longer(starts_with("rmspe"),
                              "Spatial Model (sptotal)" = "rmspe_sptot",
          "SRS" = "rmspe_srs")) |>
   mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "lognormal"))) |>
-  mutate(scenario = fct_relevel(scenario, c("spatiotemporal", "temporal iev", "independent")))
+  mutate(scenario = fct_relevel(scenario, c("all-dev", "t-iev", "spt-iev")))
 ggplot(data = sims_rmspe_long, aes(x = n_sim |> factor(), y = rmspe, colour = method)) +
   geom_jitter(width = 0.1) +
   facet_grid(resp_type_sim ~ scenario) +
@@ -847,9 +843,9 @@ ggplot(data = sims_rmspe_long, aes(x = n_sim |> factor(), y = rmspe, colour = me
   theme_bw()
 ```
 
-All methods appear relatively unbiased in all simulation settings: Table \ref{tab:simbiastab} shows that the bias of each method is small compared to the squares of the rMSPE values given in \ref{tab:simrmspetab}.
+All methods appear relatively unbiased in all simulation settings: Table \ref{tab:simbiastab} shows that the bias of each method is small compared to the squares of the rMSPE values given in Table \ref{tab:simrmspetab}.
 
-Figure \ref{fig:pi} shows the interval coverage for the normal-based prediction intervals, where the nominal level is 0.90. We see that the spatio-temporal model predictor for the current total has approximate 90% coverage in all settings tested. The spatial model and the SRS design-based estimator have lower than nominal coverage in some settings because of the small sample size used (recall that the $n = 250$ observed samples span 10 unique time points so that, on average, the spatial model and SRS design-based estimator only have 25 observed responses in the current time point).
+Figure \ref{fig:pi} shows the interval coverage for the normal-based prediction intervals [@smith1980central], where the nominal level is 0.90. We see that the spatio-temporal model predictor for the current total has approximate 90% coverage in all settings tested. The spatial model and the SRS design-based estimator have lower than nominal coverage in some settings because of the small sample size used (recall that the $n = 250$ observed samples span 10 unique time points so that, on average, the spatial model and SRS design-based estimator only have 25 observed responses to use in the current time point).
 
 ```{r, fig.cap = "\\label{fig:pi} Prediction interval coverage for all simulation settings, where the prediction intervals are normal-based and the nominal level is 0.90. The predictor from the spatio-temporal model has close to appropriate coverage in all settings tested."}
 sims_pi_long <- sims_sum |> pivot_longer(starts_with("cover"),
@@ -879,9 +875,9 @@ sims_pilength_long <- sims_sum |> pivot_longer(starts_with("med"),
                              "Spatial Model (sptotal)" = "medci_sptot",
          "SRS" = "medci_srs")) |>
   mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "lognormal"))) |>
-  mutate(scenario = fct_relevel(scenario, c("spatiotemporal",
-                                            "temporal iev", 
-                                            "independent")))
+  mutate(scenario = fct_relevel(scenario, c("all-dev",
+                                            "t-iev", 
+                                            "spt-iev")))
 ggplot(data = sims_pilength_long, aes(x = n_sim |> factor(), y = medlength, colour = method)) +
   geom_jitter(width = 0.1) +
   facet_grid(resp_type_sim ~ scenario) +
@@ -946,9 +942,9 @@ p3 <- FPSpatioTemp::plot_cov(fit_fake, sp_epstol = c(0.01, max_sp),
 
 \section{Discussion} \label{section:Discussion}
 
-We see in the Application that there is substantial reduction in the standard error of the predictor for the total moose abundance in 2020 when incorporating data from surveys in previous years. In the simulation study, we find the the spatio-temporal finite population block kriging predictor has lower rMSPE than a predictor from a purely spatial model and an SRS design-based estimator in many settings. The spatio-temporal predictor is less beneficial when the temporal independent error variance contributes a large proportion to the overall variance. Additionally, the spatio-temporal kriging predictor maintains appropriate interval coverage in all settings tested.
+We see in the moose application in Section \ref{section:Application} that there is substantial reduction in the standard error of the predictor for the total moose abundance in 2020 when incorporating data from surveys in previous years. In the simulation study, we find that the spatio-temporal finite population block kriging predictor has lower rMSPE than the FPBK predictor from a purely spatial model and an SRS design-based estimator in many settings. The spatio-temporal predictor is less beneficial when the temporal independent error variance contributes a large proportion to the overall variance. Additionally, the spatio-temporal kriging predictor maintains appropriate interval coverage in all settings tested.
 
-An additional possible benefit of the spatio-temporal model compared to a purely spatial model is the potential for forecasting abundance before a survey is done. For example, in our application, we can refit the model without any of the observed counts from the 2020 survey and examine the prediction for the total abundance in 2020. Table \ref{tab:forecast} compares the model with the 2020 data used and the model without the 2020 data used. We see that, while there is a substantial loss in precision by excluding the 2020 data (as we would expect), the prediction is not very different from the prediction with the 2020 data included and the prediction interval might be narrow enough to still be useful to biologists. We might also consider using such an approach if there is a year during which a survey cannot be completed for logistical reasons. For example, in the Tok region of Alaska, a moose survey was not conducted at all in the year 2016 because there was insufficient snow cover for the survey. The spatio-temporal could still be applied to get a prediction for moose abundance using survey data from previous years.
+An additional possible benefit of using the spatio-temporal model compared to a purely spatial model is the potential for forecasting abundance before a survey is done. For example, in our application, we can refit the model without any of the observed counts from the 2020 survey and examine the prediction for the total abundance in the year 2020. Table \ref{tab:forecast} compares the model with the 2020 data used and the model without the 2020 data used. We see that, while there is a substantial loss in precision by excluding the 2020 data (as we would expect), the prediction is not very different from the prediction with the 2020 data included and the prediction interval might be narrow enough to still be useful to wildlife management. We could also consider using such an approach if there is a year during which a survey cannot be completed for logistical reasons. For example, in the Tok region of Alaska, a moose survey was not conducted at all in the year 2016 because there was insufficient snow cover for the survey. The spatio-temporal predictor could still be applied to get a prediction for moose abundance using survey data from previous years.
 
 ```{r, cache = TRUE}
 fit_obj_all_fore <- stlmfit(formula = totalmoosena ~ newstrat,
@@ -979,13 +975,13 @@ knitr::kable(fore_tab, caption = "Results from analysis on the Tok moose survey 
     kable_styling(latex_options = "HOLD_position")
 ```
 
-There is a substantial drop in efficiency when 2020 is not surveyed, but some monitoring programs might still find this useful if a survey cannot be done one year because of poor conditions, changes in personnel, etc.
-
-We would also like to give our perception of benefits and drawbacks of our approach with that of @schmidt2022bayesian, who use a Bayesian model with a similar goal of predicting total abundance, particularly in the context of moose abundance prediction. The benefits of our frequentist approach include a faster fitting time (as there is no need to construct the time-consuming MCMC chain). Therefore, our approach is easier to assess in a simulation study, which would be too time-prohibitive for the Bayesian model. Biologists could also use simulation with our model to answer various questions like how much efficiency would drop if a survey was only conducted every other year (given proposed values of covariance parateters). Additionally, we argue that our approach is simpler overall for a practitioner to use and could be integrated more readily with the current GSPE software.
+We would also like to give our perception of the benefits and drawbacks of our approach with that of @schmidt2022bayesian, who use a hierarchical Bayesian model to predict total abundance, among other quantities of interest. The benefits of our frequentist approach include a faster fitting time (as there is no need to construct and implement the time-consuming Markov chain Monte Carlo sampler). Therefore, our approach is easier to assess in a simulation study, which would be too time-prohibitive for the Bayesian model. Biometricians could also use simulation with our approach to answer various questions given proposed values of covariance parameters like how much efficiency would drop if a survey was only conducted every other year. Additionally, we argue that our approach is simpler overall for a practitioner to use and could be integrated more readily with the current GSPE software.
 
 The Bayesian approach by @schmidt2022bayesian, however, offers features that would be harder to implement in our approach. In general, the model is more flexible, and allows for incorporation of more levels in the Bayesian hierarchical model, including allowing for imperfect detection of animals from a separate detectability survey. Additionally, the Bayesian hierarchical model can use a Poisson or negative binomial model for the counts. Therefore, an appropriate prediction interval for the response on one particular site could be constructed. On the other hand, for our approach, we rely on the spatial central limit theorem to form a prediction interval for the total, which does not apply for a prediction interval for the response on just one site.
 
-We have developed a finite population block kriging predictor for spatio-temporal data, showing that, in many settings, the resulting predictor is improved from a predictor with a purely spatial model. Monitoring programs that use regularly scheduled surveys should consider incorporating data from past surveys to improve precision in the predictor for the most current survey. Future work in this area includes developing a model for which imperfect detection of units through time is incorporated into the predictor. For moose surveys, in particular, updating the GSPE software to include analysis for spatio-temporal data could be useful for practitioners, though we recognize that doing so would be a substantial undertaking.
+We have developed a finite population block kriging predictor for spatio-temporal data, which adjusts the variance of the predictor to be appropriate for sampling from a finite population. In many settings, the resulting predictor is improved from a predictor with a purely spatial model. Monitoring programs that use regularly scheduled surveys should consider incorporating data from past surveys to improve precision in the predictor for the most current survey. 
+
+Future work in this area includes developing a frequentist model for which imperfect detection of units through time is incorporated into the predictor or how best to select sites to sample for future surveys. Additionally, for moose surveys in particular, updating the GSPE software to include analysis for spatio-temporal data could be useful for practitioners, though we recognize that doing so would be a substantial undertaking.
 
 \section{Appendix} \label{section:appendix}
 
@@ -998,7 +994,7 @@ rmspe_tab <- sims_sum |> ungroup() |>
          n = "n_sim", `Response Type` = "resp_type_sim") |>
   arrange(desc(`Response Type`))
 
-knitr::kable(rmspe_tab, caption = "root Mean Squared Prediction Error (rMSPE) for the spatio-temporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatio-temporal model is lower than the rMSPE for the other two methods.",
+knitr::kable(rmspe_tab, caption = "root-mean-squared-prediction-error (rMSPE) for the spatio-temporal model, the spatial model, and the simple random sample estimator for each of the 12 simulation settings. In all settings, the rMSPE for the spatio-temporal model is lower than the rMSPE for the other two methods.",
                label = "simrmspetab",
              digits = 2, escape = FALSE,
              booktabs = TRUE, linesep = "", align = "c") |>
