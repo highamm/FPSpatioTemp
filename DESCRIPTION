@@ -21,4 +21,4 @@ Imports:
     ggplot2,
     magrittr,
     DumelleEtAl2021STLMM
-Depends: R (>= 3.5.0)
+Depends: R (>= 4.1.0)
