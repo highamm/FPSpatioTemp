@@ -1,12 +1,13 @@
 Package: FPSpatioTemp
 Type: Package
-Title: Prediction of Counts with Spatio-temporal Data
+Title: Prediction of Counts with Spatio-temporal Data for Finite Populations
 Version: 0.1.0
 Author: Matt Higham
 Maintainer: Matt Higham <mhigham@stlawu.edu>
 Description: This package can be used to predict abundance using survey data from
     the current year as well as data from past surveys using spatio-temporal
     modeling.
+Depends: R (>= 4.1.0)
 License: CC0
 Encoding: UTF-8
 LazyData: true
@@ -15,10 +16,10 @@ Imports:
     tibble,
     stats,
     dplyr,
-    sptotal,
-    readr,
     tidyr,
     ggplot2,
-    magrittr,
+    purrr,
     DumelleEtAl2021STLMM
-Depends: R (>= 4.1.0)
+Suggests: 
+    sptotal
+

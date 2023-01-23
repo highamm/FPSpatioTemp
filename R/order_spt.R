@@ -15,13 +15,6 @@
 #'   \item the large temporal distance matrix
 #'   \item the small temporal distance matrix
 #'   }
-#' @examples 
-#' example_df <- tibble::tibble(times = c(1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4),
-#' xcoords = c(1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2),
-#' ycoords = c(1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1),
-#' resp = c(rnorm(5, 10, 4), NA, NA, rnorm(4, 10, 4)))
-#' data_unordered <- dplyr::sample_n(example_df, size = nrow(example_df))
-#' data_ord <- order_spt(data = data_unordered, xcoord = "xcoords", ycoord = "ycoords", tcoord = "times")$full_data
 #' @import stats
 #' @export order_spt
 

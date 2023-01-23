@@ -21,18 +21,20 @@ response variable as well as covariates for predicting the response on the unsam
 
 \item{data}{is a data frame or tibble with the response column, the covariates to be used for the block kriging, the spatio-temporal coordinates for all of the sites.}
 
+\item{xcoord}{is the name of the column in the data frame with x coordinates or longitudinal coordinates.}
+
+\item{ycoord}{is the name of the column in the data frame with y coordinates or latitudinal coordinates.}
+
+\item{tcoord}{is the name of the column in the data frame with 
+the time points.}
+
 \item{areacol}{is the name of the column in the data frame 
 with the site areas
 NOTE: package has not yet been tested for use of this argument.}
 
-\item{xcoordcol}{is the name of the column in the data frame with x coordinates or longitudinal coordinates.}
+\item{cor_model_sp}{a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.}
 
-\item{ycoordcol}{is the name of the column in the data frame with y coordinates or latitudinal coordinates.}
-
-\item{tcol}{is the name of the column in the data frame with 
-the time points.}
-
-\item{CorModel}{a correlation model for the spatial correlation ("Exponential" is the only choice for now).}
+\item{cor_model_t}{a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.}
 }
 \value{
 a list with \itemize{

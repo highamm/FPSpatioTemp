@@ -25,9 +25,9 @@ Produces a temporal plot of a response variable grouped by location
 }
 \examples{
 sim_data <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-       sigma_parsil_spat = 0.5, range = 4, sigma_nugget_spat = 0.5,
-       sigma_parsil_time = 1, rho = 0.99, sigma_nugget_time = 0,
-       sigma_nugget_spacetime = 0.5)
+      sp_de = 0.5, sp_range = 4, sp_ie = 0.5,
+      t_de = 0.5, t_range = 0.7, t_ie = 0.5,
+      spt_ie = 0.5)
  df <- sim_data$out_df
  plot_t(df$xcoords, df$ycoords, df$times, df$response)
 }

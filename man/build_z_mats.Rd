@@ -18,12 +18,3 @@ a list with \itemize{
 \description{
 Create Z random effect matrices for spatial and temporal effects.
 }
-\examples{
-example_df <- tibble::tibble(tcoord = c(1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4),
-xcoord = c(1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2),
-ycoord = c(1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1))
-data_unordered <- dplyr::sample_n(example_df, size = nrow(example_df))
-data_ord <- order_spt(data = data_unordered, xcoord = xcoord, ycoord = ycoord, tcoord = tcoord)$full_data
-
-build_z_mats(data_ord = data_ord)
-}

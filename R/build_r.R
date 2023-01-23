@@ -25,7 +25,7 @@ build_r <- function(cov_type = "exponential", range, dist_mat) {
     gaussian = exp(-(dist_mat / range) ^ 2),
     triangular = (1 - dist_mat / range) * (dist_mat <= range),
     cosine = cos(dist_mat / range),
-    stop("Choose exponential or gaussian as the covariance structure")
+    stop("Choose exponential, gaussian, triangular, or cosine as the covariance structure")
   )
   
   return(r)

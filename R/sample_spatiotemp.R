@@ -15,9 +15,9 @@
 #' @return a list with (1) the same data frame that was input to the function with an appended column of the response `response_na` that has `NA` values for the observations that were not sampled and (2) the seed.
 #' @examples 
 #' obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-#'       sigma_parsil_spat = 0.5, range = 4, sigma_nugget_spat = 0.5,
-#'       sigma_parsil_time = 0.5, rho = 0.7, sigma_nugget_time = 0.5,
-#'       sigma_nugget_spacetime = 0.5)
+#'       sp_de = 0.5, sp_range = 4, sp_ie = 0.5,
+#'       t_de = 0.5, t_range = 0.7, t_ie = 0.5,
+#'       spt_ie = 0.5)
 #'       
 #' sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
 #' @importFrom dplyr sample_n group_by anti_join inner_join bind_rows

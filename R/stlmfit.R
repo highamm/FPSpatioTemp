@@ -9,14 +9,15 @@
 #' @param formula is an \code{R} linear model formula specifying the
 #' response variable as well as covariates for predicting the response on the unsampled sites.
 #' @param data is a data frame or tibble with the response column, the covariates to be used for the block kriging, the spatio-temporal coordinates for all of the sites.
-#' @param xcoordcol is the name of the column in the data frame with x coordinates or longitudinal coordinates.
-#' @param ycoordcol is the name of the column in the data frame with y coordinates or latitudinal coordinates.
-#' @param tcol is the name of the column in the data frame with 
+#' @param xcoord is the name of the column in the data frame with x coordinates or longitudinal coordinates.
+#' @param ycoord is the name of the column in the data frame with y coordinates or latitudinal coordinates.
+#' @param tcoord is the name of the column in the data frame with 
 #' the time points.
 #' @param areacol is the name of the column in the data frame 
 #' with the site areas
 #' NOTE: package has not yet been tested for use of this argument.
-#' @param CorModel a correlation model for the spatial correlation ("Exponential" is the only choice for now).
+#' @param cor_model_sp a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.
+#' @param cor_model_t a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.
 #' @return a list with \itemize{
 #'   \item the original data set, appended with a few variables
 #'   \item the estimated spatiotemporal covariance matrix

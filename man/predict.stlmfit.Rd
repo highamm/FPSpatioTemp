@@ -33,9 +33,9 @@ Predicts the abundance given an object from \code{stlmfit()}.
 }
 \examples{
 obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-      sigma_parsil_spat = 0.5, range = 4, sigma_nugget_spat = 0.5,
-      sigma_parsil_time = 0.5, rho = 0.7, sigma_nugget_time = 0.5,
-      sigma_nugget_spacetime = 0.5)
+      sp_de = 0.5, sp_range = 4, sp_ie = 0.5,
+      t_de = 0.5, t_range = 0.7, t_ie = 0.5,
+      spt_ie = 0.5)
       
 samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
 samp_data <- samp_obj$df_full
@@ -44,7 +44,7 @@ dplyr::mutate(predwts = dplyr::if_else(times == max(times),
  true = 1, false = 0))
 samp_data$x <- rnorm(nrow(samp_data), 0, 1)
 stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,
- xcoordcol = "xcoords",
-ycoordcol = "ycoords", tcol = "times") 
+ xcoord = "xcoords",
+ycoord = "ycoords", tcoord = "times") 
 predict(object = stlmfit_obj, wtscol = "predwts")
 }

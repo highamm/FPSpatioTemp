@@ -2,29 +2,18 @@
 #' 
 #' Construct a spatiotemporal covariance matrix.
 #' 
-#' @param parsil_sp is the spatial partial sill.
-#' @param nugget_sp is the spatial nugget.
-#' @param parsil_t is the temporal partial sill.
-#' @param nugget_t is the temporal nugget.
-#' @param parsil_spt is the spatiotemporal partial sill (for a product-sum model).
-#' @param parsil_spt is the spatiotemporal nugget. 
-#' 
-#' 
-#' @return a spatiotemporal covariance matrix.
-#' @examples 
-#' example_df <- tibble::tibble(tcoord = c(1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4),
-#' xcoord = c(1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2),
-#' ycoord = c(1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1))
-#' data_unordered <- dplyr::sample_n(example_df, size = nrow(example_df))
-#' data_ord <- order_spt(data = data_unordered, xcoord = xcoord, ycoord = ycoord, tcoord = tcoord)$full_data
-#'
-#' z_mats <- build_z_mats(data_ord = data_ord)
-#' example_r_sp <- build_r(cov_type = "exponential",
-#'  range = 2, dist_mat = h_sp_small) 
-#' example_r_t <- build_r(cov_type = "exponential", range = 2, dist_mat = h_t_small)
-
-#' build_sigma(model_type = "product_sum", R_sp = example_r_sp, R_t = example_r_t,
-#'            Z_sp = z_mats$Z_sp, Z_t = z_mats$Z_t)
+#' @param parsil_sp is the spatial dependent error variance (spatial partial sill).
+#' @param nugget_sp is the spatial independent error variance (spatial nugget).
+#' @param parsil_t is the temporal dependent error variance (temporal partial sill).
+#' @param nugget_t is the temporal independent error variance (temporal nugget).
+#' @param parsil_spt is the spatio-temporal dependent error variance (spatio-temporal partial sill).
+#' @param nugget_spt is the spatio-temporal independent error variance (spatio-temporal nugget). 
+#' @param R_sp is the spatial correlation matrix
+#' @param R_t is the temporal correlation matrix
+#' @param Z_sp is the spatial random effects matrix
+#' @param Z_t is the temporal random effects matrix
+#' @param model_type is either \code{"product_sum"} (by default) or \code{"sum_with_error"}
+#' @return a spatio-temporal covariance matrix.
 #' @import stats
 #' @export build_sigma
 
