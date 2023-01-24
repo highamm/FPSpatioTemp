@@ -2,30 +2,15 @@
 
 library(tidyverse)
 library(here)
-# moose_upto2019 <- read_csv(here("inst", "rawdata",
-#                                 "All_20E_Surveys_1998_2019_with_covariate_data_final.csv"))
-# ## issues reading in searchmin, datecounted, and comments
-# ## none of these are used for now so that shouldn't be an issue
-# 
-# moose_2020 <- read_csv(here("inst", "rawdata",
-#                             "2020_Taylor_Corridor_survey.csv"))
-all_moose <- bind_rows(moose_upto2019, moose_2020)
-raw_moose <- all_moose |> select(-c(YBULL_SF, YBULL_GTSF, BULL_30_40, 
-                        BULL_41_50, BULL_GT_50, COW_W_0, COW_W_1,
-                        COW_W_2, COW_W_3, CALF, UNKNOWN, TotalAdults,
-                        TotalCows, TotalBulls, TotalCalves)) |>
-  ungroup()
-
-##save(raw_moose, file = "data/raw_moose.rda")
 
 load(file = "data/raw_moose.rda")
 all_moose <- raw_moose |>
   mutate(stratfact = factor(str_to_upper(Stratname)))
 
-## change some 0's that should be NA to NA and vice versa
 all_moose <- all_moose |>
   mutate(totalmoosena = if_else(Counted == 1,
-                                true = totalmoose, false = NA_real_)) |>
+                                true = totalmoose,
+                                false = NA_real_)) |>
   mutate(prop.cov.1 =
            if_else(is.na(prop.cov.1), true = 0, false = prop.cov.1)) |>
   mutate(prop.cov.6_7 =
@@ -42,10 +27,6 @@ coords <- data.frame(xcoords, ycoords)
 
 moose_tm <- as.data.frame(bind_cols(all_moose, coords))
 
-## A super-complete data set would have all sites across all years
-## with an indicator for whether the site was in the sampling frame
-## for that year.
-
 ## all observations in the data set are in the sampling frame right now
 moose_tm <- moose_tm |> mutate(samp_frame = 1) |>
   as_tibble()
@@ -58,17 +39,11 @@ moose_small <- moose_tm |>
 moose_full <- moose_small |> complete(Surveyyear, nesting(ID),
                                        fill = list(samp_frame = 0))
 
-moose_full |> filter(Surveyyear == 2014, Stratname == "HIGH") |> View()
 ## add coordinates
 moose_full <- moose_full |> group_by(ID) |> 
   fill(xcoords, .direction = "downup") |>
   fill(ycoords, .direction = "downup") |>
   ungroup()
-
-## if using sites outside the sampling frame for that year, need a method
-## to classify them into a strata (this may not come up though)
-## 
-## for now, give sites the same strata as the most recent previous year
 
 moose_full <- moose_full |> arrange(Surveyyear) |>
   group_by(ID) |> 
@@ -83,11 +58,10 @@ moose_2016 <- moose_full |> filter(Surveyyear == 2015)
 moose_2016$totalmoosena <- NA
 moose_2016$Surveyyear <- 2016
 
-moose_complete <- bind_rows(moose_full, moose_2016)
+## moose_complete <- bind_rows(moose_full, moose_2016)
 
 ## output the full data set
 
-## save(file = "data/moose_complete.rda", moose_complete)
 
 
 load(file = "data/moose_complete.rda")
@@ -95,46 +69,67 @@ test <- moose_complete |> group_by(ID) |>
   count()
 table(test$n)
 
-moose_test <- moose_complete |>
-  dplyr::filter(Surveyyear >= 2014 & Surveyyear <= 2018) |>
-  dplyr::filter(stratfact == "HIGH")
-test2 <- moose_test |> group_by(ID) |> 
-  count()
-table(test2$n)
+## add 2021 data to moose_complete
+library(tidyverse)
+moose_21 <- read_csv("inst/rawdata/moose_21.csv")
 
-## make some useful subsets
+moose_21$totalmoose
+moose_21$Counted
+library(sptotal)
 
-## 2014 - 2018
-moose_14_18 <- moose_complete |>
-  filter(Surveyyear >= 2014 & Surveyyear <= 2018)
+moose_21 <- moose_21 |> mutate(totalmoosena = if_else(Counted == TRUE,
+                                           true = totalmoose,
+                                           false = NA_real_)) |>
+  select(totalmoosena, everything()) |>
+  mutate(ELEV_MEAN = NA) |>
+  mutate(Stratname = str_to_upper(Stratname)) |>
+  mutate(stratfact = factor(Stratname)) |>
+  mutate(xcoords = LLtoTM(cm = mean(moose_21$centrlon), lat = moose_21$centrlat, lon = moose_21$centrlon)$xy[, "x"]) |>
+  mutate(ycoords = LLtoTM(cm = mean(moose_21$centrlon), lat = moose_21$centrlat, lon = moose_21$centrlon)$xy[, "y"])
 
-## only keep rows where the site was in the sampling frame at least
-## once across the years.
-moose_14_18 <- moose_14_18 |> group_by(ID) |>
-  filter((sum(samp_frame) != 0))
+moose_21 <- moose_21 |> mutate(samp_frame = 1) |> select(Surveyyear, ID, totalmoosena, SurveyID, SurveyName,
+                   Stratname, Counted, AreaMi,
+                   ELEV_MEAN, stratfact, xcoords, ycoords, samp_frame) 
+## next step: expand to include all coordinates but assign samp_frame to be 1 for those in the actual sampling frame for 2021
 
-load(file = "data/moose_14_18.rda")
-moose_14_18
-## 2014 - 2020
+moose_21_outframe <- moose_complete |> filter(Surveyyear == 2020) |> anti_join(moose_21,
+                                                          by = "ID") |>
+  mutate(Surveyyear = 2021)
 
-moose_14_18 <- moose_14_18 |> ungroup()
-## save(moose_14_18, file = "data/moose_14_18.rda")
-
-
-moose_14_20 <- moose_complete |>
-  filter(Surveyyear >= 2014 & Surveyyear <= 2020)
-moose_14_20 <- moose_14_20 |> group_by(ID) |>
-  filter((sum(samp_frame) != 0))
-
-moose_14_20 <- moose_14_20 |> ungroup()
-## save(moose_14_20, file = "data/moose_14_20.rda")
+moose_21_comp <- bind_rows(moose_21, moose_21_outframe)
+moose_through_21 <- bind_rows(moose_complete, moose_21_comp)
 
 
-## 2004 - 2012
-moose_04_12 <- moose_complete |>
-  filter(Surveyyear >= 2004 & Surveyyear <= 2012)
-moose_04_12 <- moose_04_12 |> group_by(ID) |>
-  filter((sum(samp_frame) != 0))
+moose_22 <- read_csv("inst/rawdata/2022_20E_GSPE_survey_final_results.csv")
+moose_22$totalmoose
+moose_22$Counted
 
-moose_04_12 <- moose_04_12 |> ungroup()
-## save(moose_04_12, file = "data/moose_04_12.rda")
+moose_22 <- moose_22 |> mutate(totalmoosena = if_else(Counted == TRUE,
+                                                      true = totalmoose,
+                                                      false = NA_real_)) |>
+  select(totalmoosena, everything()) |>
+  mutate(ELEV_MEAN = NA) |>
+  mutate(Stratname = str_to_upper(Stratname)) |>
+  mutate(stratfact = factor(Stratname)) |>
+  mutate(xcoords = LLtoTM(cm = mean(moose_22$centrlon), lat = moose_22$centrlat, lon = moose_22$centrlon)$xy[, "x"]) |>
+  mutate(ycoords = LLtoTM(cm = mean(moose_22$centrlon), lat = moose_22$centrlat, lon = moose_22$centrlon)$xy[, "y"])
+
+
+moose_22 <- moose_22 |> mutate(samp_frame = 1) |> select(Surveyyear, ID, totalmoosena, SurveyID, SurveyName,
+                                                         Stratname, Counted, AreaMi,
+                                                         ELEV_MEAN, stratfact, xcoords, ycoords, samp_frame)
+
+moose_22_outframe <- moose_complete |> filter(Surveyyear == 2020) |> anti_join(moose_22,
+                                                                               by = "ID") |>
+  mutate(Surveyyear = 2022)
+
+moose_22_comp <- bind_rows(moose_22, moose_22_outframe)
+moose_through_22 <- bind_rows(moose_through_21, moose_22_comp)
+moose_complete <- moose_through_22
+# save(moose_complete, file = "data/moose_complete.rda")
+# load(file = "data/moose_complete.rda")
+# moose_complete |> filter(Surveyyear == 2022)
+moose_complete |> filter(Surveyyear == 2022)
+slmfit(totalmoosena ~ stratfact, data = moose_complete |> filter(Surveyyear == 2022 & samp_frame == 1),
+       xcoordcol = "xcoords", ycoordcol = "ycoords") |>
+  predict()

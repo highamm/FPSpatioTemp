@@ -45,6 +45,8 @@ header-includes: |
   \usepackage{hyperref}
   \usepackage[utf8]{inputenc}
   \def\tightlist{}
+  \usepackage{lineno}
+  \linenumbers
 preamble: >
   \usepackage{bm}
   \usepackage{bbm}
