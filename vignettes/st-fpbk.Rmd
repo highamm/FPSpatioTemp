@@ -1,0 +1,121 @@
+---
+title: "st-fpbk"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{st-fpbk}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(FPSpatioTemp)
+library(tidyverse)
+load(file = "data/moose_complete.rda")
+```
+
+To use this package, the data set should have the following characteristics: 
+
+#### Base Format
+
+The data frame needs to have, at a bare minimum, four variables:
+
+* two variables of spatial coordinates (an x-coordinate and a y-coordinate)
+* one variable of a temporal coordinate (such as day, year, etc.)
+* the response variable
+
+In the moose data set, these four variables are given below:
+
+```{r}
+moose_complete |> select(xcoords, ycoords, Surveyyear, totalmoosena)
+```
+
+Other variables in the data frame could include relevant covariates to be used in the model, the area of each spatial site, or a variable indicating whether sites were in the sampling frame for that particular survey. In the moose data set, both `Stratname` and `ELEV_MEAN` could be used as covariates, `AreaMi` gives the area of each site, in square miles, and `samp_frame` is an indicator for whether a site was in the sampling frame for the particular survey:
+
+```{r}
+moose_complete |> select(xcoords, ycoords, Surveyyear, totalmoosena,
+                         Stratname, ELEV_MEAN, AreaMi, samp_frame)
+
+```
+
+#### Missing
+
+* for any site not surveyed or observed, the response variable should be `NA` (not `0`, `-999`, or any other missing value convention). The variable type should be `<dbl>` or `<int>`.
+
+For example,
+
+```{r}
+summary(moose_complete$totalmoosena)
+```
+
+#### Column with Prediction Weights
+
+* one column in the data frame should have prediction weights. Most commonly, this column will be a variable that takes on a `1` for any site in the sampling frame in the most recent time point of the survey and a `0` otherwise so that the prediction that is output is for the total response in the most current time point.
+
+For example, the moose data set has a variable `samp_frame` that is a `1` if the site was in that year's sampling frame and a `0` otherwise. Note that, in some applications, the sampling frame does not change at all from year to year, in which case we can ignore this variable. However, the moose survey sampling frame changed in 2014, when biologists focused their survey efforts on a different area than they did before 2014. 
+
+```{r}
+moose_complete <- moose_complete |>
+  mutate(predweights_22 = if_else(Surveyyear == 2022 & samp_frame == 1,
+                                  true = 1, 
+                                  false = 0)) 
+```
+
+## example with 2022 data
+
+```{r}
+
+moose_prep <- moose_complete |>
+## use most recent stratification
+  mutate(newstrat = if_else(Surveyyear == 2022,
+                            true = stratfact, 
+                            false = NA_integer_)) |>
+  dplyr::group_by(ID) |> fill(newstrat, .direction = "updown") |>
+  ungroup()
+
+## only use data from sites within 2022's sampling frame
+
+moose_df_merge <- moose_prep |>
+  filter(predweights_22 == 1) |> select(ID)
+moose_final_all <- semi_join(moose_prep, moose_df_merge)
+
+moose_final_all |> filter(Surveyyear >= 2014) |>
+  group_by(stratfact) |>
+  summarise(n())
+  ##summarise(sum(!is.na(totalmoosena)))
+## 2018 has a very large outlier, driving up the
+## variability in the predictor
+## newstrat uses the stratum from 2022
+mod_22 <- stlmfit(formula = totalmoosena ~ stratfact,
+                  data = moose_final_all |> filter(Surveyyear >= 2016),
+                  xcoord = "xcoords",
+                  ycoord = "ycoords",
+                  tcoord = "Surveyyear")
+
+pred_obj_all <- predict(object = mod_22, wtscol = "predweights_22")
+pred_obj_all$totalpred
+pred_obj_all$predvar |> sqrt()
+
+library(sptotal)
+moose_22_sptotal <- moose_18_22 |>
+  filter(predweights_22 == 1) 
+mod_sptot <- slmfit(totalmoosena ~ newstrat,
+                  data = moose_22_sptotal,
+                  xcoord = "xcoords",
+                  ycoord = "ycoords")
+pred_sptot <- predict(mod_sptot)
+pred_sptot$FPBK_Prediction
+pred_sptot$PredVar |> sqrt()
+```
+
+## adding covariates
+
+## constructing plots
+
+

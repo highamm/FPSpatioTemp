@@ -21,5 +21,7 @@ Imports:
     purrr,
     DumelleEtAl2021STLMM
 Suggests: 
+    knitr,
+    rmarkdown,
     sptotal
-
+VignetteBuilder: knitr

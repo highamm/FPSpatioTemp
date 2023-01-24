@@ -155,20 +155,20 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
   )
   
   t_plot_pos <- data |>
-    dplyr::filter((h_sp %in% c(0, sp_epstol)) & (h_t > 0.02))
+    dplyr::filter((.data$h_s %in% c(0, sp_epstol)) & (.data$h_t > 0.02))
   t_plot_zero <- data |>
-    dplyr::filter((h_sp %in% c(0, sp_epstol)) & (h_t == 0))
+    dplyr::filter((.data$h_s %in% c(0, sp_epstol)) & (.data$h_t == 0))
   
   sp_plot_pos <- data |> 
-    dplyr::filter(h_s > 0 & h_t %in% c(0, min(h_t[h_t > 0]), max(h_t)))
+    dplyr::filter(.data$h_s > 0 & .data$h_t %in% c(0, min(.data$h_t[.data$h_t > 0]), max(.data$h_t)))
   sp_plot_zero <- data |>
-    dplyr::filter(h_s == 0 & h_t %in% c(0, min(h_t[h_t > 0]), max(h_t)))
+    dplyr::filter(.data$h_s == 0 & .data$h_t %in% c(0, min(.data$h_t[.data$h_t > 0]), max(.data$h_t)))
   
   if (xaxis_var == "temporal") {
     
     ggplot(data = t_plot_pos) +
-      geom_line(mapping = aes(x = h_t, y = sigma, colour = as.factor(h_s)), size = 1.5, ...) +
-      geom_point(data = t_plot_zero, mapping = aes(x = h_t, y = sigma, colour = as.factor(h_s)), size = 4) +
+      geom_line(mapping = aes(x = h_t, y = sigma, colour = as.factor(.data$h_s)), linewidth = 1.5, ...) +
+      geom_point(data = t_plot_zero, mapping = aes(x = h_t, y = sigma, colour = as.factor(.data$h_s)), size = 4) +
       scale_colour_viridis_d(name = "Spatial Distance", begin = 0, end = 0.9) +
       theme_minimal() +
       labs(x = "Temporal Distance",
@@ -177,8 +177,8 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
   } else if (xaxis_var == "spatial") {
     
     ggplot(data = sp_plot_pos) +
-      geom_line(mapping = aes(x = h_s, y = sigma, colour = as.factor(h_t)), size = 1.5) +
-      geom_point(data = sp_plot_zero, mapping = aes(x = h_s, y = sigma, colour = as.factor(h_t)), size = 4) +
+      geom_line(mapping = aes(x = .data$h_s, y = sigma, colour = as.factor(h_t)), linewidth = 1.5) +
+      geom_point(data = sp_plot_zero, mapping = aes(x = .data$h_s, y = sigma, colour = as.factor(h_t)), size = 4) +
       scale_colour_viridis_d(end = 0.9) +
       theme_minimal()  +
       labs(x = "Spatial Distance",

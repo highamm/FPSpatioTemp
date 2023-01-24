@@ -50,7 +50,7 @@ order_spt <- function(data, xcoord, ycoord, tcoord) {
   key_sp <- key_sp |>
     dplyr::mutate(spindex = seq.int(from = 1, to = nrow(key_sp)))
   
-  h_sp_small <- stats::dist(key_sp |> dplyr::select(-spindex),
+  h_sp_small <- stats::dist(key_sp |> dplyr::select(-.data$spindex),
                             diag = TRUE, upper = TRUE) |>
     as.matrix()
   
@@ -67,7 +67,7 @@ order_spt <- function(data, xcoord, ycoord, tcoord) {
     dplyr::mutate(index = seq.int(from = 1, to = n_sp * n_t))
   
   full_data <- dplyr::left_join(full_grid, data) |>
-    dplyr::arrange(index) |>
+    dplyr::arrange(.data$index) |>
     dplyr::mutate(.observed = !is.na(.data[[tcoord]]) & !is.na(.data[[xcoord]])) |>
     dplyr::arrange(.data[[tcoord]], .data[[xcoord]], .data[[ycoord]])
   

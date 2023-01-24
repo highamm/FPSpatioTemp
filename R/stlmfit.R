@@ -73,7 +73,7 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   data_ordered <- order_spt_obj$full_data
   
   ## data_obs contains rows in the original sampling frame of data.
-  data_og <- data_ordered |> dplyr::filter(.observed == TRUE)
+  data_og <- data_ordered |> dplyr::filter(.data$.observed == TRUE)
   
   
   ## make data frame of only predictors
@@ -177,7 +177,7 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   ## CANNOT HAVE A COLUMN NAMED index, spindex, or tindex
   fast_est <- DumelleEtAl2021STLMM::stlmm(
     formula = formula,
-    data = data_sa |> dplyr::select(-index, -spindex, -tindex),
+    data = data_sa |> dplyr::select(-.data$index, -.data$spindex, -.data$tindex),
     xcoord = xcoord,
     ycoord = ycoord,
     tcoord = tcoord,
