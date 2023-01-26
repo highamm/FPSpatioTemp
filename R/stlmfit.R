@@ -3,8 +3,6 @@
 #' Estimates regression coefficients, spatial autocorrelation
 #' parameters, and temporal autocorrelation parameters, given spatial
 #' coordinates, time points and a model formula.
-#' NOTE: Current version has not been tested with any fixed effects
-#' in the design matrix X
 #' 
 #' @param formula is an \code{R} linear model formula specifying the
 #' response variable as well as covariates for predicting the response on the unsampled sites.
@@ -13,9 +11,6 @@
 #' @param ycoord is the name of the column in the data frame with y coordinates or latitudinal coordinates.
 #' @param tcoord is the name of the column in the data frame with 
 #' the time points.
-#' @param areacol is the name of the column in the data frame 
-#' with the site areas
-#' NOTE: package has not yet been tested for use of this argument.
 #' @param cor_model_sp a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.
 #' @param cor_model_t a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.
 #' @return a list with \itemize{
@@ -35,19 +30,7 @@
 #' NOTE: This function will eventually be split into stlmfit() to fit
 #' the model and estcov() as a helper in model fitting
 #' @examples 
-#' set.seed(07262022)
-#' obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-#'       sp_de = 0.5, sp_range = 4, sp_ie = 0.5,
-#'       t_de = 0.5, t_range = 0.7, t_ie = 0.5,
-#'       spt_ie = 0.5)
-#'       
-#' samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
-#' samp_data <- samp_obj$df_full
-#' samp_data <- samp_data |>
-#'  dplyr::mutate(predwts = dplyr::if_else(times == max(times),
-#'   true = 1, false = 0))
-#' samp_data$x <- rnorm(nrow(samp_data), 0, 1)
-#' samp_data <- samp_data
+
 #' stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,
 #'  xcoord = "xcoords", ycoord = "ycoords", tcoord = "times") 
 #' @import stats
@@ -57,7 +40,6 @@
 # xcoord = "xcoords", ycoord = "ycoords", tcoord = "times") 
                      
 stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
-                    areacol = NULL,
                     cor_model_sp = "exponential",
                     cor_model_t = "exponential") {
 
@@ -70,6 +52,7 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
 
   order_spt_obj <- order_spt(data, xcoord, ycoord, tcoord)
   
+  ## rows with missing coordinates (space or time) have been removed
   data_ordered <- order_spt_obj$full_data
   
   ## data_obs contains rows in the original sampling frame of data.
@@ -95,21 +78,11 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   
   data_obs <- data_og[missing_ind == 0, ]
   
-  
-
-  
-  
-  if (is.null(areacol) == TRUE) {
-    area_var <- rep(1, nrow(data_obs))
-  } else {
-    area_var <- data_obs[ ,areacol]
-  }
-  
   full_mf <- stats::model.frame(formula, na.action =
                                  stats::na.pass, data = data_obs)
   
   resp_var <- stats::model.response(full_mf, "numeric")
-  resp_density <- resp_var / area_var
+  resp_density <- resp_var
   
   ind_sa <- !is.na(resp_var)
   data_obs$ind_sa <- ind_sa
@@ -119,16 +92,13 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   resp_density_samp <- resp_density[ind_sa]
   
   
+  ## create Zs and Zt matrices
   ## build_z_mats filters out the rows where
   ## .observed == FALSE at the end
   z_mats <- build_z_mats(data_ord = data_ordered)
   
-  ## create Zs and Zt matrices
-  # N <- nrow(data)
-  # nspat <- N / length(uniquetimes)
-  
-  Z_sp <- z_mats$Z_sp
-  Z_t <- z_mats$Z_t
+  Z_sp <- z_mats$Z_sp[missing_ind == 0, ] ## keep only rows where covariates were observed
+  Z_t <- z_mats$Z_t[missing_ind == 0, ]
   
   total_var <- var(resp_density_samp)
   
@@ -144,14 +114,7 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
     sp_de_initial, sp_ie_initial, t_de_initial,
     t_ie_initial, spt_de_initial, spt_ie_initial
   )
-  
-  # sp_dist_mat <- dist(cbind(data[[xcoord]], data[[ycoord]]),
-  #                     diag = TRUE, upper = TRUE) |>
-  #   as.matrix()
-  # 
-  # t_dist_mat <- dist(data[[tcoord]],
-  #                    diag = TRUE, upper = TRUE) |>
-  #   as.matrix()
+
   
   h_sp_small <- order_spt_obj$h_sp_small
   h_t_small <- order_spt_obj$h_t_small
@@ -177,7 +140,7 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   ## CANNOT HAVE A COLUMN NAMED index, spindex, or tindex
   fast_est <- DumelleEtAl2021STLMM::stlmm(
     formula = formula,
-    data = data_sa |> dplyr::select(-.data$index, -.data$spindex, -.data$tindex),
+    data = data_sa |> dplyr::select(-dplyr::any_of(c("`_index`", "`_spindex`", "`_tindex`"))),
     xcoord = xcoord,
     ycoord = ycoord,
     tcoord = tcoord,
@@ -214,21 +177,27 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
                       dist_mat = h_sp_small)
   
 
-  comp_1 <- sp_de_hat * Z_sp %*% R_sp_hat %*% t(Z_sp)
-  comp_2 <- sp_ie_hat * Z_sp %*% t(Z_sp)
+  # comp_1 <- sp_de_hat * Z_sp %*% R_sp_hat %*% t(Z_sp)
+  # comp_2 <- sp_ie_hat * Z_sp %*% t(Z_sp)
   
   R_t_hat <- build_r(cov_type = cor_model_t, range = t_range_hat,
                      dist_mat = h_t_small)
 
-  comp_3 <- t_de_hat * Z_t %*% R_t_hat %*% t(Z_t)
-  comp_4 <- t_ie_hat * Z_t %*% t(Z_t)
-  
-  comp_5 <- spt_de_hat * (Z_sp %*% R_sp_hat %*% t(Z_sp)) * (Z_t %*% R_t_hat %*% t(Z_t))
-  
-  comp_6 <- diag(spt_ie_hat, nrow = nrow(data_obs))
+  # comp_3 <- t_de_hat * Z_t %*% R_t_hat %*% t(Z_t)
+  # comp_4 <- t_ie_hat * Z_t %*% t(Z_t)
+  # 
+  # comp_5 <- spt_de_hat * (Z_sp %*% R_sp_hat %*% t(Z_sp)) * (Z_t %*% R_t_hat %*% t(Z_t))
+  # 
+  # comp_6 <- diag(spt_ie_hat, nrow = nrow(data_obs))
 
-  
-  Sigma_hat <- comp_1 + comp_2 + comp_3 + comp_4 + comp_5 + comp_6
+  Sigma_hat <- build_sigma(sp_de = sp_de_hat, sp_ie = sp_ie_hat,
+                           t_de = t_de_hat, t_ie = t_ie_hat,
+                           spt_de = spt_de_hat, spt_ie = spt_ie_hat,
+                           model_type = "product_sum",
+                           R_sp = R_sp_hat, R_t = R_t_hat,
+                           Z_sp = Z_sp, Z_t = Z_t)
+    
+    ## comp_1 + comp_2 + comp_3 + comp_4 + comp_5 + comp_6
   
   Sigma_ss <- Sigma_hat[ind_sa, ind_sa, drop = FALSE]
   Sigma_ssi <- solve(Sigma_ss) ## can output this so it doesn't

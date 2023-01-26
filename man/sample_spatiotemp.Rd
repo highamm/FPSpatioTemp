@@ -38,4 +38,7 @@ obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
       spt_ie = 0.5)
       
 sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
+sample_spatiotemp(obj = obj, n = 40, samp_type = "time_strat")
+sample_spatiotemp(obj = obj, n = 60, samp_type = "space_strat")
+
 }

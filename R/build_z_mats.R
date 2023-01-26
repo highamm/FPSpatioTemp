@@ -2,11 +2,11 @@
 #' 
 #' Create Z random effect matrices for spatial and temporal effects.
 #' 
-#' @param data_ord is the name of a data.frame or tibble where the data has already been ordered to space within time..
+#' @param data_ord is the name of a data.frame or tibble where the data has already been ordered to space within time. This data frame has columns \code{_spindex}, which gives the spatial, \code{_tindex}, which gives the temporal index, and \code{.observed}, a logical giving whether the spatial index was observed at the time index.
 #' 
 #' @return a list with \itemize{
-#'   \item the spatial Z matrix.
-#'   \item the temporal Z matrix
+#'   \item the spatial Z matrix, with only rows corresponding to \code{.observed = TRUE}
+#'   \item the temporal Z matrix, with only rows corresponding to \code{.observed = TRUE}
 #'   }
 #' @import stats
 #' @importFrom purrr map_dfr
@@ -15,8 +15,8 @@
 
 build_z_mats <- function(data_ord) {
   
-  n_sp <- max(data_ord$spindex)
-  n_t <- max(data_ord$tindex)
+  n_sp <- max(data_ord$`_spindex`)
+  n_t <- max(data_ord$`_tindex`)
   
   one_time_zsp <- diag(1, n_sp) |> as.data.frame()
   

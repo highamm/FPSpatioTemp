@@ -8,8 +8,8 @@
 #' @return r, a correlation matrix.
 #' @examples 
 #' 
-#' coords <- cbind(c(1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2), c(1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1))
-#' dist_mat <- stats::dist(coords, diag = TRUE, upper = TRUE) |> as.matrix()
+#' dist_mat <- stats::dist(samp_data[ ,c("xcoords", "ycoords")],
+#'  diag = TRUE, upper = TRUE) |> as.matrix()
 #' 
 #' build_r(cov_type = "exponential", range = 4, dist_mat = dist_mat)
 #' build_r(cov_type = "gaussian", range = 0.1, dist_mat = dist_mat)   

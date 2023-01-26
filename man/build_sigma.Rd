@@ -2,36 +2,34 @@
 % Please edit documentation in R/build_sigma.R
 \name{build_sigma}
 \alias{build_sigma}
-\title{Build Spatiotemporal Covariance Matrix}
+\title{Build Spatio-temporal Covariance Matrix}
 \usage{
 build_sigma(
-  parsil_sp = 0.9,
-  nugget_sp = 0.1,
-  parsil_t = 0.7,
-  nugget_t = 0.3,
-  parsil_spt = 0.4,
-  nugget_spt = 0.5,
-  model_type = "product_sum",
+  sp_de = 0.9,
+  sp_ie = 0.1,
+  t_de = 0.7,
+  t_ie = 0.3,
+  spt_de = 0.4,
+  spt_ie = 0.5,
   R_sp,
   R_t,
   Z_sp,
-  Z_t
+  Z_t,
+  model_type = "product_sum"
 )
 }
 \arguments{
-\item{parsil_sp}{is the spatial dependent error variance (spatial partial sill).}
+\item{sp_de}{is the spatial dependent error variance (spatial partial sill).}
 
-\item{nugget_sp}{is the spatial independent error variance (spatial nugget).}
+\item{sp_ie}{is the spatial independent error variance (spatial nugget).}
 
-\item{parsil_t}{is the temporal dependent error variance (temporal partial sill).}
+\item{t_de}{is the temporal dependent error variance (temporal partial sill).}
 
-\item{nugget_t}{is the temporal independent error variance (temporal nugget).}
+\item{t_ie}{is the temporal independent error variance (temporal nugget).}
 
-\item{parsil_spt}{is the spatio-temporal dependent error variance (spatio-temporal partial sill).}
+\item{spt_de}{is the spatio-temporal dependent error variance (spatio-temporal partial sill).}
 
-\item{nugget_spt}{is the spatio-temporal independent error variance (spatio-temporal nugget).}
-
-\item{model_type}{is either \code{"product_sum"} (by default) or \code{"sum_with_error"}}
+\item{spt_ie}{is the spatio-temporal independent error variance (spatio-temporal nugget).}
 
 \item{R_sp}{is the spatial correlation matrix}
 
@@ -40,10 +38,12 @@ build_sigma(
 \item{Z_sp}{is the spatial random effects matrix}
 
 \item{Z_t}{is the temporal random effects matrix}
+
+\item{model_type}{is either \code{"product_sum"} (by default) or \code{"sum_with_error"}}
 }
 \value{
 a spatio-temporal covariance matrix.
 }
 \description{
-Construct a spatiotemporal covariance matrix.
+Construct a spatio-temporal covariance matrix.
 }

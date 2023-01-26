@@ -3,8 +3,8 @@
 #' Predicts the abundance given an object from \code{stlmfit()}.
 #' 
 #' @param object is an object of class `stlmfit`
-#' @param wtscol is the name of the column in the data frame with
-#' the weights for which sites we want the prediction for.
+#' @param wts is the name of the column in the data frame with
+#' the weights for which sites we want the prediction for. By default, the function will return the prediction for the total in the most recent time point given.
 #' @param pred_level is the level used for a prediction interval
 #' @param ... further arguments passed to or from other methods.
 #' @return a list with the following \itemize{
@@ -34,17 +34,24 @@
 #' stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,
 #'  xcoord = "xcoords",
 #' ycoord = "ycoords", tcoord = "times") 
-#' predict(object = stlmfit_obj, wtscol = "predwts")
+#' predict(object = stlmfit_obj, wts = "predwts")
 #' @import stats
 #' @export
 
-predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
+predict.stlmfit <- function(object, wts = NULL, pred_level = 0.90, ...) {
   
   if (inherits(object, "stlmfit") == FALSE) {
     stop("object must be of class stlmfit")
   }
   
   data <- object$data
+  
+  if (is.null(wts) == TRUE) {
+    data$`_pred.wts` <- as.numeric((data$`_tindex` == max(data$`_tindex`,
+                                               na.rm = TRUE)))
+  } else {
+    data$`_pred.wts` <- data[[wts]]
+  }
   
   X_all <- object$X_all
   ind_sa <- data$ind_sa
@@ -59,32 +66,36 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   
   Sigma_ssi <- solve(Sigma_ss)
   
+  nonzero_weight <- (!is.na(data$`_pred.wts`) & data$`_pred.wts` > 0)
+  
   ## indicator for unsampled sites that are in the current year of 
   ## interest
-  unsampcurrind <- ind_sa == 0 & data[[wtscol]] == 1
+  unsampcurrind <- ind_sa == 0 & nonzero_weight == TRUE
+  
   
   X_ucurr <- X_all[unsampcurrind, , drop = FALSE]
   X_s <- X_all[ind_sa, , drop = FALSE]
   X_u <- X_all[ind_un, , drop = FALSE]
   ## matrix of covariance between all sites in the current year and
   ## all sites that were sampled
-  Sigma_cs <- Sigma_hat[data[[wtscol]] == 1, ind_sa == 1]
-  
-  ## covariance matrix of sites in the current year
-  Sigma_cc <- Sigma_hat[data[[wtscol]] == 1, data[[wtscol]] == 1]
+  Sigma_cs <- Sigma_hat[nonzero_weight == TRUE, ind_sa == 1]
+
+    ## covariance matrix of sites in the current year
+  Sigma_cc  <- Sigma_hat[nonzero_weight == TRUE,
+                        nonzero_weight == TRUE]
   
   ## prediction indicator vector for all sampled sites
-  bs_all <-  data[[wtscol]][ind_sa == 1]
+  bs_all <- data$`_pred.wts`[ind_sa == 1]
   
   ## prediction indicator vector for sampled sites in the current year
-  b_s <- bs_all[bs_all == 1]
+  b_s <- bs_all[bs_all > 0]
   
   ## prediction indicator vector for all unsampled sites 
-  bu_all <- data[[wtscol]][ind_sa == 0]
+  bu_all <- data$`_pred.wts`[ind_sa == 0]
   
   ## prediction indicator vector for
   ## the unsampled sites in the current year
-  b_u <- bu_all[bu_all == 1]
+  b_u <- bu_all[bu_all > 0]
   
   ## part 1 of the predictor
   p1 <- bs_all 
@@ -107,7 +118,6 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   resp_density <- object$resp_density
   
   totalpred <- tlambda %*% resp_density |> as.vector()
-  ## need to add in back area for this, if sites have unequal areas
   
   ## prediction weights for sites in the current year (usually just a 
   ## vector of 1's if we want to predict the total for the current year).
@@ -127,7 +137,7 @@ predict.stlmfit <- function(object, wtscol, pred_level = 0.90, ...) {
   ## the predicted values for the sites that were not sampled
   zhatu <- Sigma_ucurrs %*% Sigma_ssi %*% (resp_density -
                                              muhat_s) + muhat_u
-  ##totalpred_equiv <- sum(zhatu) + sum(density[ind_sa == 1 & data[[wtscol]] == 1])
+  ##totalpred_equiv <- sum(zhatu) + sum(density[ind_sa == 1 & data[[wts]] == 1])
   W <- t(X_u) - t(X_s) %*% Sigma_ssi %*% Sigma_su
   Vmat <- solve(t(X_s) %*% Sigma_ssi %*% X_s)
   sitecov <- Sigma_uu - Sigma_us %*% Sigma_ssi %*% Sigma_su +

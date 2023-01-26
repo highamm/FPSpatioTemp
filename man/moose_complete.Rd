@@ -21,16 +21,16 @@ A data frame object including:
   \item{ycoords}{site y-coordinate, in TM}
   \item{samp_frame}{whether or not the site was in the sampling frame for that year}
 }
-
-#' @examples
-data(moose_complete)
-names(moose_complete)
-summary(moose_complete)
 }
 \usage{
 moose_complete
 }
 \description{
 A data set that can be used with the \code{FPSpatioTemp} package.
+}
+\examples{
+data(moose_complete)
+names(moose_complete)
+summary(moose_complete)
 }
 \keyword{datasets}

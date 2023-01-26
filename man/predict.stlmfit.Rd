@@ -4,13 +4,13 @@
 \alias{predict.stlmfit}
 \title{Abundance Prediction}
 \usage{
-\method{predict}{stlmfit}(object, wtscol, pred_level = 0.9, ...)
+\method{predict}{stlmfit}(object, wts = NULL, pred_level = 0.9, ...)
 }
 \arguments{
 \item{object}{is an object of class `stlmfit`}
 
-\item{wtscol}{is the name of the column in the data frame with
-the weights for which sites we want the prediction for.}
+\item{wts}{is the name of the column in the data frame with
+the weights for which sites we want the prediction for. By default, the function will return the prediction for the total in the most recent time point given.}
 
 \item{pred_level}{is the level used for a prediction interval}
 
@@ -46,5 +46,5 @@ samp_data$x <- rnorm(nrow(samp_data), 0, 1)
 stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,
  xcoord = "xcoords",
 ycoord = "ycoords", tcoord = "times") 
-predict(object = stlmfit_obj, wtscol = "predwts")
+predict(object = stlmfit_obj, wts = "predwts")
 }

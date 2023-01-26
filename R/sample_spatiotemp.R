@@ -20,6 +20,9 @@
 #'       spt_ie = 0.5)
 #'       
 #' sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
+#' sample_spatiotemp(obj = obj, n = 40, samp_type = "time_strat")
+#' sample_spatiotemp(obj = obj, n = 60, samp_type = "space_strat")
+#' 
 #' @importFrom dplyr sample_n group_by anti_join inner_join bind_rows
 #' @export sample_spatiotemp
 
@@ -32,23 +35,22 @@ sample_spatiotemp <- function(obj, n = 100, samp_type = "random") {
   
   df <- obj$out_df
   
-  ## need to come up with a better fix for this:
-  ## if not there, gives a warning about no binding
   times <- obj$out_df$times
   xcoords <- obj$out_df$xcoords
   ycoords <- obj$out_df$ycoords
   response <- obj$out_df$response
   
-  df <- tibble(times, xcoords, ycoords, response)
+  df <- tibble::tibble(times, xcoords, ycoords, response)
   
   set.seed(obj$seed)
   
   if (samp_type == "random") {
     df_samp <- df |> dplyr::sample_n(size = n)
   } else if (samp_type == "time_strat") {
-    df_samp <- df |> group_by(times) |> dplyr::sample_n(size = ceiling(n / length(unique(df$times))))
+    df_samp <- df |> dplyr::group_by(times) |> dplyr::sample_n(size = ceiling(n / length(unique(df$times))))
   } else if (samp_type == "space_strat") {
-    df_samp <- df |> dplyr::group_by(xcoords, ycoords) |> dplyr::sample_n(size = ceiling(n / length(unique(cbind(df$xcoords, df$ycoords)))))
+    df_samp <- df |> dplyr::group_by(xcoords, ycoords) |>
+      dplyr::sample_n(size = ceiling(n / length(unique(cbind(df$xcoords, df$ycoords)))))
   }
   
   df_unsamp <- dplyr::anti_join(df, df_samp)

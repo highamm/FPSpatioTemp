@@ -52,7 +52,7 @@ sim_fun <- function(resp_type = "normal",
   fit_end <- Sys.time()
   fit_time <- fit_end - samp_end
   
-  pred_fit <- predict(fit, wtscol = "wts", pred_level = pred_level)
+  pred_fit <- predict(fit, wts = "wts", pred_level = pred_level)
  
   pred_end <- Sys.time()
   pred_time <- pred_end - fit_end

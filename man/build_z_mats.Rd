@@ -7,12 +7,12 @@
 build_z_mats(data_ord)
 }
 \arguments{
-\item{data_ord}{is the name of a data.frame or tibble where the data has already been ordered to space within time..}
+\item{data_ord}{is the name of a data.frame or tibble where the data has already been ordered to space within time. This data frame has columns \code{_spindex}, which gives the spatial, \code{_tindex}, which gives the temporal index, and \code{.observed}, a logical giving whether the spatial index was observed at the time index.}
 }
 \value{
 a list with \itemize{
-  \item the spatial Z matrix.
-  \item the temporal Z matrix
+  \item the spatial Z matrix, with only rows corresponding to \code{.observed = TRUE}
+  \item the temporal Z matrix, with only rows corresponding to \code{.observed = TRUE}
   }
 }
 \description{

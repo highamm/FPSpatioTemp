@@ -409,7 +409,7 @@ The estimated vector of fixed effects, using `"HIGH"` as the reference group, is
 \subsection{Prediction}
                      
 ```{r, results = "hide"}
-pred_obj_all <- predict(object = fit_obj_all, wtscol = "yearind")
+pred_obj_all <- predict(object = fit_obj_all, wts = "yearind")
 
 prediction_all <- pred_obj_all$totalpred
 predvar_all <- pred_obj_all$predvar
@@ -422,7 +422,7 @@ tab_stlmfit_all <- cbind(prediction_all, sqrt(predvar_all),
 We now use the fitted spatio-temporal model with the BLUP from equation \ref{equation:blup} and weights given in equation \ref{equation:currentweights} to predict the total abundance across all sites in the year 2020, the most recent year of the survey. Plugging in estimates of the covariance parameters into equations \ref{equation:blup} and \ref{equation:predvar} and letting elements of $\mathbf{b}_a$ be equal to 1 for data points in 2020 and equal to 0 otherwise, we obtain a prediction of `r round(as.numeric(prediction_all), 0)` moose and a standard error (the square root of the prediction variance) of `r round(as.numeric(sqrt(predvar_all)), 0)` moose. A 90% normal-based prediction interval for the total abundance in 2020 is (`r round(lb_all, 0)`, `r round(ub_all, 0)`) moose. Note that, though the response in this example is a count, a normal-based prediction interval for the total is still appropriate through an application of the central limit theorem for dependent data [@smith1980central]. Sitewise predictions for sites in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
 
 ```{r, fig.cap = "\\label{fig:sitepredmap} A map of the predictions for the sites in the year 2020. A site with a grey dot in the center means that the site was sampled in 2020."}
-pred_obj_map <- predict(object = fit_obj_all, wtscol = "allpred_wts")
+pred_obj_map <- predict(object = fit_obj_all, wts = "allpred_wts")
 moose_shp_preds <- left_join(shp, pred_obj_map$data)
 
 # ggplot(data = moose_shp_preds) +
@@ -513,7 +513,7 @@ ggplot(data = moose_shp_allpreds) +
 ```
 
 ```{r}
-pred_obj_2016 <- predict(object = fit_obj_all, wtscol = "predwts2016")
+pred_obj_2016 <- predict(object = fit_obj_all, wts = "predwts2016")
 pred_2016 <- round(as.vector(pred_obj_2016$totalpred), 0)
 se_2016 <- round(sqrt(as.vector(pred_obj_2016$predvar)), 0)
 lb_2016 <- round(pred_obj_2016$lb)
@@ -589,7 +589,7 @@ fit_obj_high <- stlmfit(formula = totalmoosena ~ 1,
 
 ```{r, results = "hide"}
 pred_obj_high <- predict(object = fit_obj_high,
-                         wtscol = "yearind")
+                         wts = "yearind")
 
 prediction_high <- pred_obj_high$totalpred
 predvar_high <- pred_obj_high$predvar
@@ -610,7 +610,7 @@ fit_obj_low <- stlmfit(formula = totalmoosena ~ 1,
 ```
 
 ```{r, results = "hide"}
-pred_obj_low <- predict(object = fit_obj_low, wtscol = "yearind")
+pred_obj_low <- predict(object = fit_obj_low, wts = "yearind")
 
 prediction_low <- pred_obj_low$totalpred
 predvar_low <- pred_obj_low$predvar
@@ -959,7 +959,7 @@ fit_obj_all_fore <- stlmfit(formula = totalmoosena ~ newstrat,
                                                        false = totalmoosena)),
                        xcoord = "xcoords", ycoord = "ycoords",
                        tcoord = "Surveyyear")
-pred_obj_all_fore <- predict(object = fit_obj_all_fore, wtscol = "yearind")
+pred_obj_all_fore <- predict(object = fit_obj_all_fore, wts = "yearind")
 prediction_all_fore <- pred_obj_all_fore$totalpred
 predvar_all_fore <- pred_obj_all_fore$predvar
 lb_all_fore <- pred_obj_all_fore$lb
