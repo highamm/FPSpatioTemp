@@ -18,8 +18,7 @@ Imports:
     dplyr,
     tidyr,
     ggplot2,
-    purrr,
-    DumelleEtAl2021STLMM
+    purrr
 Suggests: 
     knitr,
     rmarkdown,

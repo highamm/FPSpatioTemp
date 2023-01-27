@@ -7,8 +7,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-START BY PARING DOWN TOK DATA
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -17,51 +15,112 @@ knitr::opts_chunk$set(
 )
 ```
 
+Throughout this vignette, we use the `moose_vignette` data set in the `FPSpatioTemp` package. 
+
 ```{r setup}
 library(FPSpatioTemp)
 moose_vignette
 ```
 
-```{r}
-library(tidyverse)
-```
-
-```{r}
-mod <- stlmfit(count ~ strata, data = moose_vignette,
-               xcoord = "xcoords", ycoord = "ycoords",
-               tcoord = "year")
-
-# load(file = "data/moose_complete.rda")
-# moose_small <- moose_complete |> filter(Surveyyear == 2022) |>
-#   filter(samp_frame == 1) |>
-#   filter(xcoords > median(xcoords) & ycoords < median(ycoords))
-# moose_vignette <- semi_join(moose_complete, moose_small, by = "ID") |>
-#   filter(Surveyyear >= 2019) |>
-#   rename(count = totalmoosena,
-#          year = Surveyyear,
-#          strata = stratfact,
-#          area_mi = AreaMi,
-#          elev_mean = ELEV_MEAN) |>
-#   select(count, xcoords, ycoords, year, strata, area_mi,
-#          elev_mean, ID, samp_frame)
-# save(moose_vignette, file = "data/moose_vignette.rda")
-```
-
-To use this package, the data set should have the following characteristics: 
-
-#### Base Format
-
-The data frame needs to have, at a bare minimum, four variables:
+The rows of `moose_vignette` correspond to sites for moose surveys in the Tok region of Alaska.  In general, to use this package, a data frame needs to have, at a bare minimum, four variables:
 
 * two variables of spatial coordinates (an x-coordinate and a y-coordinate)
 * one variable of a temporal coordinate (such as day, year, etc.)
-* the response variable
+* the response variable, with `NA` for any `site-time_point` combination that was not surveyed
 
-In the moose data set, these four variables are given below:
+The four variables required to perform spatio-temporal finite population prediction in the `moose_vignette` data set are:
+
+* `count`, the number of moose in the site (`NA` if the site was not surveyed)
+* `xcoords`, spatial x-coordinates, in Trans-Mercator (TM) units
+* `ycoord`, spatial y-coordinates, in TM
+* `year`, the year of the survey (either `2019`, `2020`, `2021`, or `2022`).
+
+This data set is a subset of the full Tok data set, which contains more sites and has surveys that date back to 1998. There are 112 sites across 4 years, so the data set has a total of 448 rows.
+
+We will use the `ggplot2` package and the `dplyr` package to explore the data:
 
 ```{r}
-moose_complete |> select(xcoords, ycoords, Surveyyear, totalmoosena)
+library(ggplot2)
+library(dplyr)
 ```
+
+```{r}
+moose_vignette |> group_by(year) |>
+  summarise(n_nonmissing = sum(!is.na(count)))
+```
+
+We see that between 21 and 27 sites were surveyed in each year. Again, this is a subset of the larger Tok moose surveys data set; we use this subset so that the models fit more quickly in this vignette. 
+
+## The Basics
+
+In this section, we show how to use the `FPSpatioTemp` package with the basic structure of its two main functions: `stlmfit()` and `predict()`.
+
+We use the `stlmfit()` function to fit a spatio-temporal model to the observed count data. There are five arguments: `formula` and `data` arguments similar to those used in `lm()`, and `xcoord`, `ycoord`, and `tcoord` arguments that give the x-coordinates, y-coordinates, and time coordinates. Note that the model takes a few seconds to fit.
+
+```{r}
+mod <- stlmfit(formula = count ~ 1, data = moose_vignette,
+               xcoord = "xcoords", ycoord = "ycoords",
+               tcoord = "year")
+mod
+```
+
+The output.....(NEED to update the print generic for stlmfit())
+
+NEED to create a summary generic for stlmfit()
+
+We then use the fitted model `mod` to, by default, predict the total abundance of moose in the most recent time point of the survey:
+
+```{r}
+predict(mod)
+```
+
+NEED to update print generic for predict()
+
+The output also gives a standard error for the prediction and the bounds of a 90% prediction interval.
+
+```{r}
+total_all_years <- rep(1, nrow(moose_vignette))
+predict(mod, wts = total_all_years)
+```
+
+#### Other Functionality to `stlmfit()`
+
+The `formula` in `stlmfit()` can be include covariates to be used in the model fitting. For example, in `moose_vignette`, we might consider a model with `strata` as a covariate:
+
+```{r}
+mod_strat <- stlmfit(formula = count ~ strata,
+                     data = moose_vignette,
+                     xcoord = "xcoords", ycoord = "ycoords",
+                     tcoord = "year")
+mod_strat
+```
+
+Two other optional arguments to `stlmfit()` include `cor_model_sp` and `cor_model_t`, which control the correlation function to be used for the spatial and temporal model components, respectively. Options for `cor_model_sp` and `cor_model_t` include `"exponential"` (the default for both), `"spherical"`, `"gaussian"`, and `"cosine"`, among others. The model below uses `strata` as a covariate, a `"spherical"` correlation structure for the spatial correlation, and a `"gaussian"` correlation structure for the temporal correlation.
+
+```{r}
+mod_corr <- stlmfit(formula = count ~ strata,
+                     data = moose_vignette,
+                     xcoord = "xcoords", ycoord = "ycoords",
+                     tcoord = "year",
+                     cor_model_sp = "spherical",
+                     cor_model_t = "gaussian")
+mod_corr
+```
+
+NEED to modify print to say which correlation function was used
+
+NEED to update error message when incorrect covariance structure is used.
+
+NEED to change this: write now, can only use the four covariance functions that Mike uses (exponential, gaussian, spherical, tent).
+
+`mod_strat` could then be passed to `predict()`.
+
+NEED to write residuals function
+
+NEED to fix error message when elev_mean has all NAs
+
+NEED to write AIC function
+
 
 Other variables in the data frame could include relevant covariates to be used in the model, the area of each spatial site, or a variable indicating whether sites were in the sampling frame for that particular survey. In the moose data set, both `Stratname` and `ELEV_MEAN` could be used as covariates, `AreaMi` gives the area of each site, in square miles, and `samp_frame` is an indicator for whether a site was in the sampling frame for the particular survey:
 

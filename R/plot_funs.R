@@ -124,7 +124,7 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
   h_t <- rep(h_t_seq, each = length(h_sp_seq))
   
   # make covparam object
-  covparams <- DumelleEtAl2021STLMM::make_covparam_object(
+  covparams <- make_covparam_object(
     s_de = sp_de,
     s_ie = sp_ie,
     t_de = t_de,
@@ -140,12 +140,11 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
                         "s_range", "t_range")
   
   # make stcovariance
-  sigma <- DumelleEtAl2021STLMM::make_stcovariance(covparams, h_sp, h_t,
-                                                   "exponential", "exponential")
+  sigma <- make_stcovariance(covparams, h_sp, h_t,
+                             "exponential", "exponential")
   
-  gamma <- DumelleEtAl2021STLMM::make_stsemivariogram(covparams, h_sp, h_t,
-                                                      "exponential",
-                                                      "exponential")
+  gamma <- make_stsemivariogram(covparams, h_sp, h_t,
+                                "exponential", "exponential")
   
   data <- tibble::tibble(
     h_s = h_sp,

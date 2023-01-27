@@ -28,3 +28,12 @@ test_that("prediction works for non-zero weights other than 0's and 1's", {
   expect_equal(4.2 * pred_obj[[1]], pred_obj2[[1]], tolerance = 1e-3)
 })
 
+test_that("prediction works for a vector", {
+  mod <- stlmfit(formula = response_na ~ x,
+                 data = samp_data, xcoord = "xcoords",
+                 ycoord = "ycoords", tcoord = "times")
+  pred_obj <- predict(mod, "predwts")
+  vec <- samp_data$predwts
+  pred_obj2 <- predict(mod, vec)
+  expect_equal(pred_obj, pred_obj2)
+})

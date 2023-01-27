@@ -133,3 +133,19 @@ moose_complete |> filter(Surveyyear == 2022)
 slmfit(totalmoosena ~ stratfact, data = moose_complete |> filter(Surveyyear == 2022 & samp_frame == 1),
        xcoordcol = "xcoords", ycoordcol = "ycoords") |>
   predict()
+
+## cleaning complete to vignette
+# load(file = "data/moose_complete.rda")
+# moose_small <- moose_complete |> filter(Surveyyear == 2022) |>
+#   filter(samp_frame == 1) |>
+#   filter(xcoords > median(xcoords) & ycoords < median(ycoords))
+# moose_vignette <- semi_join(moose_complete, moose_small, by = "ID") |>
+#   filter(Surveyyear >= 2019) |>
+#   rename(count = totalmoosena,
+#          year = Surveyyear,
+#          strata = stratfact,
+#          area_mi = AreaMi,
+#          elev_mean = ELEV_MEAN) |>
+#   select(count, xcoords, ycoords, year, strata, area_mi,
+#          elev_mean, ID, samp_frame)
+# save(moose_vignette, file = "data/moose_vignette.rda")

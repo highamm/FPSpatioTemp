@@ -23,13 +23,13 @@ build_r <- function(cov_type = "exponential", range, dist_mat) {
     cov_type,
     exponential = exp(-(dist_mat / range)),
     gaussian = exp(-(dist_mat / range) ^ 2),
-    triangular = (1 - dist_mat / range) * (dist_mat <= range),
-    cosine = cos(dist_mat / range),
+  ##  triangular = (1 - dist_mat / range) * (dist_mat <= range),
+   ## cosine = cos(dist_mat / range),
     spherical = (1 - (3 / 2) * (dist_mat / range) + (1 / 2) * (dist_mat / range) ^ 3) * (dist_mat <= range),
-    none = diag(1, nrow = nrow(dist_mat)),
-    stop("Choose exponential, gaussian, triangular, cosine, spherical, or none as the covariance structure")
+    tent = (1 - dist_mat / range) * (dist_mat <= range),
+    ## none = diag(1, nrow = nrow(dist_mat)),
+    stop("Choose exponential, gaussian, spherical, or tent as the covariance structure")
   )
-  
-  
+
   return(r)
 }

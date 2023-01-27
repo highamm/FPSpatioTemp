@@ -11,8 +11,8 @@
 #' @param ycoord is the name of the column in the data frame with y coordinates or latitudinal coordinates.
 #' @param tcoord is the name of the column in the data frame with 
 #' the time points.
-#' @param cor_model_sp a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.
-#' @param cor_model_t a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.
+#' @param cor_model_sp a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}.
+#' @param cor_model_t a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}.
 #' @return a list with \itemize{
 #'   \item the original data set, appended with a few variables
 #'   \item the estimated spatiotemporal covariance matrix
@@ -122,7 +122,7 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   sp_range_initial <- median(h_sp_small)
   t_range_initial <- median(h_t_small)
   
-  sim_initial <-  DumelleEtAl2021STLMM::make_covparam_object(
+  sim_initial <-  make_covparam_object(
     s_de = sp_de_initial, s_ie = sp_ie_initial,
     t_ie = t_ie_initial, t_de = t_de_initial,
     st_de = spt_de_initial, st_ie = spt_ie_initial,
@@ -138,7 +138,7 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   # data_test <- data |> mutate(resp2 = rnorm(12, 0, 1))
 
   ## CANNOT HAVE A COLUMN NAMED index, spindex, or tindex
-  fast_est <- DumelleEtAl2021STLMM::stlmm(
+  fast_est <- stlmm(
     formula = formula,
     data = data_sa |> dplyr::select(-dplyr::any_of(c("`_index`", "`_spindex`", "`_tindex`"))),
     xcoord = xcoord,

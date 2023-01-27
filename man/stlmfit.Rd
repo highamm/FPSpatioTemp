@@ -27,9 +27,9 @@ response variable as well as covariates for predicting the response on the unsam
 \item{tcoord}{is the name of the column in the data frame with 
 the time points.}
 
-\item{cor_model_sp}{a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.}
+\item{cor_model_sp}{a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}.}
 
-\item{cor_model_t}{a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"triangular"}, or \code{"cosine"}.}
+\item{cor_model_t}{a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}.}
 }
 \value{
 a list with \itemize{

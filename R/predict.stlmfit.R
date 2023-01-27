@@ -49,8 +49,12 @@ predict.stlmfit <- function(object, wts = NULL, pred_level = 0.90, ...) {
   if (is.null(wts) == TRUE) {
     data$`_pred.wts` <- as.numeric((data$`_tindex` == max(data$`_tindex`,
                                                na.rm = TRUE)))
-  } else {
+  } else if(is.character(wts)) {
     data$`_pred.wts` <- data[[wts]]
+  } else if(length(wts) == nrow(data)) {
+    data$`_pred.wts` <- wts
+  } else {
+    stop("if specified, wts must either be a string giving the name of a column in the data argument in stlmfit or must be a vector with the same number of rows as the data argument in stlmfit.")
   }
   
   X_all <- object$X_all

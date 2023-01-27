@@ -3,6 +3,7 @@
 S3method(predict,stlmfit)
 S3method(print,predict.stlmfit)
 S3method(print,stlmfit)
+export(LLtoTM)
 export(build_r)
 export(build_sigma)
 export(build_z_mats)
