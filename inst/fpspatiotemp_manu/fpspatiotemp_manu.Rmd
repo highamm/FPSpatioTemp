@@ -213,7 +213,8 @@ E((\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_o'\math
 \bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_a' \bm{\Sigma}_{a, o} \bm{\lambda}_o + \mathbf{b}_a' \bm{\Sigma}_{a, a} \mathbf{b}_a.
 \end{equation}
 
-We call the predictor in equation \ref{equation:BLUP} with $\bm{\Sigma}$ in equation \ref{equation:var} the st-FPBK predictor.
+\noindent
+We call the predictor in equation \ref{equation:blup} with $\bm{\Sigma}$ in equation \ref{equation:var} the st-FPBK predictor.
 
 <!-- site-by-site predictions for the unsampled sites in both the past and the present come from the usual block kriging formulae: -->
 
@@ -361,7 +362,11 @@ fit_obj_all <- stlmfit(formula = totalmoosena ~ newstrat,
                        tcoord = "Surveyyear")
 ## Sys.time(): fit time: about 9 minutes
 fixed_vec <- round(fit_obj_all$fixed_parms, 2)
-cov_vec <- round(fit_obj_all$cov_parms, 2)
+
+cov_vec <- fit_obj_all$cov_parms
+cov_vec["sp_range"] <- cov_vec["sp_range"] / 3
+cov_vec["t_range"] <- cov_vec["t_range"] / 3
+cov_vec <- round(cov_vec, 2)
 tab <- cov_vec |>
   as.matrix() |>
   t()
@@ -399,8 +404,7 @@ To help interpret what some of these fitted covariance parameter estimates mean,
 ## parameterization that he uses.
 
 FPSpatioTemp::plot_cov(fit_obj_all, sp_epstol = c(0.2, 4, 20, Inf),
-         t_epstol = c(0.2, 2, 6),
-         xaxis_var = "temporal") +
+         t_max = 6) +
   labs(x = "Temporal Distance (years)")
 ```
 
@@ -626,17 +630,6 @@ unlist(fit_obj_high$parms)
 unlist(fit_obj_low$parms)
 ```
 
-```{r, fig.keep = "none"}
-plot_sp(fit_obj_high$data$xcoords, fit_obj_high$data$ycoords,
-        fit_obj_high$data$Surveyyear, fit_obj_high$data$totalmoosena)
-plot_sp(fit_obj_low$data$xcoords, fit_obj_low$data$ycoords,
-        fit_obj_low$data$Surveyyear, fit_obj_low$data$totalmoosena)
-plot_t(fit_obj_high$data$xcoords, fit_obj_high$data$ycoords,
-        fit_obj_high$data$Surveyyear, fit_obj_high$data$totalmoosena)
-plot_t(fit_obj_low$data$xcoords, fit_obj_low$data$ycoords,
-        fit_obj_low$data$Surveyyear, fit_obj_low$data$totalmoosena)
-```
-
 ```{r}
 pred_total <- tab_stlmfit_low[1, 1] + tab_stlmfit_high[1, 1]
 pred_var <- sqrt(tab_stlmfit_low[1, 2] ^ 2 +
@@ -758,8 +751,7 @@ fit_fake$cov_parms <- cov_parms_sim
 max_sp <- round(1.25 * sqrt(2), digits = 2)
 max_t <- 1 * 1.25
 p <- FPSpatioTemp::plot_cov(fit_fake, sp_epstol = c(0.01, max_sp),
-         t_epstol = c(0.01, max_t),
-         xaxis_var = "temporal")
+         t_max = max_t)
 label_df <- tibble::tribble(~x, ~xend, ~y, ~yend, ~lab,
                             0, 0, 0, 0.5, "test",
                             -0.02, -0.02, 0.5, 0.5 + 0.167, "test",
@@ -789,7 +781,7 @@ The third method uses a simple random sample (SRS) design-based estimator with d
 
 The SRS method gives an estimator, not a predictor, and a corresponding confidence interval, not a prediction interval, because the SRS design-based estimator treats the observed data as fixed, not as a random realization from a process [@brus2021statistical; @dumelle2022comparison]. However, in the remaining text and tables, we refer to the "current total" response quantity obtained from the three methods as a "prediction" and to the corresponding interval as a "prediction interval" to limit unnecessarily verbose text and tables.
 
-For each method, we calculate the root-mean-squared-prediction-error (rMSPE) as $\frac{1}{1000}\sqrt{(\sum_{i = 1}^{1000}(T_i - \hat{T}_i)^2)}$, where $T_i$ and $\hat{T}_i$ are the realized and predicted current totals, respectively, in the $i^{th}$ iteration. Bias is recorded as $\frac{1}{1000}\sum_{i = 1}^{1000}(T_i - \hat{T}_i)$. We also create a normal-based 90% prediction interval for the realized current total and record $\frac{1}{1000} \sum_{i = 1}^{1000}I(LB_i < T_i < UB_i)$, where $I(LB_i < T_i < UB_i)$ is an indicator variable that is equal to $1$ if the realized total in iteration $i$, $T_i$, is between the lower bound,$LB_i$, and the upper bound, $UB_i$, of the $i^{th}$ prediction interval. 
+For each method, we calculate the root-mean-squared-prediction-error (rMSPE) as $\frac{1}{1000}\sqrt{(\sum_{i = 1}^{1000}(T_i - \hat{T}_i)^2)}$, where $T_i$ and $\hat{T}_i$ are the realized and predicted current totals, respectively, in the $i^{th}$ iteration. Bias is recorded as $\frac{1}{1000}\sum_{i = 1}^{1000}(T_i - \hat{T}_i)$. We also create a normal-based 90% prediction interval for the realized current total and record $\frac{1}{1000} \sum_{i = 1}^{1000}I(LB_i < T_i < UB_i)$, where $I(LB_i < T_i < UB_i)$ is an indicator variable that is equal to $1$ if the realized total in iteration $i$, $T_i$, is between the lower bound, $LB_i$, and the upper bound, $UB_i$, of the $i^{th}$ prediction interval. 
 
 <!-- Finally, we record the median prediction interval length as $\text{Median}(UB_i - LB_i)$. -->
 

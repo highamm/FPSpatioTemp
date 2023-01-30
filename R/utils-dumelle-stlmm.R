@@ -1598,7 +1598,7 @@ r_exp <- function(h, range) {
 r_sph <- function(h, range) {
   
   # compute the spherical correlation
-  r <- (1 - (3 / 2) * (h / range) + (1 / 2) * (h / range)^3) * (h <= range)
+  r <- (h <= range) * (1 - (3 / 2) * (h / range) + (1 / 2) * (h / range)^3)
   
   # return the spherical correlation
   return(r)

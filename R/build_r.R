@@ -2,7 +2,7 @@
 #' 
 #' Builds a correlation matrix from a covariance type, range, and distance matrix.
 #' 
-#' @param cov_type is a covariance model type (either "exponential" or "gaussian").
+#' @param cov_type is a covariance model type (either "exponential", "gaussian", "spherical", or "tent").
 #' @param range is the range parameter.
 #' @param dist_mat is the distance matrix.
 #' @return r, a correlation matrix.
@@ -21,8 +21,8 @@ build_r <- function(cov_type = "exponential", range, dist_mat) {
   
   r <- switch(
     cov_type,
-    exponential = exp(-(dist_mat / range)),
-    gaussian = exp(-(dist_mat / range) ^ 2),
+    exponential = exp(-3 * (dist_mat / range)),
+    gaussian = exp(-3 * (dist_mat / range) ^ 2),
   ##  triangular = (1 - dist_mat / range) * (dist_mat <= range),
    ## cosine = cos(dist_mat / range),
     spherical = (1 - (3 / 2) * (dist_mat / range) + (1 / 2) * (dist_mat / range) ^ 3) * (dist_mat <= range),

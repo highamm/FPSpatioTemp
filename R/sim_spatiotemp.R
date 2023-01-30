@@ -55,7 +55,8 @@ sim_spatiotemp <- function(resp_type = "normal",
                              tcoord = "times")
   
   ## construct spatial correlation matrix
-  R_sp <- build_r("exponential", range = sp_range,
+  ## * 3 to convert regular range to effective range
+  R_sp <- build_r("exponential", range = sp_range * 3,
                 dist_mat = order_spt_obj$h_sp_small)
   
   Z_mats <- build_z_mats(order_spt_obj$full_data)
@@ -63,7 +64,7 @@ sim_spatiotemp <- function(resp_type = "normal",
   
   ## construct temporal correlation matrix
 
-  R_t <- build_r("exponential", range = t_range,
+  R_t <- build_r("exponential", range = t_range * 3,
                 dist_mat = order_spt_obj$h_t_small)
   Z_t <- Z_mats$Z_t
   

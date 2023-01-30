@@ -157,7 +157,8 @@ predict.stlmfit <- function(object, wts = NULL, pred_level = 0.90, ...) {
   
   pred_obj <- list(totalpred = totalpred, predvar = predvar,
                    lb = lb, ub = ub, zhatu = zhatu, sitevar = sitevar,
-                   data = data, pred_level = pred_level)
+                   data = data, pred_level = pred_level,
+                   formula = object$summary_stlmm$Call)
   class(pred_obj) <- "predict.stlmfit"
   
   return(pred_obj)

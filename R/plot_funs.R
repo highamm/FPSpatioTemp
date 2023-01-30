@@ -1,104 +1,37 @@
-#' Spatial Plot
-#' 
-#' Produces a spatial plot of a response variable faceted by time.
-#' @param xcoords a vector of x-coordinates
-#' @param ycoords a vector of y-coordinates
-#' @param times a vector of times
-#' @param response, a vector of the response variable
-#' 
-#' @return a plot.
-#' @examples 
-#' sim_data <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-#'       sp_de = 0.5, sp_range = 4, sp_ie = 0.5,
-#'       t_de = 0.5, t_range = 0.7, t_ie = 0.5,
-#'       spt_ie = 0.5)
-#'  df <- sim_data$out_df
-#'  plot_sp(df$xcoords, df$ycoords, df$times, df$response)
-#'  
-#' @import ggplot2
-#' @export plot_sp 
-
-plot_sp <- function(xcoords, ycoords, times, response) {
-  df <- dplyr::tibble(xcoords = xcoords, ycoords = ycoords, times = times,
-                response = response)
-  sp_plot <- ggplot2::ggplot(data = df,
-                             ggplot2::aes(x = xcoords, y = ycoords,
-                                            colour = response)) +
-    ggplot2::geom_point() +
-    ggplot2::facet_wrap(~ times) +
-    ggplot2::scale_colour_viridis_c()
-  return(sp_plot)
-}
-
-#' Temporal Plot
-#' 
-#' Produces a temporal plot of a response variable grouped by location
-#' @param xcoords a vector of x-coordinates
-#' @param ycoords a vector of y-coordinates
-#' @param times a vector of times
-#' @param response, a vector of the response variable
-#' @param alpha a line transparency parameter
-#' 
-#' @return a plot.
-#' @examples 
-#' sim_data <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-#'       sp_de = 0.5, sp_range = 4, sp_ie = 0.5,
-#'       t_de = 0.5, t_range = 0.7, t_ie = 0.5,
-#'       spt_ie = 0.5)
-#'  df <- sim_data$out_df
-#'  plot_t(df$xcoords, df$ycoords, df$times, df$response)
-#' @import ggplot2
-#' @export plot_t
-
-plot_t <- function(xcoords, ycoords, times, response, alpha = 0.4) {
-  df <- dplyr::tibble(xcoords = xcoords, ycoords = ycoords, times = times,
-                      response = response)
-  ggplot2::ggplot(data = df, ggplot2::aes(x = times, y = response)) +
-    ggplot2::geom_line(ggplot2::aes(group = interaction(xcoords, ycoords)),
-              alpha = alpha)
-}
-
-
 #' Covariance Plot
 #' 
 #' Produces a plot of the covariance with time distance on the x-axis for various
 #' degrees of spatial distance.
 #' 
 #' @param stlmfit_obj an object fit with \code{stlmfit()}
-#' @param sp_epstol a range of values used for colours for various spatial distances
-#' @param t_epstol a range of values used for colours for various temporal distances
-#' @param xaxis_var is \code{"spatial"} if the spatial distances should go on the 
-#' x-axis and \code{"temporal"} if the temporal distances should go on the x-axis
+#' @param sp_epstol a vector of the values used for colours for various spatial distances. The default is the a vector of \code{0}, the minimum spatial distance between two sites, the maximum spatial distance between two sites, and \code{Inf}.
+#' @param t_max the maximum value for temporal distance to be plotted on the x-axis. The default is the maximum temporal distance between two time points in the data.
 #' @param ... extra options to be passed to `\code{ggplot}`
 #' 
 #' @return a plot with covariance on the y-axis and temporal distance on the x-axis
 #' coloured by various spatial distances in \code{sp_epstol}.
 #' @examples 
-#' set.seed(07262022)
-#' obj <- sim_spatiotemp(nx = 6, ny = 5, ntime = 4, betavec = 3,
-#'       sp_de = 0.5, sp_range = 4, sp_ie = 0.5,
-#'       t_de = 0.5, t_range = 0.7, t_ie = 0.5,
-#'       spt_ie = 0.5)
-#'       
-#' samp_obj <- sample_spatiotemp(obj = obj, n = 70, samp_type = "random")
-#' samp_data <- samp_obj$df_full
-#' samp_data <- samp_data |>
-#'  dplyr::mutate(predwts = dplyr::if_else(times == max(times),
-#'   true = 1, false = 0))
-#' samp_data$x <- rnorm(nrow(samp_data), 0, 1)
-#' samp_data <- samp_data
-#' stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,
+#' obj <- stlmfit(formula = response_na ~ x, data = samp_data,
 #'  xcoord = "xcoords", ycoord = "ycoords", tcoord = "times") 
-#'  
-#' plot_cov(stlmfit_obj = stlmfit_obj, sp_epstol = c(0.01, 0.1, 0.5, Inf),
-#' t_epstol = c(0.2, 1, 4))
+#' plot_cov(obj)
+#' plot_cov(stlmfit_obj = obj, sp_epstol = c(0.2, 0.4, 1.2, 2, Inf),
+#' t_max = 1.5)
 #' @import ggplot2
 #' @export plot_cov
 
-plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
-                         t_epstol = c(0.2, 2, 6),
-                         xaxis_var = "temporal", ... ) {
+plot_cov <- function(stlmfit_obj, sp_epstol = NULL,
+                         t_max = NULL, ... ) {
   
+  if (is.null(sp_epstol) == TRUE) {
+    sp_epstol <- c(stlmfit_obj$minimax_vec["min_dist_sp"],
+                  stlmfit_obj$minimax_vec["max_dist_sp"],
+                  stlmfit_obj$minimax_vec["max_dist_sp"] * 100)
+  }
+  
+  if(is.null(t_max) == TRUE) {
+    t_max <- stlmfit_obj$minimax_vec["max_dist_t"]
+  }
+
   cov_parms <- stlmfit_obj$cov_parms
   
   sp_de <- cov_parms[1]
@@ -113,12 +46,11 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
   
   rangetol <- 1 / 4
   sp_rangetol <- sp_range + sp_range * rangetol
-  # t_rangetol <- t_range + t_range * rangetol
-  t_rangetol <- max(t_epstol) ## for the six years
+
   
   h_sp_seq <- seq(0, sp_rangetol, length.out = 200)
   h_sp_seq <- append(h_sp_seq, sp_epstol, sp_range / 2)
-  h_t_seq <- seq(0, t_rangetol, length.out = 200)
+  h_t_seq <- seq(0, t_max, length.out = 200)
   h_t_seq <- append(h_t_seq, t_range / 2)
   h_sp <- rep(h_sp_seq, times = length(h_t_seq))
   h_t <- rep(h_t_seq, each = length(h_sp_seq))
@@ -131,26 +63,24 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
     t_ie = t_ie,
     st_de = spt_de,
     st_ie = spt_ie,
-    s_range = sp_range * 3, ## dumelle uses effective range
-    t_range = t_range * 3, ## dumelle uses effective range
+    s_range = sp_range, 
+    t_range = t_range,
     stcov = "productsum"
   )
   
   names(covparams) <- c("s_de", "s_ie", "t_de", "t_ie", "st_de", "st_ie",
                         "s_range", "t_range")
+
   
-  # make stcovariance
   sigma <- make_stcovariance(covparams, h_sp, h_t,
-                             "exponential", "exponential")
+                      stlmfit_obj$summary_stlmm$CovarianceForms[["s_cor"]],
+                          stlmfit_obj$summary_stlmm$CovarianceForms[["t_cor"]])
   
-  gamma <- make_stsemivariogram(covparams, h_sp, h_t,
-                                "exponential", "exponential")
   
   data <- tibble::tibble(
     h_s = h_sp,
     h_t = h_t,
-    sigma = sigma,
-    gamma = gamma
+    sigma = sigma
   )
   
   t_plot_pos <- data |>
@@ -158,41 +88,14 @@ plot_cov <- function(stlmfit_obj, sp_epstol = c(0.2, 4, 20, Inf),
   t_plot_zero <- data |>
     dplyr::filter((.data$h_s %in% c(0, sp_epstol)) & (.data$h_t == 0))
   
-  sp_plot_pos <- data |> 
-    dplyr::filter(.data$h_s > 0 & .data$h_t %in% c(0, min(.data$h_t[.data$h_t > 0]), max(.data$h_t)))
-  sp_plot_zero <- data |>
-    dplyr::filter(.data$h_s == 0 & .data$h_t %in% c(0, min(.data$h_t[.data$h_t > 0]), max(.data$h_t)))
-  
-  if (xaxis_var == "temporal") {
     
     ggplot(data = t_plot_pos) +
-      geom_line(mapping = aes(x = h_t, y = sigma, colour = as.factor(.data$h_s)), linewidth = 1.5, ...) +
-      geom_point(data = t_plot_zero, mapping = aes(x = h_t, y = sigma, colour = as.factor(.data$h_s)), size = 4) +
+      geom_line(mapping = aes(x = h_t, y = sigma, colour = as.factor(round(.data$h_s, digits = 2))), linewidth = 1.5, ...) +
+      geom_point(data = t_plot_zero, mapping = aes(x = h_t, y = sigma, colour = as.factor(round(.data$h_s, digits = 2))), size = 4) +
       scale_colour_viridis_d(name = "Spatial Distance", begin = 0, end = 0.9) +
       theme_minimal() +
       labs(x = "Temporal Distance",
            y = "Estimated Covariance")
-    
-  } else if (xaxis_var == "spatial") {
-    
-    ggplot(data = sp_plot_pos) +
-      geom_line(mapping = aes(x = .data$h_s, y = sigma, colour = as.factor(h_t)), linewidth = 1.5) +
-      geom_point(data = sp_plot_zero, mapping = aes(x = .data$h_s, y = sigma, colour = as.factor(h_t)), size = 4) +
-      scale_colour_viridis_d(end = 0.9) +
-      theme_minimal()  +
-      labs(x = "Spatial Distance",
-           y = "Covariance")
-    
-  } else {
-    
-    stop("xaxis_var must be either 'spatial' or 'temporal'")
-    
-  }
-  
-  # plot_df_obj <- list(t_plot_pos, t_plot_zero, sp_plot_pos, sp_plot_zero)
-  # class(plot_df_obj) <- "make_plot_df"
-  # 
-  # return(plot_df_obj)
 }
 
 

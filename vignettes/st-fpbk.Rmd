@@ -7,6 +7,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+Next steps: 
+fix all of the "NEED" issues in the vignette
+write the other necessary generics (AIC, residuals, etc.)
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -64,24 +67,27 @@ mod <- stlmfit(formula = count ~ 1, data = moose_vignette,
 mod
 ```
 
-The output.....(NEED to update the print generic for stlmfit())
+The printed output gives any estimated fixed effects coefficients (only an `Intercept` in this example) and a table of estimated covariance parameters. To obtain more information about the fitted model, we can use `summary()`:
 
-NEED to create a summary generic for stlmfit()
+```{r}
+summary(mod)
+```
 
-We then use the fitted model `mod` to, by default, predict the total abundance of moose in the most recent time point of the survey:
+We can now see the formula used to fit the model, summary statistics on the raw residuals, a table of fixed effects coefficients, standard errors, and p-values, a table of estimated covariance parameters, and the correlation functions used for the spatial and temporal correlation components of the model.
+
+The `plot.stlmfit()` generic function can be used to construct a histogram of the residuals and a residuals vs. fitted values plot. The normality assumption would be important to check if we wanted to obtain a prediction interval for a single site or the total for a small number of sites. However, even with skewed errors, we can still predict the abundance on a large number of sites because the total will still follow a normal distribution from an application of the central limit theorem for dependent data.
+
+```{r}
+plot(mod)
+```
+
+We then use the `predict.stlmfit()` generic function on the fitted model `mod` to, by default, predict the total abundance of moose in the most recent time point of the survey:
 
 ```{r}
 predict(mod)
 ```
 
-NEED to update print generic for predict()
-
 The output also gives a standard error for the prediction and the bounds of a 90% prediction interval.
-
-```{r}
-total_all_years <- rep(1, nrow(moose_vignette))
-predict(mod, wts = total_all_years)
-```
 
 #### Other Functionality to `stlmfit()`
 
@@ -103,24 +109,80 @@ mod_corr <- stlmfit(formula = count ~ strata,
                      xcoord = "xcoords", ycoord = "ycoords",
                      tcoord = "year",
                      cor_model_sp = "spherical",
-                     cor_model_t = "gaussian")
+                     cor_model_t = "spherical")
 mod_corr
 ```
 
-NEED to modify print to say which correlation function was used
-
 NEED to update error message when incorrect covariance structure is used.
-
-NEED to change this: write now, can only use the four covariance functions that Mike uses (exponential, gaussian, spherical, tent).
 
 `mod_strat` could then be passed to `predict()`.
 
-NEED to write residuals function
-
 NEED to fix error message when elev_mean has all NAs
 
-NEED to write AIC function
+ADD plot_cov
 
+```{r}
+plot_cov(mod_corr, sp_epstol = c(1, 8, 9, 100),
+         t_max = 5)
+```
+
+#### Other Functionality to `predict()`
+
+The other primary argument of predict is `wts`, which can be used to specify specific weights used for the prediction. Be default, `wts` is a vector of `0`'s and `1`'s with a `1` for any observation in the response in the most recent time point and a `0` otherwise. With the default, we are predicting the total abundance in the most recent time point.
+
+`wts` can either be a vector of the same length as the `data` used in `stlmfit()` or `wts` can be a string giving the name of a column in the `data` used in `stlmfit()`. 
+
+However, we might be interested in predicting the total abundance across all time points. We can specify the `wts` to be a vector of 1's:
+
+```{r}
+total_all_years <- rep(1, nrow(moose_vignette))
+predict(mod, wts = total_all_years)
+```
+
+The `wts` argument can also be used to incorporate sites with unequal areas. The `area_mi` variable in `moose_vignette` gives the area of each site (in square miles):
+
+```{r}
+moose_vignette
+```
+
+All areas are roughly equal but there is a little variability in site area. To take into account area, we can fit a model on moose __density__ and then give `area_mi` as the `wts` argument in `predict()` so that the densities are transformed back into counts.
+
+```{r}
+moose_vignette <- moose_vignette |> 
+  mutate(density = count / area_mi)
+```
+
+However, if we want the prediction for the total abundance in the current year, we need to create a new vector that is equal to the area for sites in the current year and is a 0 otherwise:
+
+```{r}
+moose_vignette <- moose_vignette |>
+  mutate(area_current = if_else(year == max(year),
+                                true = area_mi,
+                                false = 0))
+```
+
+FIX THIS ERROR
+```{r}
+# mod_density <- stlmfit(formula = count / area_mi ~ 1,
+#                        data = moose_vignette,
+#                        xcoord = "xcoords", ycoord = "ycoords",
+#                        tcoord = "year")
+mod_density <- stlmfit(formula = density ~ 1,
+                       data = moose_vignette,
+                       xcoord = "xcoords", ycoord = "ycoords",
+                       tcoord = "year")
+              
+mod_density
+```
+
+If we want the prediction for the total abundance across all years, we can use `area_mi` directly:
+
+```{r}
+predict(mod_density, wts = "area_current")
+predict(mod)
+```
+
+Note that the prediction for the total abundance in 2022 incorporating area and not incorporating area are nearly identical because the site areas in the data are nearly identical. 
 
 Other variables in the data frame could include relevant covariates to be used in the model, the area of each spatial site, or a variable indicating whether sites were in the sampling frame for that particular survey. In the moose data set, both `Stratname` and `ELEV_MEAN` could be used as covariates, `AreaMi` gives the area of each site, in square miles, and `samp_frame` is an indicator for whether a site was in the sampling frame for the particular survey:
 

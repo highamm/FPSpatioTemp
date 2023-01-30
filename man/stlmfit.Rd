@@ -46,8 +46,6 @@ a list with \itemize{
    autocorrelation parameter, temporal nugget, and spatiotemporal
    nugget).
  }
-NOTE: This function will eventually be split into stlmfit() to fit
-the model and estcov() as a helper in model fitting
 }
 \description{
 Estimates regression coefficients, spatial autocorrelation
