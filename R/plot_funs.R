@@ -24,8 +24,7 @@ plot_cov <- function(stlmfit_obj, sp_epstol = NULL,
   
   if (is.null(sp_epstol) == TRUE) {
     sp_epstol <- c(stlmfit_obj$minimax_vec["min_dist_sp"],
-                  stlmfit_obj$minimax_vec["max_dist_sp"],
-                  stlmfit_obj$minimax_vec["max_dist_sp"] * 100)
+                  stlmfit_obj$minimax_vec["max_dist_sp"])
   }
   
   if(is.null(t_max) == TRUE) {

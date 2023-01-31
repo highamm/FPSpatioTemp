@@ -25,7 +25,7 @@ library(FPSpatioTemp)
 moose_vignette
 ```
 
-The rows of `moose_vignette` correspond to sites for moose surveys in the Tok region of Alaska.  In general, to use this package, a data frame needs to have, at a bare minimum, four variables:
+The rows of `moose_vignette` correspond to sites for moose surveys in the Tok region of Alaska. In general, to use this package, a data frame needs to have, at a bare minimum, four variables:
 
 * two variables of spatial coordinates (an x-coordinate and a y-coordinate)
 * one variable of a temporal coordinate (such as day, year, etc.)
@@ -40,11 +40,12 @@ The four variables required to perform spatio-temporal finite population predict
 
 This data set is a subset of the full Tok data set, which contains more sites and has surveys that date back to 1998. There are 112 sites across 4 years, so the data set has a total of 448 rows.
 
-We will use the `ggplot2` package and the `dplyr` package to explore the data:
+We will use the `ggplot2` package, the `dplyr` package, and the `tibble` package in the vignette, so we load these packages in with
 
 ```{r}
 library(ggplot2)
 library(dplyr)
+library(tibble)
 ```
 
 ```{r}
@@ -89,6 +90,15 @@ predict(mod)
 
 The output also gives a standard error for the prediction and the bounds of a 90% prediction interval.
 
+`predict()` also returns a `data` object that has the sitewise predictions for sites with non-zero prediction weights as a column named `predictions_`.
+
+```{r}
+predict(mod)$data |> dplyr::filter(year == 2022) |>
+  dplyr::relocate(predictions_, everything())
+```
+
+The `predictions_` column could then be joined back to a shape file to make a map of the observed survey values with predictions for sites that were not surveyed, as was done in Figure 4 in the manuscript.
+
 #### Other Functionality to `stlmfit()`
 
 The `formula` in `stlmfit()` can be include covariates to be used in the model fitting. For example, in `moose_vignette`, we might consider a model with `strata` as a covariate:
@@ -101,7 +111,9 @@ mod_strat <- stlmfit(formula = count ~ strata,
 mod_strat
 ```
 
-Two other optional arguments to `stlmfit()` include `cor_model_sp` and `cor_model_t`, which control the correlation function to be used for the spatial and temporal model components, respectively. Options for `cor_model_sp` and `cor_model_t` include `"exponential"` (the default for both), `"spherical"`, `"gaussian"`, and `"cosine"`, among others. The model below uses `strata` as a covariate, a `"spherical"` correlation structure for the spatial correlation, and a `"gaussian"` correlation structure for the temporal correlation.
+`mod_strat` could then be passed to `predict()` to obtain a prediction for the total abundance using a model with `strata` as a covariate.
+
+Two other optional arguments to `stlmfit()` include `cor_model_sp` and `cor_model_t`, which control the correlation function to be used for the spatial and temporal model components, respectively. Options for `cor_model_sp` and `cor_model_t` include `"exponential"` (the default for both), `"spherical"`, `"gaussian"`, and `"tent"`, among others. The model below uses `strata` as a covariate, a `"spherical"` correlation structure for the spatial correlation, and a `"spherical"` correlation structure for the temporal correlation.
 
 ```{r}
 mod_corr <- stlmfit(formula = count ~ strata,
@@ -113,26 +125,31 @@ mod_corr <- stlmfit(formula = count ~ strata,
 mod_corr
 ```
 
-NEED to update error message when incorrect covariance structure is used.
+Finally, the `plot_cov()` function can be used on `stlmfit` objects to explore the estimated covariance. Using the original `mod`,
 
-`mod_strat` could then be passed to `predict()`.
+```{r}
+plot_cov(mod)
+```
+
+By default, the x-axis for temporal distance goes from 0 to the maximum observed temporal distance between two data points (3 years in this case), and the colour for the spatial distance are 0, the minimum observed spatial distance between two data points, and the maximum observed spatial distance between two data points.
+
+The `t_max` and `sp_epstol` arguments to `plot_cov()` can be used to change the maximum temporal distance and provide a vector of spatial distances to use as colours, respectively:
+
+```{r}
+plot_cov(mod, sp_epstol = c(0, 4, 40), t_max = 5)
+```
+
+NEED to update error message when incorrect covariance structure is used.
 
 NEED to fix error message when elev_mean has all NAs
 
-ADD plot_cov
-
-```{r}
-plot_cov(mod_corr, sp_epstol = c(1, 8, 9, 100),
-         t_max = 5)
-```
-
 #### Other Functionality to `predict()`
 
-The other primary argument of predict is `wts`, which can be used to specify specific weights used for the prediction. Be default, `wts` is a vector of `0`'s and `1`'s with a `1` for any observation in the response in the most recent time point and a `0` otherwise. With the default, we are predicting the total abundance in the most recent time point.
+The other primary argument of predict is `wts`, which can be used to specify specific weights used for the prediction. By default, `wts` is a vector of `0`'s and `1`'s with a `1` for any observation in the response in the most recent time point and a `0` otherwise. With the default, we are predicting the total abundance in the most recent time point.
 
 `wts` can either be a vector of the same length as the `data` used in `stlmfit()` or `wts` can be a string giving the name of a column in the `data` used in `stlmfit()`. 
 
-However, we might be interested in predicting the total abundance across all time points. We can specify the `wts` to be a vector of 1's:
+To illustrate how `wts` can be used, suppose we are interested in predicting the total abundance across all time points. We can specify the `wts` to be a vector of 1's:
 
 ```{r}
 total_all_years <- rep(1, nrow(moose_vignette))
@@ -145,28 +162,19 @@ The `wts` argument can also be used to incorporate sites with unequal areas. The
 moose_vignette
 ```
 
-All areas are roughly equal but there is a little variability in site area. To take into account area, we can fit a model on moose __density__ and then give `area_mi` as the `wts` argument in `predict()` so that the densities are transformed back into counts.
+All areas are roughly equal but there is a little variability in site area. To take into account area, we can fit a model on moose __density__ (count per square mile) and then give `area_mi` as the `wts` argument in `predict()` so that the densities are transformed back into counts. The code below creates a `density` variable to be used as a response and a `area_current` variable to be used in the `wts` argument. `area_current` is equal to the site area of the data point is in the most current time point and is equal to 0 otherwise (so that our prediction will be for the total abundance in the most current time point, not the total abundance across all years).
 
 ```{r}
 moose_vignette <- moose_vignette |> 
-  mutate(density = count / area_mi)
-```
-
-However, if we want the prediction for the total abundance in the current year, we need to create a new vector that is equal to the area for sites in the current year and is a 0 otherwise:
-
-```{r}
-moose_vignette <- moose_vignette |>
+  mutate(density = count / area_mi) |>
   mutate(area_current = if_else(year == max(year),
                                 true = area_mi,
                                 false = 0))
 ```
 
-FIX THIS ERROR
+We then fit the model with `density` as the response:
+
 ```{r}
-# mod_density <- stlmfit(formula = count / area_mi ~ 1,
-#                        data = moose_vignette,
-#                        xcoord = "xcoords", ycoord = "ycoords",
-#                        tcoord = "year")
 mod_density <- stlmfit(formula = density ~ 1,
                        data = moose_vignette,
                        xcoord = "xcoords", ycoord = "ycoords",
@@ -175,95 +183,20 @@ mod_density <- stlmfit(formula = density ~ 1,
 mod_density
 ```
 
-If we want the prediction for the total abundance across all years, we can use `area_mi` directly:
+The `wts` argument can either be a vector, as it was in the previous example, or it can be the name of a column in the data set used in the `data` argument of `stlmfit()`:
 
 ```{r}
 predict(mod_density, wts = "area_current")
-predict(mod)
 ```
 
 Note that the prediction for the total abundance in 2022 incorporating area and not incorporating area are nearly identical because the site areas in the data are nearly identical. 
 
-Other variables in the data frame could include relevant covariates to be used in the model, the area of each spatial site, or a variable indicating whether sites were in the sampling frame for that particular survey. In the moose data set, both `Stratname` and `ELEV_MEAN` could be used as covariates, `AreaMi` gives the area of each site, in square miles, and `samp_frame` is an indicator for whether a site was in the sampling frame for the particular survey:
+#### Sampling Frame
 
-```{r}
-moose_complete |> select(xcoords, ycoords, Surveyyear, totalmoosena,
-                         Stratname, ELEV_MEAN, AreaMi, samp_frame)
+In some applications, the sampling frame does not change at all from time point to time point, in which case we do not need to pay as much attention to what sites are included in the data from year to year. However, the moose survey sampling frame for the Tok surveys changed in 2014, when biologists focused more of their survey efforts on a different area (the Taylor Corridor) than they did before 2014. 
 
-```
+If sites that are not in the sampling frame are included in the data set for the most recent time point, then the prediction weights for those sites should be set to `0` in `wts` argument. Otherwise, the `predict()` function will predict total abundance in all sites, both in and out of the sampling frame, for the most recent time point.
 
-#### Missing
 
-* for any site not surveyed or observed, the response variable should be `NA` (not `0`, `-999`, or any other missing value convention). The variable type should be `<dbl>` or `<int>`.
-
-For example,
-
-```{r}
-summary(moose_complete$totalmoosena)
-```
-
-#### Column with Prediction Weights
-
-* one column in the data frame should have prediction weights. Most commonly, this column will be a variable that takes on a `1` for any site in the sampling frame in the most recent time point of the survey and a `0` otherwise so that the prediction that is output is for the total response in the most current time point.
-
-For example, the moose data set has a variable `samp_frame` that is a `1` if the site was in that year's sampling frame and a `0` otherwise. Note that, in some applications, the sampling frame does not change at all from year to year, in which case we can ignore this variable. However, the moose survey sampling frame changed in 2014, when biologists focused their survey efforts on a different area than they did before 2014. 
-
-```{r}
-moose_complete <- moose_complete |>
-  mutate(predweights_22 = if_else(Surveyyear == 2022 & samp_frame == 1,
-                                  true = 1, 
-                                  false = 0)) 
-```
-
-## example with 2022 data
-
-```{r}
-
-moose_prep <- moose_complete |>
-## use most recent stratification
-  mutate(newstrat = if_else(Surveyyear == 2022,
-                            true = stratfact, 
-                            false = NA_integer_)) |>
-  dplyr::group_by(ID) |> fill(newstrat, .direction = "updown") |>
-  ungroup()
-
-## only use data from sites within 2022's sampling frame
-
-moose_df_merge <- moose_prep |>
-  filter(predweights_22 == 1) |> select(ID)
-moose_final_all <- semi_join(moose_prep, moose_df_merge)
-
-moose_final_all |> filter(Surveyyear >= 2014) |>
-  group_by(stratfact) |>
-  summarise(n())
-  ##summarise(sum(!is.na(totalmoosena)))
-## 2018 has a very large outlier, driving up the
-## variability in the predictor
-## newstrat uses the stratum from 2022
-mod_22 <- stlmfit(formula = totalmoosena ~ stratfact,
-                  data = moose_final_all |> filter(Surveyyear >= 2016),
-                  xcoord = "xcoords",
-                  ycoord = "ycoords",
-                  tcoord = "Surveyyear")
-
-pred_obj_all <- predict(object = mod_22, wtscol = "predweights_22")
-pred_obj_all$totalpred
-pred_obj_all$predvar |> sqrt()
-
-library(sptotal)
-moose_22_sptotal <- moose_18_22 |>
-  filter(predweights_22 == 1) 
-mod_sptot <- slmfit(totalmoosena ~ newstrat,
-                  data = moose_22_sptotal,
-                  xcoord = "xcoords",
-                  ycoord = "ycoords")
-pred_sptot <- predict(mod_sptot)
-pred_sptot$FPBK_Prediction
-pred_sptot$PredVar |> sqrt()
-```
-
-## adding covariates
-
-## constructing plots
 
 

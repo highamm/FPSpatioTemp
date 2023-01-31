@@ -7,7 +7,7 @@
 build_r(cov_type = "exponential", range, dist_mat)
 }
 \arguments{
-\item{cov_type}{is a covariance model type (either "exponential" or "gaussian").}
+\item{cov_type}{is a covariance model type (either "exponential", "gaussian", "spherical", or "tent").}
 
 \item{range}{is the range parameter.}
 
