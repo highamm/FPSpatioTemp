@@ -320,7 +320,7 @@ moose_final_all |> group_by(Surveyyear, newstrat) |>
 ##  tokplotzoom, fig.cap = "\\label{fig:tokplotzoom} Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska."
 library(sf)
 library(here)
-shp <- read_sf(here("inst/ADFG_Taylor_Corridor/20E_Taylor_corridor_SUs.shp"))
+shp <- read_sf(here("inst/fpspatiotemp_manu/ADFG_Taylor_Corridor/20E_Taylor_corridor_SUs.shp"))
 
 ggplot(data = shp) +
   geom_sf() +
