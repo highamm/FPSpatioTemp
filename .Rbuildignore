@@ -1,6 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^inst/rawdata$
+^inst/data_private$
 ^inst/fpspatiotemp_manu$
 ^inst/papers$
 ^inst/simulations$

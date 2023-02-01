@@ -138,9 +138,9 @@ To motivate the development of the predictor in Section
 \ref{section:Methods}, we consider moose surveys, which are performed
 annually or every other year in many regions of Alaska and western
 Canada. The most common goal of these surveys is to predict moose
-abundance, the total number of moose, in the region in order to inform
-harvest regulations \citep{kellie2019challenges}. Because of time and
-money constraints, only some spatial indices, or sites, in the region of
+abundance, the total number of moose, in the region to inform harvest
+regulations \citep{kellie2019challenges}. Because of time and money
+constraints, only some spatial indices, or sites, in the region of
 interest are selected to be in the survey at a particular time point.
 Biologists fly to these selected sites, count the number of moose, and
 then use FPBK to find a prediction for the finite abundance for that
@@ -159,7 +159,8 @@ model that incorporates both spatial and temporal (spatio-temporal)
 correlation while also using a finite population correction factor based
 on the proportion of sites surveyed in the most recent year could result
 in a prediction for the realized total that is more precise than
-predictions from a purely spatial model.
+predictions from a purely spatial model. Shortly, we describe such a
+predictor.
 
 The rest of this paper is organized as follows. In Section
 \ref{section:Methods}, we couple spatio-temporal modeling with finite
@@ -261,8 +262,9 @@ Though there are a few types of models for the errors that can be built
 from \ref{equation:basicmod} by setting certain error variances to 0
 (e.g.~a sum-with-error model sets \(\sigma^2_{\omega} = 0\)) and/or by
 allowing \(\mathbf{R}_{st}\) to take certain forms, we focus only on the
-product-sum model. In a common formulation of the product-sum model,
-\(\mathbf{R}_{st}\) is \mbox{} \begin{equation*}
+product-sum model \citep{de2001product, de2001space}. In a common
+formulation of the product-sum model, \(\mathbf{R}_{st}\) is \mbox{}
+\begin{equation*}
 \mathbf{R}_{st} \equiv \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' \odot \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t',
 \end{equation*} \noindent where \(\odot\) is the Hadamard product
 operator. \(\mathbf{R}_s\) can be parameterized in different ways, but
@@ -320,7 +322,8 @@ matrix in equation \ref{equation:var} is also positive definite
 \citep{de2001product, de2001space}. Also, the product-sum model is
 flexible in its ability to model many kinds of spatial and temporal
 correlation \citep{de2015spatio}. \citet{xu2015spatio} claim that the
-model is the most widely used in practical applications.
+product-sum model is the most widely used spatio-temporal model used in
+practical applications.
 
 \subsection{Finite Population Block Kriging} \label{subsection:fpbk}
 
@@ -388,9 +391,9 @@ corresponding to rows of data points that were not observed and columns
 of data points that were observed. Solving the prediction equations, the
 optimal prediction weights that are both unbiased and have the smallest
 possible prediction variance compared to any other linear predictor are
-\mbox{} \begin{equation}
-\bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
-\end{equation} \noindent The BLUP for \(\mathbf{b}'_a \mathbf{y}_a\) is
+\mbox{} \begin{multline}
+\bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \\ \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
+\end{multline} \noindent The BLUP for \(\mathbf{b}'_a \mathbf{y}_a\) is
 then \mbox{} \begin{equation} \label{equation:blup}
 \widehat{\mathbf{b}'_a \mathbf{y}_a} = \bm{\lambda}_o' \mathbf{y}_o,
 \end{equation} \noindent which is equivalent to \mbox{}
@@ -488,8 +491,10 @@ the 381 sites to survey. The number of sites that are selected varies
 from a low of 76 in the year 2019 to a high of 90 in the year 2020.
 Throughout the 7 unique years, some sites are sampled as many as five
 different times while others are never sampled at all (Figure
-\ref{fig:tokplotyears}). The number of units sampled throughout all
-survey years, \(n\), is 487 units.
+\ref{fig:tokplotyears}). Figure \ref{fig:tokplotyears} and all remaining
+figure graphics are constructed with the \textbackslash texttt\{ggplot2
+R\} package \citep{wickham2016data}.The number of units sampled
+throughout all survey years, \(n\), is 487 units.
 
 \begin{figure}
 \centering
@@ -497,9 +502,7 @@ survey years, \(n\), is 487 units.
 \caption{\label{fig:tokplotyears} Layout of the spatial sites used to
 survey moose in the Taylor corridor of the TOK region of Alaska,
 coloured by moose count. The year 2016 is excluded because no survey was
-performed in that year. This and all remaining figure graphics are
-constructed with the \texttt{ggplot2 R} package
-\citep{wickham2016data}.}
+performed in that year.}
 \end{figure}
 
 Before the survey begins in each year, biologists stratify the sites
@@ -539,18 +542,19 @@ estimates mean, we can construct a fitted covariance plot (Figure
 (dark colour to light colour), the covariance of two errors decreases to
 0, with the \(\hat{\phi}\) parameter estimate controlling the rate of
 decay. In fact, the model estimates the covariance to be nearly 0 when
-two sites are 20 or more spatial units apart, no matter what the
-temporal distance is. The covariance between two errors that are six
-years apart is still estimated to be positive if the two errors come
-from the same site or from adjacent sites.
+two sites are 20 or more kilometers apart, no matter what the temporal
+distance is. The covariance between two errors that are six years apart
+is still estimated to be positive if the two errors come from the same
+site or from adjacent sites.
 
 \begin{figure}
 \centering
 \includegraphics{fpspatiotemp_manu_files/figure-latex/covplot-1.pdf}
 \caption{\label{fig:covplot} Estimated covariance of the errors from the
-estimated parameters in a spatio-temporal product-sum model. The
-centroids of two sites directly adjacent to one another are about 4
-spatial units apart.}
+estimated parameters in a spatio-temporal product-sum model. Distance
+between two sites is calculated from the site centroids; the centroids
+of two sites directly adjacent to one another are about 4 spatial
+kilometers apart.}
 \end{figure}
 
 The estimated vector of fixed effects, using ``High'' as the reference
@@ -661,7 +665,7 @@ parameter, \(\sigma^2_{\eta}\); and (3) \textbf{spt-iev}: a scenario
 where all of the variability comes from \(\sigma^2_{\nu}\) so that
 errors are independent regardless of spatial and time indices. In all
 scenarios, summing all six variance parameters gives a total variance
-equal to two units squared.
+equal to two.
 
 Both \(\mathbf{R}_{s}\) and \(\mathbf{R}_t\) are generated from the
 exponential correlation function with \(\phi\) and \(\rho\) as the range
@@ -885,11 +889,12 @@ not apply for a prediction interval for the response on just one site.
 
 We have developed a finite population block kriging predictor for
 spatio-temporal data, which adjusts the variance of the predictor to be
-appropriate for sampling from a finite population. In many settings, the
-resulting predictor is improved from a predictor with a purely spatial
-model. Monitoring programs that use regularly scheduled surveys should
-consider incorporating data from past surveys to improve precision in
-the predictor for the most current survey.
+appropriate for sampling from a finite population. The resulting
+predictor is generally at least as good as the predictor form a purely
+spatial model, and, is often much better. Monitoring programs that use
+regularly scheduled surveys should consider incorporating data from past
+surveys to improve precision in the predictor for the most current
+survey.
 
 Future work in this area includes developing a frequentist model for
 which imperfect detection of units through time is incorporated into the
@@ -921,13 +926,13 @@ spt-iev & 500 & normal & 10.84 & 14.91 & 14.71\\
 t-iev & 500 & normal & 6.12 & 6.22 & 6.50\\
 all-dev & 500 & normal & 6.09 & 8.43 & 10.24\\
 \midrule
-spt-iev & 250 & lognormal & 15.49 & 26.14 & 24.56\\
-t-iev & 250 & lognormal & 11.89 & 12.10 & 12.05\\
-all-dev & 250 & lognormal & 14.28 & 18.35 & 19.46\\
+spt-iev & 250 & skewed & 15.49 & 26.14 & 24.56\\
+t-iev & 250 & skewed & 11.89 & 12.10 & 12.05\\
+all-dev & 250 & skewed & 14.28 & 18.35 & 19.46\\
 \midrule
-spt-iev & 500 & lognormal & 11.22 & 15.38 & 15.04\\
-t-iev & 500 & lognormal & 7.34 & 7.32 & 7.82\\
-all-dev & 500 & lognormal & 7.55 & 9.89 & 11.45\\
+spt-iev & 500 & skewed & 11.22 & 15.38 & 15.04\\
+t-iev & 500 & skewed & 7.34 & 7.32 & 7.82\\
+all-dev & 500 & skewed & 7.55 & 9.89 & 11.45\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -950,13 +955,13 @@ spt-iev & 500 & normal & 0.46 & 0.60 & 0.67\\
 t-iev & 500 & normal & 0.15 & 0.14 & 0.07\\
 all-dev & 500 & normal & 0.04 & 0.07 & 0.04\\
 \midrule
-spt-iev & 250 & lognormal & 0.36 & 0.56 & 1.48\\
-t-iev & 250 & lognormal & 0.33 & 0.22 & 0.41\\
-all-dev & 250 & lognormal & -0.07 & -0.85 & -0.49\\
+spt-iev & 250 & skewed & 0.36 & 0.56 & 1.48\\
+t-iev & 250 & skewed & 0.33 & 0.22 & 0.41\\
+all-dev & 250 & skewed & -0.07 & -0.85 & -0.49\\
 \midrule
-spt-iev & 500 & lognormal & 0.32 & 0.29 & 0.66\\
-t-iev & 500 & lognormal & 0.24 & 0.15 & 0.08\\
-all-dev & 500 & lognormal & -0.10 & -0.39 & -0.37\\
+spt-iev & 500 & skewed & 0.32 & 0.29 & 0.66\\
+t-iev & 500 & skewed & 0.24 & 0.15 & 0.08\\
+all-dev & 500 & skewed & -0.10 & -0.39 & -0.37\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -979,13 +984,13 @@ spt-iev & 500 & normal & 0.90 & 0.86 & 0.88\\
 t-iev & 500 & normal & 0.89 & 0.87 & 0.89\\
 all-dev & 500 & normal & 0.88 & 0.89 & 0.89\\
 \midrule
-spt-iev & 250 & lognormal & 0.90 & 0.82 & 0.84\\
-t-iev & 250 & lognormal & 0.90 & 0.86 & 0.90\\
-all-dev & 250 & lognormal & 0.89 & 0.86 & 0.89\\
+spt-iev & 250 & skewed & 0.90 & 0.82 & 0.84\\
+t-iev & 250 & skewed & 0.90 & 0.86 & 0.90\\
+all-dev & 250 & skewed & 0.89 & 0.86 & 0.89\\
 \midrule
-spt-iev & 500 & lognormal & 0.89 & 0.84 & 0.84\\
-t-iev & 500 & lognormal & 0.89 & 0.87 & 0.88\\
-all-dev & 500 & lognormal & 0.89 & 0.87 & 0.89\\
+spt-iev & 500 & skewed & 0.89 & 0.84 & 0.84\\
+t-iev & 500 & skewed & 0.89 & 0.87 & 0.88\\
+all-dev & 500 & skewed & 0.89 & 0.87 & 0.89\\
 \bottomrule
 \end{tabular}
 \end{table}

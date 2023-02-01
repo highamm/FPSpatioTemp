@@ -75,9 +75,9 @@ In ecological monitoring, we are often interested in prediction of a total or a 
 
 \subsection{Motivating Example}
 
-To motivate the development of the predictor in Section \ref{section:Methods}, we consider moose surveys, which are performed annually or every other year in many regions of Alaska and western Canada. The most common goal of these surveys is to predict moose abundance, the total number of moose, in the region in order to inform harvest regulations [@kellie2019challenges]. Because of time and money constraints, only some spatial indices, or sites, in the region of interest are selected to be in the survey at a particular time point. Biologists fly to these selected sites, count the number of moose, and then use FPBK to find a prediction for the finite abundance for that year. These surveys are historically analyzed with software developed by @delong2006geospatial, which calculates the "GeoSpatial Population Estimator" (GSPE) for a given survey. The GSPE is an application of the FPBK predictor developed by @ver2008spatial.
+To motivate the development of the predictor in Section \ref{section:Methods}, we consider moose surveys, which are performed annually or every other year in many regions of Alaska and western Canada. The most common goal of these surveys is to predict moose abundance, the total number of moose, in the region to inform harvest regulations [@kellie2019challenges]. Because of time and money constraints, only some spatial indices, or sites, in the region of interest are selected to be in the survey at a particular time point. Biologists fly to these selected sites, count the number of moose, and then use FPBK to find a prediction for the finite abundance for that year. These surveys are historically analyzed with software developed by @delong2006geospatial, which calculates the "GeoSpatial Population Estimator" (GSPE) for a given survey. The GSPE is an application of the FPBK predictor developed by @ver2008spatial.
  
-Though many of these surveys are completed regularly, most are analyzed completely independently of surveys from previous years [e.g. @gasaway1986estimating; @kellie_geospatial_2006; @boertje2009managing; @peters2014contrasting]. For example, a model for a survey conducted in the year 2019 constructs a prediction for total abundance only from counts on sites that were sampled in that year. However, using counts from previous years in a model that incorporates both spatial and temporal (spatio-temporal) correlation while also using a finite population correction factor based on the proportion of sites surveyed in the most recent year could result in a prediction for the realized total that is more precise than predictions from a purely spatial model.
+Though many of these surveys are completed regularly, most are analyzed completely independently of surveys from previous years [e.g. @gasaway1986estimating; @kellie_geospatial_2006; @boertje2009managing; @peters2014contrasting]. For example, a model for a survey conducted in the year 2019 constructs a prediction for total abundance only from counts on sites that were sampled in that year. However, using counts from previous years in a model that incorporates both spatial and temporal (spatio-temporal) correlation while also using a finite population correction factor based on the proportion of sites surveyed in the most recent year could result in a prediction for the realized total that is more precise than predictions from a purely spatial model. Shortly, we describe such a predictor.
 
 The rest of this paper is organized as follows. In Section \ref{section:Methods}, we couple spatio-temporal modeling with finite population prediction to develop the Best-Linear-Unbiased-Predictor (BLUP) and its prediction variance for any linear function of a general response variable, including the total abundance across all sites at a particular time point. We call this predictor the st-FPBK (spatio-temporal Finite Population Block Kriging) predictor. In Section \ref{section:Application}, we apply the st-FPBK to a moose data set in the east-central region of Alaska. In Section \ref{section:Simulation}, we conduct a simulation study to examine the properties of the st-FPBK predictor and compare its performance to a predictor from a purely spatial model and a simple random sample design-based estimator. Finally, in Section \ref{section:Discussion}, we offer additional thoughts on the application and simulation, and we give directions for future research.
 
@@ -106,7 +106,7 @@ In the temporal component of equation \ref{equation:basicmod} ($\mathbf{Z}_t \bm
 
 In the spatio-temporal component of equation \ref{equation:basicmod} ($\bm{\omega} + \bm{\nu}$), $\bm{\omega}$ is a random vector with mean $\mathbf{0}$ and covariance $\cov(\bm{\omega}) = \sigma^2_{\omega} \mathbf{R}_{st}$, where $\mathbf{R}_{st}$ is an $N \times N$ spatio-temporal correlation matrix and $\sigma^2_{\omega}$ is sometimes called the spatio-temporal dependent error variance (or spatio-temporal partial sill). $\bm{\nu}$ is also a random vector with mean $\mathbf{0}$ but has covariance $\cov(\bm{\nu}) = \sigma^2_{\nu} \mathbf{I}_{st}$, where $\mathbf{I}_{st}$ is the $N \times N$ identity matrix and $\sigma^2_{\nu}$ is sometimes called the spatio-temporal independent error variance (or spatio-temporal nugget).
 
-Though there are a few types of models for the errors that can be built from \ref{equation:basicmod} by setting certain error variances to 0 (e.g. a sum-with-error model sets $\sigma^2_{\omega} = 0$) and/or by allowing $\mathbf{R}_{st}$ to take certain forms, we focus only on the product-sum model. In a common formulation of the product-sum model, $\mathbf{R}_{st}$ is
+Though there are a few types of models for the errors that can be built from \ref{equation:basicmod} by setting certain error variances to 0 (e.g. a sum-with-error model sets $\sigma^2_{\omega} = 0$) and/or by allowing $\mathbf{R}_{st}$ to take certain forms, we focus only on the product-sum model [@de2001product; @de2001space]. In a common formulation of the product-sum model, $\mathbf{R}_{st}$ is
 \mbox{}
 \begin{equation*}
 \mathbf{R}_{st} \equiv \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' \odot \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t',
@@ -145,7 +145,7 @@ where $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, $\bm{\omega}$, and
 \end{equation}
 
 \noindent
- There are a few reasons for why we choose to solely focus on the product-sum model. First, as long as $\mathbf{R}_s$ and $\mathbf{R}_t$ are positive definite and either $\sigma^2_{\omega} > 0$ or $\sigma^2_{\nu} > 0$, then the covariance matrix in equation \ref{equation:var} is also positive definite [@de2001product; @de2001space]. Also, the product-sum model is flexible in its ability to model many kinds of spatial and temporal correlation [@de2015spatio]. @xu2015spatio claim that the model is the most widely used in practical applications. 
+There are a few reasons for why we choose to solely focus on the product-sum model. First, as long as $\mathbf{R}_s$ and $\mathbf{R}_t$ are positive definite and either $\sigma^2_{\omega} > 0$ or $\sigma^2_{\nu} > 0$, then the covariance matrix in equation \ref{equation:var} is also positive definite [@de2001product; @de2001space]. Also, the product-sum model is flexible in its ability to model many kinds of spatial and temporal correlation [@de2015spatio]. @xu2015spatio claim that the product-sum model is the most widely used spatio-temporal model used in practical applications.
  
 \subsection{Finite Population Block Kriging} \label{subsection:fpbk}
 
@@ -188,9 +188,9 @@ m
 \noindent
 where again the subscripts $o$ and $u$ denote observed and unobserved data points. For example, $\bm{\Sigma}_{o, o}$ denotes the $n_o \times n_o$ submatrix of $\bm{\Sigma}$ (from equation \ref{equation:var}) corresponding only to rows and columns of observed data points and $\bm{\Sigma}_{u, o}$ denotes the $(N - n_o) \times n_o$ submatrix of $\bm{\Sigma}$ corresponding to rows of data points that were not observed and columns of data points that were observed. Solving the prediction equations, the optimal prediction weights that are both unbiased and have the smallest possible prediction variance compared to any other linear predictor are 
 \mbox{}
-\begin{equation}
-\bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
-\end{equation}
+\begin{multline}
+\bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \\ \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
+\end{multline}
 \noindent
 The BLUP for $\mathbf{b}'_a \mathbf{y}_a$ is then
 \mbox{}
@@ -308,7 +308,7 @@ moose_final_all |> group_by(ID) |>
   arrange(n_obs)
 ```
 
-In each year of the survey, an aerial team of biologists selects some of the `r nspat` sites to survey. The number of sites that are selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites are sampled as many as five different times while others are never sampled at all (Figure \ref{fig:tokplotyears}). The number of units sampled throughout all survey years, $n$, is `r sum(!is.na(moose_final_all$totalmoosena))` units. 
+In each year of the survey, an aerial team of biologists selects some of the `r nspat` sites to survey. The number of sites that are selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites are sampled as many as five different times while others are never sampled at all (Figure \ref{fig:tokplotyears}). Figure \ref{fig:tokplotyears} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data].The number of units sampled throughout all survey years, $n$, is `r sum(!is.na(moose_final_all$totalmoosena))` units. 
 
 
 ```{r, results = "hide"}
@@ -328,7 +328,7 @@ ggplot(data = shp) +
 ```
 
 
-```{r tokplotyears, fig.cap = "\\label{fig:tokplotyears} Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska, coloured by moose count. The year 2016 is excluded because no survey was performed in that year. This and all remaining figure graphics are constructed with the \\texttt{ggplot2 R} package [@wickham2016data]."}
+```{r tokplotyears, fig.cap = "\\label{fig:tokplotyears} Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska, coloured by moose count. The year 2016 is excluded because no survey was performed in that year."}
 moose_final_2020 <- moose_final_all ##|> filter(Surveyyear == 2020)
 moose_shp_2020 <- left_join(shp, moose_final_2020, by = "ID") |>
   filter(Surveyyear != 2016)
@@ -395,7 +395,7 @@ knitr::kable(tab, caption = "Estimated covariance parameters in the model. $\\ha
 
 To help interpret what some of these fitted covariance parameter estimates mean, we can construct a fitted covariance plot (Figure \ref{fig:covplot}). As the spatial distance between two sites increases (dark colour to light colour), the covariance of two errors decreases to 0, with the $\hat{\phi}$ parameter estimate controlling the rate of decay. In fact, the model estimates the covariance to be nearly 0 when two sites are 20 or more kilometers apart, no matter what the temporal distance is. The covariance between two errors that are six years apart is still estimated to be positive if the two errors come from the same site or from adjacent sites. 
 
-```{r covplot, fig.cap = "\\label{fig:covplot} Estimated covariance of the errors from the estimated parameters in a spatio-temporal product-sum model. The centroids of two sites directly adjacent to one another are about 4 spatial kilometers apart."}
+```{r covplot, fig.cap = "\\label{fig:covplot} Estimated covariance of the errors from the estimated parameters in a spatio-temporal product-sum model. Distance between two sites is calculated from the site centroids; the centroids of two sites directly adjacent to one another are about 4 spatial kilometers apart."}
 # moose_14 <- moose_df_all |> filter(Surveyyear == 2014)
 # dist_mat <- as.matrix(dist(cbind(moose_14$xcoords, moose_14$ycoords)))
 # min(dist_mat[dist_mat != 0])
@@ -741,7 +741,7 @@ cov_parms_sim <- c(sim_parm_spt |> pull(2), sim_parm_spt |> pull(3),
                    sim_parm_spt |> pull(9))
 ```
 
-The three scenarios in the table correspond to (1) __all-dev__: a scenario where a substantial proportion of the overall variance comes from the spatial, temporal, and spatio-temporal dependent error variance parameters $\sigma^2_{\delta}, \sigma^2_{\tau},$ and $\sigma^2_{\omega}$; (2) __t-iev__: a scenario where there the overall variance is dominated by the temporal independent error variance parameter, $\sigma^2_{\eta}$; and (3) __spt-iev__: a scenario where all of the variability comes from $\sigma^2_{\nu}$ so that errors are independent regardless of spatial and time indices. In all scenarios, summing all six variance parameters gives a total variance equal to two units squared.
+The three scenarios in the table correspond to (1) __all-dev__: a scenario where a substantial proportion of the overall variance comes from the spatial, temporal, and spatio-temporal dependent error variance parameters $\sigma^2_{\delta}, \sigma^2_{\tau},$ and $\sigma^2_{\omega}$; (2) __t-iev__: a scenario where there the overall variance is dominated by the temporal independent error variance parameter, $\sigma^2_{\eta}$; and (3) __spt-iev__: a scenario where all of the variability comes from $\sigma^2_{\nu}$ so that errors are independent regardless of spatial and time indices. In all scenarios, summing all six variance parameters gives a total variance equal to two.
 
 Both $\mathbf{R}_{s}$ and $\mathbf{R}_t$ are generated from the exponential correlation function with $\phi$ and $\rho$ as the range parameters in equations \ref{equation:spatcov} and \ref{equation:tempcov}. The values $0.471$ and $0.3333$ are chosen for $\phi$ and $\rho$, respectively, so that the effective ranges, $3 \phi$ and $3 \rho$, are equal to the maximum distance between two data points in space ($\sqrt2 = 1.414$) and the maximum distance between two data points in time ($1$). A value of 0 for $\phi$ (or $\rho$) sets the  $\mathbf{R}_{s}$ (or the $\mathbf{R}_t$) matrix to the identity matrix. Figure \ref{fig:simcovplot} shows the model covariance of the errors used to generate data for the "all-dev" scenario.
 
@@ -752,7 +752,7 @@ library(latex2exp)
 fit_fake <- fit_obj_all
 fit_fake$cov_parms <- cov_parms_sim
 
-max_sp <- round(1.25 * sqrt(2), digits = 2)
+max_sp <- round(2, digits = 2)
 max_t <- 1 * 1.25
 p <- FPSpatioTemp::plot_cov(fit_fake, sp_epstol = c(0.01, max_sp),
          t_max = max_t)
@@ -761,6 +761,16 @@ label_df <- tibble::tribble(~x, ~xend, ~y, ~yend, ~lab,
                             -0.02, -0.02, 0.5, 0.5 + 0.167, "test",
                             max_t + 0.01, max_t + 0.01, 0, 0.5, "test",
                             max_t + 0.03, max_t + 0.03, 0.5, 0.5 + 0.168, "test")
+# p +
+#   geom_segment(data = label_df,
+#                aes(x = x, xend = xend, y = y, yend = yend),
+#                alpha = 0.25, linewidth = 1.5) +
+#   geom_text(data = label_df, aes(x = x, y = (y + yend) / 2),
+#             label = c(TeX("$\\sigma^2_{\\tau}$"),
+#                       TeX("$\\sigma^2_{\\eta}$"),
+#                       TeX("$\\sigma^2_{\\delta}$"),
+#                        TeX("$\\sigma^2_{\\gamma}$")),
+#             angle = 90, parse = TRUE, nudge_x = -0.01)
 p +
   geom_segment(data = label_df, 
                aes(x = x, xend = xend, y = y, yend = yend),
@@ -770,7 +780,7 @@ p +
                       TeX("$\\sigma^2_{\\eta}$"),
                       TeX("$\\sigma^2_{\\delta}$"),
                        TeX("$\\sigma^2_{\\gamma}$")),
-            angle = 90, parse = TRUE, nudge_x = -0.01)
+            parse = TRUE, nudge_x = .05)
 ```
 
 Each of these three scenarios is replicated for two different sample sizes: $n = 250$ and $n = 500$. A simple random sample of the 1000 total data points is used to select units to be in the sample. 
@@ -821,8 +831,11 @@ sims_sum <- sims_df |> group_by(n_sim, sp_de_sim,
                               sp_de_sim == 0 & t_ie_sim == 0 ~ "spatial",
                               sp_de_sim == 0 ~ "t-iev",
                               TRUE ~ "all-dev")) |>
-  relocate(scenario) |>
-  filter(scenario != "spatial")
+  relocate(scenario, resp_type_sim) |>
+  dplyr::filter(scenario != "spatial") |>
+  ungroup() |>
+  mutate(resp_type_sim = fct_recode(resp_type_sim,
+                                    skewed = "lognormal"))
 ```
 
 ```{r, fig.cap = "\\label{fig:rmspe} root-mean-squared-prediction-error (rMSPE) for all simulation settings. The st-FPBK predictor has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the t-iev scenario."}
@@ -833,7 +846,7 @@ sims_rmspe_long <- sims_sum |> pivot_longer(starts_with("rmspe"),
   mutate(method = fct_recode(method, "st-FPBK" = "rmspe",
                              "FPBK" = "rmspe_sptot",
          "SRS" = "rmspe_srs")) |>
-  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "lognormal"))) |>
+  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "skewed"))) |>
   mutate(scenario = fct_relevel(scenario, c("all-dev", "t-iev", "spt-iev")))
 ggplot(data = sims_rmspe_long, aes(x = n_sim |> factor(), y = rmspe, colour = method)) +
   geom_jitter(width = 0.1) +
@@ -856,7 +869,7 @@ sims_pi_long <- sims_sum |> pivot_longer(starts_with("cover"),
   mutate(method = fct_recode(method, "st-FPBK" = "coverage",
                              "FPBK" = "coverage_sptot",
          "SRS" = "coverage_srs")) |>
-  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "lognormal")))  |>
+  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "skewed")))  |>
   mutate(scenario = fct_relevel(scenario, c("all-dev", "t-iev", "spt-iev")))
 ggplot(data = sims_pi_long, aes(x = n_sim |> factor(),
                                 y = coverage,
@@ -866,7 +879,8 @@ ggplot(data = sims_pi_long, aes(x = n_sim |> factor(),
   scale_colour_viridis_d(end = 0.9) +
   labs(x = "n", y = "coverage",
        colour = "Method") +
-  theme_bw()
+  theme_bw() +
+  geom_hline(aes(yintercept = 0.90), linetype = 2, alpha = 0.7)
 ```
 
 
@@ -878,7 +892,7 @@ sims_pilength_long <- sims_sum |> pivot_longer(starts_with("med"),
   mutate(method = fct_recode(method, "st-FPBK" = "medci",
                              "FPBK" = "medci_sptot",
          "SRS" = "medci_srs")) |>
-  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "lognormal"))) |>
+  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "skewed"))) |>
   mutate(scenario = fct_relevel(scenario, c("all-dev",
                                             "t-iev", 
                                             "spt-iev")))
@@ -900,7 +914,7 @@ sims_bias_long <- sims_sum |> pivot_longer(starts_with("bias"),
   mutate(method = fct_recode(method, "st-FPBK" = "bias",
                              "FPBK" = "bias_sptot",
          "SRS" = "bias_srs")) |>
-  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "lognormal")))
+  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "skewed")))
 ggplot(data = sims_bias_long, aes(x = n_sim |> factor(), y = bias, colour = method)) +
   geom_jitter(width = 0.1) +
   facet_grid(resp_type_sim ~ scenario) +
@@ -983,7 +997,7 @@ We would also like to give our perception of the benefits and drawbacks of our a
 
 The Bayesian approach by @schmidt2022bayesian, however, offers features that would be harder to implement in our approach. In general, the model is more flexible, and allows for incorporation of more levels in the Bayesian hierarchical model, including allowing for imperfect detection of animals from a separate detectability survey. Additionally, the Bayesian hierarchical model can use a Poisson or negative binomial model for the counts. Therefore, an appropriate prediction interval for the response on one particular site could be constructed. On the other hand, for our approach, we rely on the central limit theorem for dependent data to form a prediction interval for the total, which would not apply for a prediction interval for the response on just one site.
 
-We have developed a finite population block kriging predictor for spatio-temporal data, which adjusts the variance of the predictor to be appropriate for sampling from a finite population. In many settings, the resulting predictor is improved from a predictor with a purely spatial model. Monitoring programs that use regularly scheduled surveys should consider incorporating data from past surveys to improve precision in the predictor for the most current survey. 
+We have developed a finite population block kriging predictor for spatio-temporal data, which adjusts the variance of the predictor to be appropriate for sampling from a finite population. The resulting predictor is generally at least as good as the predictor form a purely spatial model, and, is often much better. Monitoring programs that use regularly scheduled surveys should consider incorporating data from past surveys to improve precision in the predictor for the most current survey. 
 
 Future work in this area includes developing a frequentist model for which imperfect detection of units through time is incorporated into the predictor or how best to select sites to sample for future surveys given proposed values for the spatio-temporal covariance parameters. Additionally, for moose surveys in particular, updating the GSPE software to include analysis for spatio-temporal data could be useful for practitioners. Though we recognize that doing so would be a substantial undertaking, the \texttt{R} package that we provide could be a useful starting point for the integration.
 

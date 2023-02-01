@@ -7,5 +7,5 @@ inst/simulations/raw_sims_2
 inst/papers
 inst/fpspatiotemp_manu/fpspatiotemp_manu_cache
 inst/fpspatiotemp_manu/fpspatiotemp_manu_files
-inst/rawdata
+inst/data_private
 inst/doc
