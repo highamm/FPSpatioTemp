@@ -2,13 +2,17 @@ library(FPSpatioTemp)
 library(tidyverse)
 library(sptotal)
 
+## this script assumes that the ranges given are the effective ranges. 
+## All functions now use the effective range. The manuscript
+## converts these "back" to regular ranges.
+
 seed <- sample(1e9, size = 1)
 
 sim_fun <- function(resp_type = "normal", 
                     nx = 10, ny = 10, ntime = 5, betavec = 0,
-                    sp_de = 0.9, sp_range = sqrt(2) / 3,
+                    sp_de = 0.9, sp_range = sqrt(2),
                     sp_ie = 0.1, t_de = 0.7,
-                    t_range = 1 / 3, t_ie = 0.3,
+                    t_range = 1, t_ie = 0.3,
                     spt_de = 0.9, spt_ie = 0.4, n = 100,
                     pred_level = 0.90) {
   
@@ -114,7 +118,7 @@ sim_fun <- function(resp_type = "normal",
 #                          nx = 10, ny = 10, ntime = 10, betavec = 10,
 #                          sp_de = 0, sp_ie = 0, t_de = 0, t_ie = 0,
 #                          spt_de = 1.5, spt_ie = 0.5,
-#                          sp_range = sqrt(2) / 3, t_range = 1e-10, n = 100,
+#                          sp_range = sqrt(2), t_range = 1e-10, n = 100,
 #                          pred_level = 0.90)
 
 
@@ -122,48 +126,48 @@ const <- 2.886
 sim_parm_df <- tibble::tribble(~sp_de, ~sp_ie, ~t_de, ~t_ie, ~spt_de, ~spt_ie,
                 ~sp_range, ~t_range, ~n, ~resp_type,
                 0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-                sqrt(2) / 3, 1 / 3, 250, "normal",
+                sqrt(2), 1, 250, "normal",
                 0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-                sqrt(2) / 3, 1 / 3, 500, "normal",
+                sqrt(2), 1, 500, "normal",
                 0, 0, 0, 0, 0, 2,
                 1e-10, 1e-10, 250, "normal",
                 0, 0, 0, 0, 0, 2,
                 1e-10, 1e-10, 500, "normal",
                 0, 0, 0, 0, 1.5, 0.5,
-                sqrt(2) / 3, 1e-10, 250, "normal",
+                sqrt(2), 1e-10, 250, "normal",
                 0, 0, 0, 0, 1.5, 0.5,
-                sqrt(2) / 3, 1e-10, 500, "normal",
+                sqrt(2), 1e-10, 500, "normal",
                 0, 0, 0, 1.5, 0.25, 0.25,
-                sqrt(2) / 3, 1e-10, 250, "normal",
+                sqrt(2), 1e-10, 250, "normal",
                 0, 0, 0, 1.5, 0.25, 0.25,
-                sqrt(2) / 3, 1e-10, 500, "normal",
+                sqrt(2), 1e-10, 500, "normal",
                 
                 ## lognormal
                 0.5 / const, 0.1675 / const, 0.5 / const, 0.1675 / const,
                 0.5 / const, 0.1675 / const, 
-                sqrt(2) / 3, 1 / 3, 250, "lognormal",
+                sqrt(2), 1, 250, "lognormal",
                 0.5 / const, 0.1675 / const, 0.5 / const, 0.1675 / const,
                 0.5 / const, 0.1675 / const,
-                sqrt(2) / 3, 1 / 3, 500, "lognormal",
+                sqrt(2), 1, 500, "lognormal",
                 0, 0, 0, 0, 0, 2 / const,
                 1e-10, 1e-10, 250, "lognormal",
                 0, 0, 0, 0, 0, 2 / const,
                 1e-10, 1e-10, 500, "lognormal",
                 0, 0, 0, 0, 1.5 / const, 0.5 / const,
-                sqrt(2) / 3, 1e-10, 250, "lognormal",
+                sqrt(2), 1e-10, 250, "lognormal",
                 0, 0, 0, 0, 1.5 / const, 0.5 / const,
-                sqrt(2) / 3, 1e-10, 500, "lognormal",
+                sqrt(2), 1e-10, 500, "lognormal",
                 0, 0, 0, 1.5 / const, 0.25 / const, 0.25 / const,
-                sqrt(2) / 3, 1e-10, 250, "lognormal",
+                sqrt(2), 1e-10, 250, "lognormal",
                 0, 0, 0, 1.5 / const, 0.25 / const, 0.25 / const,
-                sqrt(2) / 3, 1e-10, 500, "lognormal")
+                sqrt(2), 1e-10, 500, "lognormal")
 # 
 # sim_parm_df <- tibble::tribble(~sp_de, ~sp_ie, ~t_de, ~t_ie, ~spt_de, ~spt_ie,
 #                                ~sp_range, ~t_range, ~n, ~resp_type,
 #                                0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-#                                sqrt(2) / 3, 1 / 3, 100, "normal",
+#                                sqrt(2), 1, 100, "normal",
 #                                0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-#                                sqrt(2) / 3, 1 / 3, 100, "lognormal")
+#                                sqrt(2), 1, 100, "lognormal")
 #    
 
 sim_output_df <- pmap_dfr(sim_parm_df, sim_fun,

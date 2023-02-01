@@ -2,7 +2,7 @@
 #' 
 #' Estimates regression coefficients, spatial autocorrelation
 #' parameters, and temporal autocorrelation parameters, given spatial
-#' coordinates, time points and a model formula.
+#' coordinates, time points, a model formula, and a data frame.
 #' 
 #' @param formula is an \code{R} linear model formula specifying the
 #' response variable as well as covariates for predicting the response on the unsampled sites.
@@ -11,8 +11,16 @@
 #' @param ycoord is the name of the column in the data frame with y coordinates or latitudinal coordinates.
 #' @param tcoord is the name of the column in the data frame with 
 #' the time points.
-#' @param cor_model_sp a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}.
-#' @param cor_model_t a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}.
+#' @param cor_model_sp a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each spatial covariance type are available in Details.
+#' @param cor_model_t a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each temporal covariance type are available in Details.
+#' 
+#' @details The parameterizations for the correlation functions available for \code{cor_model_sp} and \code{cor_model_t} for distance \eqn{h} and general range parameter $\eqn{\phi}$ are
+#' \itemize{
+#'   \item{exponential: }{\eqn{exp(-3 h / \phi)}} 
+#'   \item{spherical: }{\eqn{(1 - 1.5(h / \phi) + 0.5(h / \phi)^3) * I(h <= \phi)}}
+#'   \item{gaussian: }{\eqn{exp(- 3 (h / \phi) ^2 )}}
+#'   \item{tent: }{{\eqn{(1 - h / \phi) * I(h <= \phi)}}}
+#' }
 #' @return a list with \itemize{
 #'   \item the original data set, appended with a few variables
 #'   \item the estimated spatiotemporal covariance matrix

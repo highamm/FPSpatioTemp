@@ -27,9 +27,9 @@ response variable as well as covariates for predicting the response on the unsam
 \item{tcoord}{is the name of the column in the data frame with 
 the time points.}
 
-\item{cor_model_sp}{a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}.}
+\item{cor_model_sp}{a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each spatial covariance type are available in Details.}
 
-\item{cor_model_t}{a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}.}
+\item{cor_model_t}{a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each temporal covariance type are available in Details.}
 }
 \value{
 a list with \itemize{
@@ -50,7 +50,16 @@ a list with \itemize{
 \description{
 Estimates regression coefficients, spatial autocorrelation
 parameters, and temporal autocorrelation parameters, given spatial
-coordinates, time points and a model formula.
+coordinates, time points, a model formula, and a data frame.
+}
+\details{
+The parameterizations for the correlation functions available for \code{cor_model_sp} and \code{cor_model_t} for distance \eqn{h} and general range parameter $\eqn{\phi}$ are
+\itemize{
+  \item{exponential: }{\eqn{exp(-3 h / \phi)}} 
+  \item{spherical: }{\eqn{(1 - 1.5(h / \phi) + 0.5(h / \phi)^3) * I(h <= \phi)}}
+  \item{gaussian: }{\eqn{exp(- 3 (h / \phi) ^2 )}}
+  \item{tent: }{{\eqn{(1 - h / \phi) * I(h <= \phi)}}}
+}
 }
 \examples{
 stlmfit_obj <- stlmfit(formula = response_na ~ x, data = samp_data,

@@ -197,6 +197,41 @@ In some applications, the sampling frame does not change at all from time point 
 
 If sites that are not in the sampling frame are included in the data set for the most recent time point, then the prediction weights for those sites should be set to `0` in `wts` argument. Otherwise, the `predict()` function will predict total abundance in all sites, both in and out of the sampling frame, for the most recent time point.
 
+#### Forecasting
+
+We may also be interested in using a fitted spatio-temporal model to predict the total abundance in, for example, the time point after the most recent survey. The `moose_vignette` data has `year`s from 2019 through 2022. If we want to predict for the total abundance in 2023, a year for which a survey has not been conducted, we need to append rows with the year `2023` to the `moose_vignette` data. The `count` should be `NA` for these new rows, and there should be one row for each site in the sampling frame.
+
+```{r}
+sites_2023 <- moose_vignette |>
+  dplyr::filter(year == 2022) |>
+  mutate(count = NA, 
+         xcoords = xcoords, ycoords = ycoords,
+         year = 2023, strata = strata,
+         area_mi = area_mi, elev_mean = elev_mean, ID = ID)
+sites_2023
+```
+
+The `sites_2023` data frame has the same coordinates, strata, area, elevation values, and ID numbers as the sites in the 2022 data. But, the `year` variable is now 2023 and the `count` variable is `NA` for each site.
+
+We can bind the 2023 data to the `moose_vignette` data with
+
+```{r}
+moose_vignette_2023 <- bind_rows(moose_vignette, sites_2023)
+```
+
+Now, `stlmfit()` and `predict.stlmfit()` can be used to obtain a total abundance prediction for the year 2023:
+
+```{r}
+mod_2023 <- stlmfit(count ~ 1, data = moose_vignette_2023,
+        xcoord = "xcoords", ycoord = "ycoords",
+        tcoord = "year")
+
+predict(mod_2023)
+```
+
+The standard error for the total abundance for the forecasting model is higher than the standard error from the previous model because, without survey data from 2023, we are less certain about what the total abundance is.
+
+
 
 
 

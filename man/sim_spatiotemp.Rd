@@ -17,8 +17,8 @@ sim_spatiotemp(
   t_ie = 0.3,
   spt_de = 0.3,
   spt_ie = 0.4,
-  sp_range = sqrt(2)/3,
-  t_range = 1/3,
+  sp_range = sqrt(2),
+  t_range = 1,
   seed = round(runif(1, min = 1, max = 1e+07))
 )
 }

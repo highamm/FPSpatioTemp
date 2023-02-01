@@ -88,17 +88,17 @@ to predict a quantity of a finite resource from a sample of data
 collected over both spatial indices and temporal indices. We develop a
 spatio-temporal finite population block kriging (st-FPBK) predictor that
 incorporates an appropriate variance reduction for sampling from a
-finite population. Through an application to moose surveys in the Tok
-region of Alaska, we show that the predictor has a substantially smaller
-standard error compared to a predictor from the purely spatial model
-that is currently used to analyze moose surveys in the region. A
-separate simulation study shows that the spatio-temporal predictor is
-unbiased and that prediction intervals from the st-FPBK predictor attain
-appropriate coverage. For ecological monitoring surveys completed with
-some regularity through time, use of st-FPBK could improve precision.
-Therefore, we also give an \texttt{R} package that ecologists and
-resource managers could use to incorporate data from past surveys in
-predicting a quantity from a current survey.
+finite population. Through an application to moose surveys in the
+east-central region of Alaska, we show that the predictor has a
+substantially smaller standard error compared to a predictor from the
+purely spatial model that is currently used to analyze moose surveys in
+the region. A separate simulation study shows that the spatio-temporal
+predictor is unbiased and that prediction intervals from the st-FPBK
+predictor attain appropriate coverage. For ecological monitoring surveys
+completed with some regularity through time, use of st-FPBK could
+improve precision. Therefore, we also give an \texttt{R} package that
+ecologists and resource managers could use to incorporate data from past
+surveys in predicting a quantity from a current survey.
 \end{abstract}
 
 \begin{keywords}
@@ -136,21 +136,21 @@ either a mean or a total of the realized values of the response.
 
 To motivate the development of the predictor in Section
 \ref{section:Methods}, we consider moose surveys, which are performed
-annually in many regions of Alaska and western Canada. The most common
-goal of these surveys is to predict moose abundance, the total number of
-moose, in the region in order to inform harvest regulations
-\citep{kellie2019challenges}. Because of time and money constraints,
-only some spatial indices, or sites, in the region of interest are
-selected to be in the survey at a particular time point. Biologists fly
-to these selected sites, count the number of moose, and then use FPBK to
-find a prediction for the finite abundance for that year. These surveys
-are historically analyzed with software developed by
+annually or every other year in many regions of Alaska and western
+Canada. The most common goal of these surveys is to predict moose
+abundance, the total number of moose, in the region in order to inform
+harvest regulations \citep{kellie2019challenges}. Because of time and
+money constraints, only some spatial indices, or sites, in the region of
+interest are selected to be in the survey at a particular time point.
+Biologists fly to these selected sites, count the number of moose, and
+then use FPBK to find a prediction for the finite abundance for that
+year. These surveys are historically analyzed with software developed by
 \citet{delong2006geospatial}, which calculates the ``GeoSpatial
 Population Estimator'' (GSPE) for a given survey. The GSPE is an
 application of the FPBK predictor developed by \citet{ver2008spatial}.
 
-Though many of these surveys are annual, most are analyzed completely
-independently of surveys from previous years
+Though many of these surveys are completed regularly, most are analyzed
+completely independently of surveys from previous years
 \citep[e.g.][]{gasaway1986estimating, kellie_geospatial_2006, boertje2009managing, peters2014contrasting}.
 For example, a model for a survey conducted in the year 2019 constructs
 a prediction for total abundance only from counts on sites that were
@@ -169,8 +169,8 @@ response variable, including the total abundance across all sites at a
 particular time point. We call this predictor the st-FPBK
 (spatio-temporal Finite Population Block Kriging) predictor. In Section
 \ref{section:Application}, we apply the st-FPBK to a moose data set in
-the Tok region of Alaska. In Section \ref{section:Simulation}, we
-conduct a simulation study to examine the properties of the st-FPBK
+the east-central region of Alaska. In Section \ref{section:Simulation},
+we conduct a simulation study to examine the properties of the st-FPBK
 predictor and compare its performance to a predictor from a purely
 spatial model and a simple random sample design-based estimator.
 Finally, in Section \ref{section:Discussion}, we offer additional
@@ -335,7 +335,7 @@ section, let the subscript \(o\) denote data points that were
 were ``unobserved'' or not sampled, and the subscript \(a\) denote
 ``all'' data points. Then, we can re-order the response vector
 \(\mathbf{y}\) so that \mbox{} \begin{equation} \label{equation:ordered}
-\mathbf{y}_a \equiv \mathbf{y}_a = [\mathbf{y}_u', \mathbf{y}_o']'.
+\mathbf{y} \equiv \mathbf{y}_a = [\mathbf{y}_u', \mathbf{y}_o']'.
 \end{equation}
 
 Our primary goal is to use the model developed for \(\mathbf{y}_a\) in
@@ -462,25 +462,26 @@ accompanying \texttt{R} package to speed up estimation of
 \section{Application} \label{section:Application}
 
 We now apply the st-FPBK predictor to a moose data set described below.
-Moose surveys throughout Alaska and Canada are often conducted annually,
-making them good candidates for incorporating temporal correlation.
+Moose surveys throughout Alaska and Canada are often conducted
+regularly, making them good candidates for incorporating temporal
+correlation.
 
 \subsection{Data Description}
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{20E_survey_area_overview} \caption{\label{fig:tokplot} A map of the Taylor Corridor in the Tok region of Alaska.}\label{fig:unnamed-chunk-2}
+\includegraphics[width=0.5\linewidth]{20E_survey_area_overview} \caption{\label{fig:tokplot} A map of the Taylor Corridor in the east-central region of Alaska.}\label{fig:unnamed-chunk-2}
 \end{figure}
 
-The Taylor Corridor in the Tok region of Alaska is a popular habitat for
-moose and other wildlife. Abundance surveys for moose are performed in
-the Taylor Corridor of the Tok region of Alaska annually (Figure
-\ref{fig:tokplot}) so that biologists have an idea about the abundance
-of moose each year. In particular, surveys were conducted every year
-from 2014 through 2020 in every year except 2016, during which there was
-not sufficient snow cover to perform a survey. The spatial sampling
-frame for one particular survey consists of 381 sites. There are a total
-of 7 unique time points represented in the data, including the missing
-year of 2016. Therefore, \(N\) is 2667.
+The Taylor Corridor in the east-central region of Alaska is a popular
+habitat for moose and other wildlife. Abundance surveys for moose are
+performed in the Taylor Corridor of the Tok region of Alaska annually
+(Figure \ref{fig:tokplot}) so that biologists have an idea about the
+abundance of moose each year. In particular, surveys were conducted
+every year from 2014 through 2020 in every year except 2016, during
+which there was not sufficient snow cover to perform a survey. The
+spatial sampling frame for one particular survey consists of 381 sites.
+There are a total of 7 unique time points represented in the data,
+including the missing year of 2016. Therefore, \(N\) is 2667.
 
 In each year of the survey, an aerial team of biologists selects some of
 the 381 sites to survey. The number of sites that are selected varies
@@ -497,15 +498,16 @@ survey years, \(n\), is 487 units.
 survey moose in the Taylor corridor of the TOK region of Alaska,
 coloured by moose count. The year 2016 is excluded because no survey was
 performed in that year. This and all remaining figure graphics are
-constructed with the \texttt{ggplot2 R} package \citep{wickham2016data}}
+constructed with the \texttt{ggplot2 R} package
+\citep{wickham2016data}.}
 \end{figure}
 
 Before the survey begins in each year, biologists stratify the sites
-into a \texttt{"HIGH"} stratum composed of 230 sites and a
-\texttt{"LOW"} stratum composed of 151 sites. The goal of the following
-analysis is to predict the total abundance of moose across all sites in
-the year \texttt{2020}, the most recent year of the survey, using
-stratum as a covariate in the spatio-temporal model.
+into a ``High'' stratum composed of 230 sites and a ``Low'' stratum
+composed of 151 sites. The goal of the following analysis is to predict
+the total abundance of moose across all sites in the year \texttt{2020},
+the most recent year of the survey, using stratum as a covariate in the
+spatio-temporal model.
 
 \subsection{Model Fitting} \label{subsection:modelfit}
 
@@ -537,10 +539,10 @@ estimates mean, we can construct a fitted covariance plot (Figure
 (dark colour to light colour), the covariance of two errors decreases to
 0, with the \(\hat{\phi}\) parameter estimate controlling the rate of
 decay. In fact, the model estimates the covariance to be nearly 0 when
-two sites are 20 or more units apart, no matter what the temporal
-distance is. The covariance between two errors that are six years apart
-is still estimated to be positive if the two errors come from the same
-site or from adjacent sites.
+two sites are 20 or more spatial units apart, no matter what the
+temporal distance is. The covariance between two errors that are six
+years apart is still estimated to be positive if the two errors come
+from the same site or from adjacent sites.
 
 \begin{figure}
 \centering
@@ -548,14 +550,14 @@ site or from adjacent sites.
 \caption{\label{fig:covplot} Estimated covariance of the errors from the
 estimated parameters in a spatio-temporal product-sum model. The
 centroids of two sites directly adjacent to one another are about 4
-units apart.}
+spatial units apart.}
 \end{figure}
 
-The estimated vector of fixed effects, using \texttt{"HIGH"} as the
-reference group, is \(\bm{\hat{\beta}}\) = (11.26, -9.76). Therefore,
-the overall mean for sites in the \texttt{"HIGH"} stratum is estimated
-to be 11.26 moose while the overall mean for sites in the \texttt{"LOW"}
-stratum is estimated to be 1.5 moose.
+The estimated vector of fixed effects, using ``High'' as the reference
+group, is \(\bm{\hat{\beta}}\) = (11.26, -9.76). Therefore, the overall
+mean for sites in the ``High'' stratum is estimated to be 11.26 moose
+while the overall mean for sites in the ``Low'' stratum is estimated to
+be 1.5 moose.
 
 \subsection{Prediction}
 
@@ -579,8 +581,8 @@ in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
 \centering
 \includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-9-1.pdf}
 \caption{\label{fig:sitepredmap} A map of the predictions for the sites
-in the year 2020. A site with a grey dot in the center means that the
-site was sampled in 2020.}
+in the year 2020 from the spatio-temporal model. A site with a grey dot
+in the center means that the site was sampled in 2020.}
 \end{figure}
 
 For comparison, we use the spatial \texttt{sptotal} package
@@ -611,7 +613,7 @@ moose in 2020 in the region is 2870 moose with a standard error of 319
 moose. For the stratified random sampling design-based estimator, the
 estimated total number of moose in 2020 in the region is 2853 moose with
 a standard error of 371 moose. While the predictions for the total moose
-abundance are somewhat similar across the three methods, we see that the
+abundance are similar across the three methods, we see that the
 spatio-temporal model is most efficient (\(SE\) = 234 moose compared to
 319 moose for the purely spatial model that ignores previous surveys and
 371 moose for the stratified random sampling design-based estimator that
