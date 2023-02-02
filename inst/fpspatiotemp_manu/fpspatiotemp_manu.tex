@@ -63,19 +63,20 @@ Abundance Prediction}
 
 
 \author{\name{Matt Higham$^{a}$, Michael Dumelle$^{b}$, Carly
-Hammond$^{c}$, Jay Ver Hoef$^{d}$, Jeff Wells$^{c}$}
+Hammond$^{e}$, Jay Ver Hoef$^{d}$, Jeff Wells$^{c}$}
 \affil{$^{a}$St.~Lawrence University Department of Mathematics, Computer
 Science, and Statistics Canton, NY 13617; $^{b}$United States
 Environmental Protection Agency Corvallis, OR 97333; $^{c}$Alaska
 Department of Fish and Game Fairbanks, AK 99701; $^{d}$Marine Mammal
 Laboratory, Alaska Fisheries Science Center, National Oceanic and
-Atmospheric Administration Seattle, Washington 98115}
+Atmospheric Administration Seattle, Washington 98115; $^{e}$Bayer Crop
+Science Creve Coeur, MO 63141}
 }
 
 \thanks{CONTACT Matt
 Higham. Email: \href{mailto:mhigham@stlawu.edu}{\nolinkurl{mhigham@stlawu.edu}}, Michael
 Dumelle. Email: \href{mailto:Dumelle.Michael@epa.gov}{\nolinkurl{Dumelle.Michael@epa.gov}}, Carly
-Hammond. Email: \href{mailto:carly.hammond@alaska.gov}{\nolinkurl{carly.hammond@alaska.gov}}, Jay
+Hammond. Email: \href{mailto:carly.hammond@bayer.com}{\nolinkurl{carly.hammond@bayer.com}}, Jay
 Ver
 Hoef. Email: \href{mailto:jay.verhoef@noaa.gov}{\nolinkurl{jay.verhoef@noaa.gov}}, Jeff
 Wells. Email: \href{mailto:jeff.wells@alaska.gov}{\nolinkurl{jeff.wells@alaska.gov}}}
@@ -393,8 +394,14 @@ optimal prediction weights that are both unbiased and have the smallest
 possible prediction variance compared to any other linear predictor are
 \mbox{} \begin{multline}
 \bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}' (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - \mathbf{b}'_{u}(\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \\ \mathbf{b}_{u}' \mathbf{X}_{u}'(\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o)^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1}.
-\end{multline} \noindent The BLUP for \(\mathbf{b}'_a \mathbf{y}_a\) is
-then \mbox{} \begin{equation} \label{equation:blup}
+\end{multline}
+
+\begin{equation}
+\bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}'\left[ (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - (\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o\mathbf{W}_o^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{X}_{u}'\mathbf{W}_o^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1} \right],
+\end{equation} \noindent where
+\(\mathbf{W}_o = \mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o\). The
+BLUP for \(\mathbf{b}'_a \mathbf{y}_a\) is then \mbox{}
+\begin{equation} \label{equation:blup}
 \widehat{\mathbf{b}'_a \mathbf{y}_a} = \bm{\lambda}_o' \mathbf{y}_o,
 \end{equation} \noindent which is equivalent to \mbox{}
 \begin{equation*}
@@ -492,9 +499,9 @@ from a low of 76 in the year 2019 to a high of 90 in the year 2020.
 Throughout the 7 unique years, some sites are sampled as many as five
 different times while others are never sampled at all (Figure
 \ref{fig:tokplotyears}). Figure \ref{fig:tokplotyears} and all remaining
-figure graphics are constructed with the \textbackslash texttt\{ggplot2
-R\} package \citep{wickham2016data}.The number of units sampled
-throughout all survey years, \(n\), is 487 units.
+figure graphics are constructed with the \(\texttt{ggplot2 R}\) package
+\citep{wickham2016data}.The number of units sampled throughout all
+survey years, \(n\), is 487 units.
 
 \begin{figure}
 \centering

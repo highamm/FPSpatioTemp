@@ -22,7 +22,7 @@ Throughout this vignette, we use the `moose_vignette` data set in the `FPSpatioT
 
 ```{r setup}
 library(FPSpatioTemp)
-moose_vignette
+data(moose_vignette)
 ```
 
 The rows of `moose_vignette` correspond to sites for moose surveys in the Tok region of Alaska. In general, to use this package, a data frame needs to have, at a bare minimum, four variables:
@@ -143,6 +143,9 @@ NEED to update error message when incorrect covariance structure is used.
 
 NEED to fix error message when elev_mean has all NAs
 
+ADD error message where space-time combinations are repeated.
+
+
 #### Other Functionality to `predict()`
 
 The other primary argument of predict is `wts`, which can be used to specify specific weights used for the prediction. By default, `wts` is a vector of `0`'s and `1`'s with a `1` for any observation in the response in the most recent time point and a `0` otherwise. With the default, we are predicting the total abundance in the most recent time point.
@@ -207,7 +210,7 @@ sites_2023 <- moose_vignette |>
   mutate(count = NA, 
          xcoords = xcoords, ycoords = ycoords,
          year = 2023, strata = strata,
-         area_mi = area_mi, elev_mean = elev_mean, ID = ID)
+         area_mi = area_mi, elev_mean = elev_mean)
 sites_2023
 ```
 

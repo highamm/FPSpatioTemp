@@ -4,7 +4,7 @@
 #' 
 #' @param object is an object of class `stlmfit`
 #' @param wts is the name of the column in the data frame with
-#' the weights for which sites we want the prediction for. By default, the function will return the prediction for the total in the most recent time point given.
+#' the weights for which sites we want the prediction for. By default, the function will return the prediction for the total in the most recent time point given. \code{wts} can also be a vector corresponding to weights in the same order as the ordered data frame returned by \code{stlmfit()}.
 #' @param pred_level is the level used for a prediction interval
 #' @param ... further arguments passed to or from other methods.
 #' @return a list with the following \itemize{
@@ -76,7 +76,6 @@ predict.stlmfit <- function(object, wts = NULL, pred_level = 0.90, ...) {
   ## interest
   unsampcurrind <- ind_sa == 0 & nonzero_weight == TRUE
   
-  
   X_ucurr <- X_all[unsampcurrind, , drop = FALSE]
   X_s <- X_all[ind_sa, , drop = FALSE]
   X_u <- X_all[ind_un, , drop = FALSE]
@@ -141,6 +140,13 @@ predict.stlmfit <- function(object, wts = NULL, pred_level = 0.90, ...) {
   ## the predicted values for the sites that were not sampled
   zhatu <- Sigma_ucurrs %*% Sigma_ssi %*% (resp_density -
                                              muhat_s) + muhat_u
+  
+  Sigma_us <- Sigma_hat[ind_un == 1, ind_sa == 1]                            
+  muhat_s <- X_s %*% beta_hat; muhat_u_all <- X_u %*% beta_hat
+  ## the predicted values for the sites that were not sampled
+  zhatu_all <- Sigma_us %*% Sigma_ssi %*%
+    (resp_density - muhat_s) + muhat_u_all
+                                             
   ##totalpred_equiv <- sum(zhatu) + sum(density[ind_sa == 1 & data[[wts]] == 1])
   W <- t(X_u) - t(X_s) %*% Sigma_ssi %*% Sigma_su
   Vmat <- solve(t(X_s) %*% Sigma_ssi %*% X_s)
@@ -154,6 +160,10 @@ predict.stlmfit <- function(object, wts = NULL, pred_level = 0.90, ...) {
   ## site by site predictions for past years are left out
   data$predictions_[unsampcurrind == 1] <- zhatu
   data$predictions_[ind_sa == 1] <- resp_density
+  
+  data$predictions_all_ <- rep(NA, nrow(data))
+  data$predictions_all_[ind_un == 1] <- zhatu_all
+  data$predictions_all_[ind_sa == 1] <- resp_density
   
   pred_obj <- list(totalpred = totalpred, predvar = predvar,
                    lb = lb, ub = ub, zhatu = zhatu, sitevar = sitevar,

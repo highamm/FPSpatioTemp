@@ -10,7 +10,7 @@
 \item{object}{is an object of class `stlmfit`}
 
 \item{wts}{is the name of the column in the data frame with
-the weights for which sites we want the prediction for. By default, the function will return the prediction for the total in the most recent time point given.}
+the weights for which sites we want the prediction for. By default, the function will return the prediction for the total in the most recent time point given. \code{wts} can also be a vector corresponding to weights in the same order as the ordered data frame returned by \code{stlmfit()}.}
 
 \item{pred_level}{is the level used for a prediction interval}
 

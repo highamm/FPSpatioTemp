@@ -11,10 +11,9 @@ A data frame object including:
   \item{xcoords}{site x-coordinate, in TM}
   \item{ycoords}{site y-coordinate, in TM}
   \item{year}{Year of the survey}
-  \item{strata}{strata (\code{LOW} or \code{HIGH}), as a factor}
+  \item{strata}{strata (\code{LOW} or \code{HIGH}), as a factor, corresponding to the original stratification in each year}
   \item{area_mi}{Area of the site, in square miles}
   \item{elev_mean}{Average elevation in the site}
-  \item{ID}{Unique Site ID}
   \item{samp_frame}{whether or not the site was in the sampling frame for that year}
 }
 }

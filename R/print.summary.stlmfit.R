@@ -22,7 +22,9 @@
 #' @export
 
 print.summary.stlmfit <- function(x,
-                                  digits = max(3L, getOption("digits") - 3L),
+                                  digits = max(3L,
+                                               getOption("digits")
+                                               - 3L),
                                   signif.stars = getOption("show.signif.stars"), ...) {
   
   

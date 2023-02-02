@@ -7,19 +7,14 @@
 \format{
 A data frame object including:
 \describe{
-  \item{Surveyyear}{Year of the survey}
-  \item{ID}{Unique Site ID}
   \item{totalmoosena}{Total moose observed at the site, with NA for sites that were not sampled}
-  \item{SurveyID}{ID of the survey}
-  \item{SurveyName}{Name of the survey}
-  \item{Stratname}{Name of the stratum, as a character}
-  \item{Counted}{Whether or not the site was sampled}
-  \item{AreaMi}{Area of the site, in square miles}
-  \item{ELEV_MEAN}{Average elevation in the site}
-  \item{stratfact}{strata, as a factor}
   \item{xcoords}{site x-coordinate, in TM}
   \item{ycoords}{site y-coordinate, in TM}
+  \item{Surveyyear}{Year of the survey}
+  \item{newstrat}{Stratification variable with the most recent stratification in 2020 for every year}
+  \item{strat_origin}{Stratification variable with the original stratification for each year}
   \item{samp_frame}{whether or not the site was in the sampling frame for that year}
+  \item{yearind}{whether or not the Surveyyear variable is equal to 2020}
 }
 
 #' @examples
