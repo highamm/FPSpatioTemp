@@ -36,7 +36,7 @@
 \citation{cressie2015statistics}
 \citation{schabenberger2017statistical}
 \citation{de2001product,de2001space}
-\citation{de2015spatio}
+\citation{de2015spatio,dumelle2021linear}
 \citation{xu2015spatio}
 \newlabel{equation:spatcov}{{3}{4}{Spatio-temporal Model}{equation.2.3}{}}
 \newlabel{equation:tempcov}{{4}{4}{Spatio-temporal Model}{equation.2.4}{}}
@@ -45,12 +45,12 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Finite Population Block Kriging}{5}{subsection.2.2}}
 \newlabel{subsection:fpbk}{{2.2}{5}{Finite Population Block Kriging}{subsection.2.2}{}}
 \newlabel{equation:ordered}{{7}{5}{Finite Population Block Kriging}{equation.2.7}{}}
-\newlabel{equation:blup}{{12}{5}{Finite Population Block Kriging}{equation.2.12}{}}
+\newlabel{equation:blup}{{11}{5}{Finite Population Block Kriging}{equation.2.11}{}}
 \citation{patterson1971recovery,harville1977maximum}
 \citation{heyde1994quasi,cressie1993asymptotic}
 \citation{dumelle2021linear}
-\newlabel{equation:predvar}{{13}{6}{Finite Population Block Kriging}{equation.2.13}{}}
-\newlabel{equation:currentweights}{{14}{6}{Finite Population Block Kriging}{equation.2.14}{}}
+\newlabel{equation:predvar}{{12}{6}{Finite Population Block Kriging}{equation.2.12}{}}
+\newlabel{equation:currentweights}{{13}{6}{Finite Population Block Kriging}{equation.2.13}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Estimation}{6}{subsection.2.3}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Application}{6}{section.3}}
 \newlabel{section:Application}{{3}{6}{Application}{section.3}{}}
@@ -59,10 +59,10 @@
 \newlabel{fig:tokplot}{{1}{7}{A map of the Taylor Corridor in the east-central region of Alaska}{figure.1}{}}
 \newlabel{fig:unnamed-chunk-2}{{1}{7}{A map of the Taylor Corridor in the east-central region of Alaska}{figure.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Data Description}{7}{subsection.3.1}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska, coloured by moose count. The year 2016 is excluded because no survey was performed in that year.}}{8}{figure.2}}
-\newlabel{fig:tokplotyears}{{2}{8}{Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska, coloured by moose count. The year 2016 is excluded because no survey was performed in that year}{figure.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Model Fitting}{8}{subsection.3.2}}
-\newlabel{subsection:modelfit}{{3.2}{8}{Model Fitting}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Model Fitting}{7}{subsection.3.2}}
+\newlabel{subsection:modelfit}{{3.2}{7}{Model Fitting}{subsection.3.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Layout of the spatial sites used to survey moose in the Taylor corridor in eastern-central Alaska, coloured by moose count. Sites coloured grey were not sampled in that year. The year 2016 is excluded because no survey was performed in that year.}}{8}{figure.2}}
+\newlabel{fig:tokplotyears}{{2}{8}{Layout of the spatial sites used to survey moose in the Taylor corridor in eastern-central Alaska, coloured by moose count. Sites coloured grey were not sampled in that year. The year 2016 is excluded because no survey was performed in that year}{figure.2}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Estimated covariance parameters in the model. $\mathaccentV {hat}05E{\sigma }^2_{\delta }$, $\mathaccentV {hat}05E{\sigma }^2_{\gamma }$, and $\mathaccentV {hat}05E{\phi }$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\mathaccentV {hat}05E{\sigma }^2_{\tau }$, $\mathaccentV {hat}05E{\sigma }^2_{\eta }$, and $\mathaccentV {hat}05E{\rho }$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\mathaccentV {hat}05E{\sigma }^2_{\omega }$ and $\mathaccentV {hat}05E{\sigma }^2_{\nu }$ are the spatio-temporal dependent error variance and spatio-temporal independent error variance.}}{8}{table.1}}
 \newlabel{tab:paramest}{{1}{8}{Estimated covariance parameters in the model. $\hat {\sigma }^2_{\delta }$, $\hat {\sigma }^2_{\gamma }$, and $\hat {\phi }$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\hat {\sigma }^2_{\tau }$, $\hat {\sigma }^2_{\eta }$, and $\hat {\rho }$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\hat {\sigma }^2_{\omega }$ and $\hat {\sigma }^2_{\nu }$ are the spatio-temporal dependent error variance and spatio-temporal independent error variance}{table.1}{}}
 \citation{smith1980central}
@@ -72,36 +72,37 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  Estimated covariance of the errors from the estimated parameters in a spatio-temporal product-sum model. Distance between two sites is calculated from the site centroids; the centroids of two sites directly adjacent to one another are about 4 spatial kilometers apart.}}{9}{figure.3}}
 \newlabel{fig:covplot}{{3}{9}{Estimated covariance of the errors from the estimated parameters in a spatio-temporal product-sum model. Distance between two sites is calculated from the site centroids; the centroids of two sites directly adjacent to one another are about 4 spatial kilometers apart}{figure.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Prediction}{9}{subsection.3.3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces  A map of the predictions for the sites in the year 2020 from the spatio-temporal model. A site with a grey dot in the center means that the site was sampled in 2020.}}{10}{figure.4}}
-\newlabel{fig:sitepredmap}{{4}{10}{A map of the predictions for the sites in the year 2020 from the spatio-temporal model. A site with a grey dot in the center means that the site was sampled in 2020}{figure.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Simulation}{10}{section.4}}
-\newlabel{section:Simulation}{{4}{10}{Simulation}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Description}{10}{subsection.4.1}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Covariance parameters used to simulate data. $\sigma ^2_{\delta }$, $\sigma ^2_{\gamma }$, and $\phi $ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\tau }$, $\sigma ^2_{\eta }$, and $\rho $ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\omega }$ and $\sigma ^2_{\nu }$ are the spatio-temporal dependent error variance and spatio-temporal independent error variance.}}{11}{table.2}}
-\newlabel{tab:simparmtab}{{2}{11}{Covariance parameters used to simulate data. $\sigma ^2_{\delta }$, $\sigma ^2_{\gamma }$, and $\phi $ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\tau }$, $\sigma ^2_{\eta }$, and $\rho $ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\omega }$ and $\sigma ^2_{\nu }$ are the spatio-temporal dependent error variance and spatio-temporal independent error variance}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces  (Left). A map of the predictions for the sites in the year 2020 from the spatio-temporal model. A site with a grey dot in the center means that the site was sampled in 2020. (Right). A map of the stratification of sites in 2020. NOTE: need to update these to be proper sub-figures if we keep the stratification figure.}}{10}{figure.4}}
+\newlabel{fig:sitepredmap}{{4}{10}{(Left). A map of the predictions for the sites in the year 2020 from the spatio-temporal model. A site with a grey dot in the center means that the site was sampled in 2020. (Right). A map of the stratification of sites in 2020. NOTE: need to update these to be proper sub-figures if we keep the stratification figure}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  Moose abundance predictions for the Taylor Corridor from 2014 through 2021 with the spatial FPBK predictor and the ST-FPBK predictor. Predictions are given with a diamond symbol; the bars surrounding each prediction are standard error bars. Because surveys were not conducted in 2016 and 2021, there is no spatial FPBK predictor and the standard errors for the ST-FPBK predictor for those years is larger than the standard errors in the other years.}}{11}{figure.5}}
+\newlabel{fig:trend}{{5}{11}{Moose abundance predictions for the Taylor Corridor from 2014 through 2021 with the spatial FPBK predictor and the ST-FPBK predictor. Predictions are given with a diamond symbol; the bars surrounding each prediction are standard error bars. Because surveys were not conducted in 2016 and 2021, there is no spatial FPBK predictor and the standard errors for the ST-FPBK predictor for those years is larger than the standard errors in the other years}{figure.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Simulation}{11}{section.4}}
+\newlabel{section:Simulation}{{4}{11}{Simulation}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Description}{11}{subsection.4.1}}
 \citation{higham2021sptotal}
 \citation{lohr2021sampling}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Covariance parameters used to simulate data. $\sigma ^2_{\delta }$, $\sigma ^2_{\gamma }$, and $\phi $ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\tau }$, $\sigma ^2_{\eta }$, and $\rho $ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\omega }$ and $\sigma ^2_{\nu }$ are the spatio-temporal dependent error variance and spatio-temporal independent error variance. Note that both $\phi $ (and $\rho $) appear in $\mathbf  {R}_{st}$; therefore, their values can change the underlying covariance even when $\sigma ^2_{\delta }$ (and $\sigma ^2_{\tau }$) are equal to 0.}}{12}{table.2}}
+\newlabel{tab:simparmtab}{{2}{12}{Covariance parameters used to simulate data. $\sigma ^2_{\delta }$, $\sigma ^2_{\gamma }$, and $\phi $ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\tau }$, $\sigma ^2_{\eta }$, and $\rho $ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\sigma ^2_{\omega }$ and $\sigma ^2_{\nu }$ are the spatio-temporal dependent error variance and spatio-temporal independent error variance. Note that both $\phi $ (and $\rho $) appear in $\mathbf {R}_{st}$; therefore, their values can change the underlying covariance even when $\sigma ^2_{\delta }$ (and $\sigma ^2_{\tau }$) are equal to 0}{table.2}{}}
 \citation{brus2021statistical,dumelle2022comparison}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  The model covariance used in the simulations for the spatio-temporal scenario. Covariance is approximately 0 for errors from data points that are \(\sqrt  2\) distance units apart in space or 1 distance unit apart in time. The spatial dependent error variance (\(\sigma ^2_{\delta }\)), spatial independent error variance (\(\sigma ^2_{\gamma }\)), temporal dependent error variance (\(\sigma ^2_{\tau }\)), and temporal independent error variance (\(\sigma ^2_{\eta }\)) are shown with grey lines.}}{12}{figure.5}}
-\newlabel{fig:simcovplot}{{5}{12}{The model covariance used in the simulations for the spatio-temporal scenario. Covariance is approximately 0 for errors from data points that are \(\sqrt 2\) distance units apart in space or 1 distance unit apart in time. The spatial dependent error variance (\(\sigma ^2_{\delta }\)), spatial independent error variance (\(\sigma ^2_{\gamma }\)), temporal dependent error variance (\(\sigma ^2_{\tau }\)), and temporal independent error variance (\(\sigma ^2_{\eta }\)) are shown with grey lines}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces  The model covariance used in the simulations for the spatio-temporal scenario. Covariance is approximately 0 for errors from data points that are \(\sqrt  2\) distance units apart in space and 1 distance unit apart in time. The spatial dependent error variance (\(\sigma ^2_{\delta }\)), spatial independent error variance (\(\sigma ^2_{\gamma }\)), temporal dependent error variance (\(\sigma ^2_{\tau }\)), and temporal independent error variance (\(\sigma ^2_{\eta }\)) are shown with grey lines.}}{13}{figure.6}}
+\newlabel{fig:simcovplot}{{6}{13}{The model covariance used in the simulations for the spatio-temporal scenario. Covariance is approximately 0 for errors from data points that are \(\sqrt 2\) distance units apart in space and 1 distance unit apart in time. The spatial dependent error variance (\(\sigma ^2_{\delta }\)), spatial independent error variance (\(\sigma ^2_{\gamma }\)), temporal dependent error variance (\(\sigma ^2_{\tau }\)), and temporal independent error variance (\(\sigma ^2_{\eta }\)) are shown with grey lines}{figure.6}{}}
 \citation{smith1980central}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces  root-mean-squared-prediction-error (rMSPE) for all simulation settings. The st-FPBK predictor has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the t-iev scenario.}}{13}{figure.6}}
-\newlabel{fig:rmspe}{{6}{13}{root-mean-squared-prediction-error (rMSPE) for all simulation settings. The st-FPBK predictor has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the t-iev scenario}{figure.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Results}{13}{subsection.4.2}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces  Prediction interval coverage for all simulation settings, where the prediction intervals are normal-based and the nominal level is 0.90. The st-FPBK predictor has close to appropriate coverage in all settings tested.}}{14}{figure.7}}
-\newlabel{fig:pi}{{7}{14}{Prediction interval coverage for all simulation settings, where the prediction intervals are normal-based and the nominal level is 0.90. The st-FPBK predictor has close to appropriate coverage in all settings tested}{figure.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{14}{section.5}}
-\newlabel{section:Discussion}{{5}{14}{Discussion}{section.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces  root-mean-squared-prediction-error (rMSPE) for all simulation settings. The ST-FPBK predictor has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the t-iev scenario.}}{14}{figure.7}}
+\newlabel{fig:rmspe}{{7}{14}{root-mean-squared-prediction-error (rMSPE) for all simulation settings. The ST-FPBK predictor has the smallest rMSPE in all settings tested, though it is similar to the rMSPE of the other two methods in the t-iev scenario}{figure.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Results}{14}{subsection.4.2}}
 \citation{schmidt2022bayesian}
 \citation{schmidt2022bayesian}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Results from analysis on the Tok moose survey data with the 2020 survey included and excluded. We can see that, even with 2020 data excluded, we can obtain a prediction for moose abundance in 2020, though there is substantial loss in precision.}}{15}{table.3}}
-\newlabel{tab:forecast}{{3}{15}{Results from analysis on the Tok moose survey data with the 2020 survey included and excluded. We can see that, even with 2020 data excluded, we can obtain a prediction for moose abundance in 2020, though there is substantial loss in precision}{table.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Appendix}{16}{section.6}}
-\newlabel{section:appendix}{{6}{16}{Appendix}{section.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces root-mean-squared-prediction-error (rMSPE) for the st-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, the rMSPE for the st-FPBK predictor is approximately equal to or lower than the rMSPE for the other two methods.}}{16}{table.4}}
-\newlabel{tab:simrmspetab}{{4}{16}{root-mean-squared-prediction-error (rMSPE) for the st-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, the rMSPE for the st-FPBK predictor is approximately equal to or lower than the rMSPE for the other two methods}{table.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Bias (Realized Current Total - Predicted Current Total) for the st-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, all methods appear fairly unbiased.}}{16}{table.5}}
-\newlabel{tab:simbiastab}{{5}{16}{Bias (Realized Current Total - Predicted Current Total) for the st-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, all methods appear fairly unbiased}{table.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces  Prediction interval coverage for all simulation settings, where the prediction intervals are normal-based and the nominal level is 0.90. The ST-FPBK predictor has close to appropriate coverage in all settings tested.}}{15}{figure.8}}
+\newlabel{fig:pi}{{8}{15}{Prediction interval coverage for all simulation settings, where the prediction intervals are normal-based and the nominal level is 0.90. The ST-FPBK predictor has close to appropriate coverage in all settings tested}{figure.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{15}{section.5}}
+\newlabel{section:Discussion}{{5}{15}{Discussion}{section.5}{}}
+\citation{schmidt2022bayesian}
+\newlabel{appendix}{{5}{17}{Appendix}{section*.1}{}}
+\@writefile{toc}{\contentsline {section}{Appendix}{17}{section*.1}}
+\@writefile{lot}{\contentsline {table}{\numberline {A1}{\ignorespaces root-mean-squared-prediction-error (rMSPE) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, the rMSPE for the ST-FPBK predictor is approximately equal to or lower than the rMSPE for the other two methods.}}{17}{table.1}}
+\newlabel{tab:simrmspetab}{{A1}{17}{root-mean-squared-prediction-error (rMSPE) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, the rMSPE for the ST-FPBK predictor is approximately equal to or lower than the rMSPE for the other two methods}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A2}{\ignorespaces Bias (Realized Current Total - Predicted Current Total) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, all methods appear fairly unbiased.}}{17}{table.2}}
+\newlabel{tab:simbiastab}{{A2}{17}{Bias (Realized Current Total - Predicted Current Total) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, all methods appear fairly unbiased}{table.2}{}}
 \bibstyle{tfcad}
 \bibdata{interactcadsample.bib}
 \bibcite{boertje2009managing}{{1}{2009}{{Boertje et~al.}}{{}}}
@@ -116,8 +117,8 @@
 \bibcite{dumelle2021linear}{{10}{2021}{{Dumelle et~al.}}{{}}}
 \bibcite{gasaway1986estimating}{{11}{1986}{{Gasaway et~al.}}{{}}}
 \bibcite{harville1977maximum}{{12}{1977}{{Harville}}{{}}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Prediction interval coverage for the st-FPBK predictor, the FPBK predictor, and the SRS for each of the 12 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90.}}{17}{table.6}}
-\newlabel{tab:simpitab}{{6}{17}{Prediction interval coverage for the st-FPBK predictor, the FPBK predictor, and the SRS for each of the 12 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A3}{\ignorespaces Prediction interval coverage for the ST-FPBK predictor, the FPBK predictor, and the SRS for each of the 12 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90.}}{18}{table.3}}
+\newlabel{tab:simpitab}{{A3}{18}{Prediction interval coverage for the ST-FPBK predictor, the FPBK predictor, and the SRS for each of the 12 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90}{table.3}{}}
 \bibcite{heyde1994quasi}{{13}{1994}{{Heyde}}{{}}}
 \bibcite{higham2021sptotal}{{14}{2021}{{Higham et~al.}}{{}}}
 \bibcite{kellie_geospatial_2006}{{15}{2006}{{Kellie and DeLong}}{{}}}

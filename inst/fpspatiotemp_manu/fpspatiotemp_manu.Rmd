@@ -42,7 +42,7 @@ affiliation:
 bibliography: interactcadsample.bib
 # appendix: appendix.tex
 abstract: |
-  Spatio-temporal predictors incorporate both spatial and temporal information to predict quantities of interest in spatial locations and/or time points that are not sampled. We develop a spatio-temporal finite population block kriging (ST-FPBK) predictor that incorporates an appropriate variance reduction for sampling from a finite population. Through an application to moose surveys in the east-central region of Alaska, we show that the predictor has a substantially smaller standard error compared to a predictor from the purely spatial model that is currently used to analyze moose surveys in the region. A separate simulation study shows that the spatio-temporal predictor is unbiased and that prediction intervals from the ST-FPBK predictor attain appropriate coverage. For ecological monitoring surveys completed with some regularity through time, use of ST-FPBK could improve precision. Therefore, we also give an \texttt{R} package that ecologists and resource managers could use to incorporate data from past surveys in predicting a quantity from a current survey.
+  Spatio-temporal predictors can incorporate both spatial and temporal information to predict means, totals, and proportions of a finite resource from a samples of spatial locations collected across time. We develop a spatio-temporal finite-population block kriging (ST-FPBK) predictor that incorporates an appropriate variance reduction for sampling from a finite population. Through an application to moose surveys in the east-central region of Alaska, we show that the predictor has a substantially smaller standard error compared to a predictor from the purely spatial model that is currently used to analyze moose surveys in the region. We also show how the model can be used to forecast a prediction for abundance in a time point for which spatial locations have not yet been surveyed. A separate simulation study shows that the spatio-temporal predictor is unbiased and that prediction intervals from the ST-FPBK predictor attain appropriate coverage. For ecological monitoring surveys completed with some regularity through time, use of ST-FPBK could improve precision. We also give an \texttt{R} package that ecologists and resource managers could use to incorporate data from past surveys in predicting a quantity from a current survey.
 keywords: |
   spatial; temporal; kriging; total; resource monitoring
 header-includes: |
@@ -55,6 +55,7 @@ preamble: >
   \usepackage{bm}
   \usepackage{bbm}
   \usepackage{color}
+  \usepackage{subfig}
   \DeclareMathOperator{\var}{{var}}
   \DeclareMathOperator{\cov}{{cov}}
 output: rticles::tf_article
@@ -71,15 +72,15 @@ library(here)
 
 \subsection{Background}
 
-Spatio-temporal data is indexed by both a spatial index, which we will refer to as a "site," and by a temporal index, which we will refer to as a "time point." Common examples of spatio-temporal data include infections from a disease in a country or region collected over a time period [e.g. @martinez2008autoregressive; @sahu2022bayesian] or climate variables that are recorded through time at multiple locations [@lemos2009spatio]. 
+Spatio-temporal data are indexed by both a spatial index, which we will refer to as a "site," and by a temporal index, which we will refer to as a "time point." Common examples of spatio-temporal data include infections from a disease in a country or region collected over a time period [e.g. @martinez2008autoregressive; @sahu2022bayesian] or climate variables that are recorded through time at multiple locations [@lemos2009spatio]. 
 
 Models for spatio-temporal data have applications in a wide variety of scientific fields [see @wikle2019spatio for many examples]. One such application is ecological monitoring of a particular resource, such as animal or plant abundance, rainfall, concentration of a compound in soil samples, etc.
 
-In ecological monitoring, we are often interested in prediction of a total or a mean of a particular variable in a finite region in the most recent time point. @ver2008spatial developed Finite Population Block Kriging (FPBK) to predict a linear function of the realized values of a response variable measured at one particular time point in a finite number of sampling units, incorporating a finite population correction to the variance of the predictor. Typically, the linear function is either a mean or a total of the realized values of the response. 
+In ecological monitoring, we are often interested in prediction of a total or a mean of a particular variable in a finite region at the most recent time point. @ver2008spatial developed Finite Population Block Kriging (FPBK) to predict a linear function of the realized values of a response variable measured at one particular time point in a finite number of sampling units, incorporating a finite population correction to the variance of the predictor. Typically, the linear function is either a mean or a total of the realized values of the response. 
 
 \subsection{Motivating Example}
 
-To motivate the development of the predictor in Section \ref{section:Methods}, we consider moose surveys, which are performed annually or every other year in many regions of Alaska and western Canada. The most common goal of these surveys is to predict moose abundance, the total number of moose, in the region to inform harvest regulations [@kellie2019challenges]. Because of time and money constraints, only some spatial indices, or sites, in the region of interest are selected to be in the survey at a particular time point. Biologists fly to these selected sites, count the number of moose, and then use FPBK to find a prediction for the finite abundance for that year. These surveys are historically analyzed with software developed by @delong2006geospatial, which calculates the "GeoSpatial Population Estimator" (GSPE) for a given survey. The GSPE is an application of the FPBK predictor developed by @ver2008spatial.
+To motivate the development of the predictor in Section \ref{section:Methods}, we consider moose surveys, which are performed annually or every other year in many regions of Alaska and western Canada. The most common goal of these surveys is to predict moose abundance, the total number of moose, in some region to inform harvest regulations [@kellie2019challenges]. Because of time and money constraints, only some spatial indices, or sites, in the region of interest are selected to be in the survey at a particular time point. Biologists fly to these selected sites, count the number of moose, and then use FPBK to find a prediction for the finite abundance for that year. These surveys are historically analyzed with software developed by @delong2006geospatial, which calculates the "GeoSpatial Population Estimator" (GSPE) for a given survey. The GSPE is an application of the FPBK predictor developed by @ver2008spatial.
  
 Though many of these surveys are completed regularly, most are analyzed completely independently of surveys from previous years [e.g. @gasaway1986estimating; @kellie_geospatial_2006; @boertje2009managing; @peters2014contrasting]. For example, a model for a survey conducted in the year 2019 constructs a prediction for total abundance only from counts on sites that were sampled in that year. However, using counts from previous years in a model that incorporates both spatial and temporal (spatio-temporal) correlation while also using a finite population correction factor based on the proportion of sites surveyed in the most recent year could result in a prediction for the realized total that is more precise than predictions from a purely spatial model. Shortly, we describe such a predictor.
 
@@ -116,7 +117,7 @@ Though there are a few types of models for the errors that can be built from \re
 \mathbf{R}_{st} \equiv \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' \odot \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t',
 \end{equation*}
 \noindent
-where $\odot$ is the Hadamard product operator. $\mathbf{R}_s$ can be parameterized in different ways, but one common assumption is to assume the covariance function generating $\mathbf{R}_s$ is second-order stationary (ie. the covariance between two data points is a function only of the separation vector between two sites) and isotropic (ie. the covariance is a function of the distance only and does not depend on the direction of the separation vector). For example, the exponential covariance function is defined as follows. For observations at sites $i$ and $i'$ at $h_{ii'}$ distance apart, row $i$ and column $i'$ of $\mathbf{R}_{s}$ is equal to
+where $\odot$ is the Hadamard product operator. Note that, in order to save on the number of parameters, we will assume that the $\mathbf{R}_s$ and $\mathbf{R}_t$ that form $\mathbf{R}_{st}$ are the same as the $\mathbf{R}_s$ and $\mathbf{R}_t$ associated with $\bm{\delta}$ and $\bm{\tau}$, respectively, although this is not necessary in general. $\mathbf{R}_s$ can be parameterized in different ways, but one common assumption is to assume the covariance function generating $\mathbf{R}_s$ is second-order stationary (ie. the covariance between two data points is a function only of the separation vector between two sites) and isotropic (ie. the covariance is a function of the distance only and does not depend on the direction of the separation vector). For example, the exponential covariance function is defined as follows. For observations at sites $i$ and $i'$ at $h_{ii'}$ distance apart, row $i$ and column $i'$ of $\mathbf{R}_{s}$ is equal to
 \mbox{}
 \begin{equation}
 \label{equation:spatcov}
@@ -149,7 +150,7 @@ where $\bm{\delta}$, $\bm{\gamma}$, $\bm{\tau}$, $\bm{\eta}$, $\bm{\omega}$, and
 \end{equation}
 
 \noindent
-There are a few reasons for why we choose to solely focus on the product-sum model. First, as long as $\mathbf{R}_s$ and $\mathbf{R}_t$ are positive definite and either $\sigma^2_{\omega} > 0$ or $\sigma^2_{\nu} > 0$, then the covariance matrix in equation \ref{equation:var} is also positive definite [@de2001product; @de2001space]. Also, the product-sum model is flexible in its ability to model many kinds of spatial and temporal correlation [@de2015spatio]. @xu2015spatio claim that the product-sum model is the most widely used spatio-temporal model used in practical applications.
+There are a few reasons for why we choose to solely focus on the product-sum model. First, as long as $\mathbf{R}_s$ and $\mathbf{R}_t$ are positive definite and either $\sigma^2_{\omega} > 0$ or $\sigma^2_{\nu} > 0$, then the covariance matrix in equation \ref{equation:var} is also positive definite [@de2001product; @de2001space]. Also, the product-sum model is flexible in its ability to model many kinds of spatial and temporal correlation [@de2015spatio; @dumelle2021linear]. @xu2015spatio claim that the product-sum model is the most widely used spatio-temporal model used in practical applications.
  
 \subsection{Finite Population Block Kriging} \label{subsection:fpbk}
 
@@ -159,14 +160,14 @@ The model that we developed in the previous section in equation \ref{equation:mo
 \mathbf{y} \equiv \mathbf{y}_a = [\mathbf{y}_u', \mathbf{y}_o']'.
 \end{equation}
 
-Our primary goal is to use the model developed for $\mathbf{y}_a$ in equation \ref{equation:model} to find optimal weights $\mathbf{q}'$ to apply to the observed realizations of $\mathbf{y}_o$ such that $\mathbf{q}' \mathbf{y}_o$ is the Best Linear Unbiased Predictor (BLUP) for $\mathbf{b}_a' \mathbf{y}_a$, a linear function of $\mathbf{y}_a$. The $N$-length vector $\mathbf{b}_a'$ is, for example, might be a vector of $1$'s, in which case we would be predicting the total response across all sites and all time points. 
+Our primary goal is to use the model developed for $\mathbf{y}_a$ in equation \ref{equation:model} to find optimal weights $\mathbf{q}'$ to apply to the observed realizations of $\mathbf{y}_o$ such that $\mathbf{q}' \mathbf{y}_o$ is the Best Linear Unbiased Predictor (BLUP) for $\mathbf{b}_a' \mathbf{y}_a$, a linear function of $\mathbf{y}_a$. The $N$-length vector $\mathbf{b}_a'$ is, for example, a vector of $1$'s, in which case we would be predicting the total response across all sites and all time points. 
 
 <!-- In both the application in section \ref{section:} and the simulation in \ref{section}, an element of $\mathbf{b}_a$ will be a $1$ if  if we are interested in the total of the response across all years, then $\mathbf{b}_a$ would be a column vector of 1's, so that we are adding up all values of the response for a predictor of total abundance across all spatial sites and time points. -->
 
 Unbiasedness implies that $E(\mathbf{q'}\mathbf{y}_o) = E(\mathbf{b}_a'\mathbf{y}_a)$ for all $\bm{\beta}$. So, denoting $\mathbf{X}_o$ as the design matrix for the observed data points and $\mathbf{X}_a$ as the design matrix for all data points, $\mathbf{q'} \mathbf{X}_o \bm{\beta}$ = $\mathbf{b'}_a \mathbf{X}_a \bm{\beta}$ for every $\bm{\beta}$, implying that $\mathbf{q'} \mathbf{X}_o = \mathbf{b'}_a \mathbf{X}_a$. Kriging weights are then found by finding $\bm{\lambda}_o$, an $n_o \times 1$ column vector, where $n_o$ is the number of observed data points, such that
 \mbox{}
 \begin{equation}
-E\{(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)\} - E\{(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)\}
+E\{(\mathbf{q'}\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)^2\} - E\{(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b'}_a \mathbf{y}_a)^2\}
 \end{equation}
 \noindent
 is greater than 0 for all $\mathbf{q'}$. The prediction equations are
@@ -211,7 +212,7 @@ which is equivalent to
 \mathbf{b}_{o}'\mathbf{y}_{o} + \mathbf{b}_{u}' \mathbf{\hat{y}}_{u},
 \end{equation*}
 \noindent
-where $\mathbf{\hat{y}}_{u} = \bm{\Sigma}_{o, s} \Sigma_{o, o}^{-1} (\mathbf{\tilde{y}}_o - \bm{\hat{\mu}}_o) + \bm{\hat{\mu}}_u$ with $\bm{\hat{\mu}}_o = \mathbf{X}_o \bm{\hat{\beta}}$ and  $\bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}$. $\bm{\hat{\beta}}$ is the generalized least squares estimator $(\mathbf{X}_o' \bm{\Sigma}_{o, o}^{-1} \mathbf{X}_o)^{-1} \mathbf{X}_o' \bm{\Sigma}_{o, o}^{-1} \mathbf{y}_o$. We can see then that the predictor multiplies the observed data $\mathbf{y}_o$ with relevant weights from the $\mathbf{b}_o$ vector, and then adds in the kriged predictions $\mathbf{\hat{y}}_{u}$ multiplied with relevant weights from the $\mathbf{b}_u$ vector.
+where $\mathbf{\hat{y}}_{u} = \bm{\Sigma}_{o, s} \Sigma_{o, o}^{-1} (\mathbf{y}_o - \bm{\hat{\mu}}_o) + \bm{\hat{\mu}}_u$ with $\bm{\hat{\mu}}_o = \mathbf{X}_o \bm{\hat{\beta}}$ and  $\bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}$. $\bm{\hat{\beta}}$ is the generalized least squares estimator $(\mathbf{X}_o' \bm{\Sigma}_{o, o}^{-1} \mathbf{X}_o)^{-1} \mathbf{X}_o' \bm{\Sigma}_{o, o}^{-1} \mathbf{y}_o$. We can see then that the predictor multiplies the observed data $\mathbf{y}_o$ with relevant weights from the $\mathbf{b}_o$ vector, and then adds in the kriged predictions $\mathbf{\hat{y}}_{u}$ multiplied with relevant weights from the $\mathbf{b}_u$ vector.
 
 The prediction variance of the predictor in equation \ref{equation:blup} is
 \mbox{}
@@ -306,6 +307,12 @@ library(FPSpatioTemp)
 data(moose_14_20)
 moose_final_all <- moose_14_20
 
+# moose_final_all |> group_by(newstrat) |>
+#   summarise(mean_moose = mean(totalmoosena, na.rm = TRUE))
+# moose_final_all |> group_by(strat_origin) |>
+#   summarise(mean_moose = mean(totalmoosena, na.rm = TRUE))
+
+
 ## nspat unique spatial points and ntime unique time points.
 nspat <- nrow(moose_final_all) / length(unique(moose_final_all$Surveyyear))
 ntime <- nrow(moose_final_all) / nrow(unique(cbind(moose_final_all$xcoords, moose_final_all$ycoords)))
@@ -316,7 +323,7 @@ library(here)
 knitr::include_graphics(here("inst/fpspatiotemp_manu/20E_survey_area_overview.jpg"))
 ```
 
-The Taylor Corridor in the east-central region of Alaska is a popular habitat for moose and other wildlife. Abundance surveys for moose are performed in the Taylor Corridor of the Tok region of Alaska annually (Figure \ref{fig:tokplot}) so that biologists have an idea about the abundance of moose each year. In particular, surveys were conducted every year from 2014 through 2020 in every year except 2016, during which there was not sufficient snow cover to perform a survey. The spatial sampling frame for one particular survey consists of `r nspat` sites. There are a total of `r ntime` unique time points represented in the data, including the missing year of 2016. Therefore, $N$ is `r nspat * ntime`. 
+The Taylor Corridor in the east-central region of Alaska is a popular habitat for moose and other wildlife. Abundance surveys for moose are performed in the Taylor Corridor of the Tok region of Alaska annually (Figure \ref{fig:tokplot}) so that biologists have an idea about the abundance of moose each year. In particular, surveys were conducted from 2014 through 2020 in every year except 2016, during which there was not sufficient snow cover to perform a survey. The spatial sampling frame for our study area consists of `r nspat` sites. There are a total of `r ntime` unique time points represented in the data, including the missing year of 2016. Therefore, $N$ is `r nspat * ntime`. 
 
 ```{r, results = "hide"}
 moose_final_all |> group_by(Surveyyear) |>
@@ -326,7 +333,7 @@ moose_final_all |> group_by(xcoords, ycoords) |>
   arrange(n_obs)
 ```
 
-In each year of the survey, an aerial team of biologists selects some of the `r nspat` sites to survey. The number of sites that are selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites are sampled as many as five different times while others are never sampled at all (Figure \ref{fig:tokplotyears}). Figure \ref{fig:tokplotyears} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data].The number of units sampled throughout all survey years, $n$, is `r sum(!is.na(moose_final_all$totalmoosena))` units. 
+In each year of the survey, a team of biologists selected some of the `r nspat` sites to survey. The number of sites that were selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites were sampled as many as five different times while others were never sampled at all (Figure \ref{fig:tokplotyears}). Figure \ref{fig:tokplotyears} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data]. The number of units sampled throughout all survey years, $n$, was `r sum(!is.na(moose_final_all$totalmoosena))` units. 
 
 
 ```{r, results = "hide"}
@@ -335,7 +342,7 @@ moose_final_all |> group_by(Surveyyear, newstrat) |>
 ```
 
 ```{r, fig.keep = "none"}
-##  tokplotzoom, fig.cap = "\\label{fig:tokplotzoom} Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska."
+##  tokplotzoom, fig.cap = "\\label{fig:tokplotzoom} Layout of the spatial sites used to survey moose in the Taylor corridor in eastern-central Alaska."
 library(sf)
 library(here)
 shp <- read_sf(here("inst/fpspatiotemp_manu/ADFG_Taylor_Corridor/20E_Taylor_corridor_SUs.shp"))
@@ -346,10 +353,14 @@ ggplot(data = shp) +
 ```
 
 
-```{r tokplotyears, fig.cap = "\\label{fig:tokplotyears} Layout of the spatial sites used to survey moose in the Taylor corridor of the TOK region of Alaska, coloured by moose count. The year 2016 is excluded because no survey was performed in that year."}
-moose_final_2020 <- moose_final_all ##|> filter(Surveyyear == 2020)
-moose_shp_2020 <- left_join(shp, moose_final_2020, by = "ID") |>
-  filter(Surveyyear != 2016)
+```{r tokplotyears, fig.cap = "\\label{fig:tokplotyears} Layout of the spatial sites used to survey moose in the Taylor corridor in eastern-central Alaska, coloured by moose count. Sites coloured grey were not sampled in that year. The year 2016 is excluded because no survey was performed in that year."}
+moose_final_2020 <- moose_final_all
+
+load(here::here("inst/data_private/moose_14_20_priv.rda"))
+
+moose_shp_2020 <- left_join(shp, moose_14_20_priv,
+                            by = c("ID")) |>
+  dplyr::filter(Surveyyear != 2016)
 
 ggplot(data = moose_shp_2020) +
   geom_sf(aes(fill = totalmoosena)) +
@@ -359,7 +370,7 @@ ggplot(data = moose_shp_2020) +
   labs(fill = "Count")
 ```
 
-Before the survey begins in each year, biologists stratify the sites into a "High" stratum composed of 230 sites and a "Low" stratum composed of 151 sites. The goal of the following analysis is to predict the total abundance of moose across all sites in the year `2020`, the most recent year of the survey, using stratum as a covariate in the spatio-temporal model.
+Before the survey begins in each year, biologists stratified the sites into a "High" stratum and a "Low" stratum composed. The goal of the following analysis is to predict the total abundance of moose across all sites in the year `2020`, the most recent year of the survey, using stratum as a covariate in the spatio-temporal model.
 
 \subsection{Model Fitting} \label{subsection:modelfit}
 
@@ -382,7 +393,7 @@ sites_2021 <- moose_final_all |>
 
 moose_final_all <- bind_rows(moose_final_all, sites_2021)
 ## Sys.time()
-fit_obj_all <- stlmfit(formula = totalmoosena ~ newstrat,
+fit_obj_all <- stlmfit(formula = totalmoosena ~ strat_origin,
                        data = moose_final_all,
                        xcoord = "xcoords", ycoord = "ycoords",
                        tcoord = "Surveyyear")
@@ -451,137 +462,34 @@ tab_stlmfit_all <- cbind(prediction_all, sqrt(predvar_all),
 
 We now use the fitted spatio-temporal model with the BLUP from equation \ref{equation:blup} and weights given in equation \ref{equation:currentweights} to predict the total abundance across all sites in the year 2020, the most recent year of the survey. Plugging in estimates of the covariance parameters into equations \ref{equation:blup} and \ref{equation:predvar} and letting elements of $\mathbf{b}_a$ be equal to 1 for data points in 2020 and equal to 0 otherwise, we obtain a prediction of `r round(as.numeric(prediction_all), 0)` moose and a standard error (the square root of the prediction variance) of `r round(as.numeric(sqrt(predvar_all)), 0)` moose. A 90% normal-based prediction interval for the total abundance in 2020 is (`r round(lb_all, 0)`, `r round(ub_all, 0)`) moose. Note that, though the response in this example is a count, a normal-based prediction interval for the total is still appropriate through an application of the central limit theorem for dependent data [@smith1980central]. Sitewise predictions for sites in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
 
-```{r, fig.cap = "\\label{fig:sitepredmap} A map of the predictions for the sites in the year 2020 from the spatio-temporal model. A site with a grey dot in the center means that the site was sampled in 2020."}
+```{r, fig.cap = "\\label{fig:sitepredmap} (Left). A map of the predictions for the sites in the year 2020 from the spatio-temporal model. A site with a grey dot in the center means that the site was sampled in 2020. (Right). A map of the stratification of sites in 2020. NOTE: need to update these to be proper sub-figures if we keep the stratification figure."}
+## 
 pred_obj_map <- predict(object = fit_obj_all,
-                        wts = "allpred_wts")
-moose_shp_preds <- left_join(shp, pred_obj_map$data)
+                        wts = "yearind")
+pred_joined_private <- left_join(pred_obj_map$data,
+                                 moose_14_20_priv,
+          by = c("xcoords", "ycoords", "Surveyyear"))
+moose_shp_preds <- left_join(shp, pred_joined_private,
+                             by = c("ID" = "ID"))
 
-# ggplot(data = moose_shp_preds) +
-#   geom_sf(aes(fill = predictions_)) +
-#   facet_wrap( ~ Surveyyear, nrow = 2) +
-#   theme_void() +
-#   scale_fill_viridis_c()
 
-moose_shp_preds_2020 <- moose_shp_preds |> filter(Surveyyear == 2020)
-ggplot(data = moose_shp_preds_2020) +
+moose_shp_preds_2020 <- moose_shp_preds |>
+  dplyr::filter(Surveyyear == 2020)
+p1 <- ggplot(data = moose_shp_preds_2020) +
   geom_sf(aes(fill = predictions_), alpha = 0.9) +
   theme_void() +
   scale_fill_viridis_c() +
-  geom_point(data = moose_shp_preds_2020 |> filter(ind_sa == 1), aes(x = CentoidX, y = CentroidY), size = 0.40, colour = grey(.7)) +
+  geom_point(data = moose_shp_preds_2020 |> dplyr::filter(ind_sa == 1), aes(x = CentoidX, y = CentroidY), size = 0.40, colour = grey(.7)) +
   labs(fill = "Counts")
+
+p2 <- ggplot(data = moose_shp_preds_2020) +
+  geom_sf(aes(fill = newstrat)) +
+  theme_void() +
+  scale_fill_viridis_d(end = 0.90, direction = -1) +
+  labs(fill = "Stratum")
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
 ```
-
-```{r}
-## Forecasting
-weights_df <- fit_obj_all$data |> 
-  mutate(wts_14 = if_else(Surveyyear == 2014, 1, 0),
-         wts_15 = if_else(Surveyyear == 2015, 1, 0),
-         wts_16 = if_else(Surveyyear == 2016, 1, 0),
-         wts_17 = if_else(Surveyyear == 2017, 1, 0),
-         wts_18 = if_else(Surveyyear == 2018, 1, 0),
-         wts_19 = if_else(Surveyyear == 2019, 1, 0),
-         wts_20 = if_else(Surveyyear == 2020, 1, 0),
-         wts_21 = if_else(Surveyyear == 2021, 1, 0))
-
-pred_14 <- predict(fit_obj_all, wts = weights_df |> pull(wts_14))
-pred_15 <- predict(fit_obj_all, wts = weights_df |> pull(wts_15))
-pred_16 <- predict(fit_obj_all, wts = weights_df |> pull(wts_16))
-pred_17 <- predict(fit_obj_all, wts = weights_df |> pull(wts_17))
-pred_18 <- predict(fit_obj_all, wts = weights_df |> pull(wts_18))
-pred_19 <- predict(fit_obj_all, wts = weights_df |> pull(wts_19))
-pred_20 <- predict(fit_obj_all, wts = weights_df |> pull(wts_20))
-pred_21 <- predict(fit_obj_all, wts = weights_df |> pull(wts_21))
-
-pred_14$totalpred
-pred_18
-pred_df <- tibble(year = c(2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021),
-                  prediction = c(pred_14$totalpred,
-                  pred_15$totalpred,
-                  pred_16$totalpred,
-                  pred_17$totalpred,
-                  pred_18$totalpred, pred_19$totalpred,
-                  pred_20$totalpred,
-                  pred_21$totalpred),
-                  se = c(sqrt(pred_14$predvar),
-                         sqrt(pred_15$predvar),
-                         sqrt(pred_16$predvar),
-                         sqrt(pred_17$predvar),
-                         sqrt(pred_18$predvar),
-                         sqrt(pred_19$predvar),
-                         sqrt(pred_20$predvar),
-                         sqrt(pred_21$predvar)),
-                  method = "ST-FPBK")
-ggplot(data = pred_df, aes(x = year, y = prediction)) +
-  geom_errorbar(aes(ymin = prediction - se, 
-                    ymax = prediction + se)) +
-  ylim(c(0, 3500))
-
-library(sptotal)
-
-fit_obj_14 <- slmfit(formula = totalmoosena ~ newstrat,
-                       data = moose_final_all |> dplyr::filter(Surveyyear == 2014),
-                       xcoordcol = "xcoords", ycoordcol = "ycoords")
-fit_obj_15 <- slmfit(formula = totalmoosena ~ newstrat,
-                       data = moose_final_all |> dplyr::filter(Surveyyear == 2015),
-                       xcoordcol = "xcoords", ycoordcol = "ycoords")
-fit_obj_17 <- slmfit(formula = totalmoosena ~ newstrat,
-                       data = moose_final_all |> dplyr::filter(Surveyyear == 2017),
-                       xcoordcol = "xcoords", ycoordcol = "ycoords")
-fit_obj_18 <- slmfit(formula = totalmoosena ~ newstrat,
-                       data = moose_final_all |> dplyr::filter(Surveyyear == 2018),
-                       xcoordcol = "xcoords", ycoordcol = "ycoords")
-fit_obj_19 <- slmfit(formula = totalmoosena ~ newstrat,
-                       data = moose_final_all |> dplyr::filter(Surveyyear == 2019),
-                       xcoordcol = "xcoords", ycoordcol = "ycoords")
-fit_obj_20 <- slmfit(formula = totalmoosena ~ newstrat,
-                       data = moose_final_all |> dplyr::filter(Surveyyear == 2020),
-                       xcoordcol = "xcoords", ycoordcol = "ycoords")
-sptot_14 <- predict(fit_obj_14)
-sptot_15 <- predict(fit_obj_15)
-sptot_17 <- predict(fit_obj_17)
-sptot_18 <- predict(fit_obj_18)
-sptot_19 <- predict(fit_obj_19)
-sptot_20 <- predict(fit_obj_20)
-
-sptotal_df <- tibble(year = c(2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021),
-                     prediction = c(as.vector(sptot_14$FPBK_Prediction), 
-                                    as.vector(sptot_15$FPBK_Prediction), NA,
-                                    as.vector(sptot_17$FPBK_Prediction),
-                                    as.vector(sptot_18$FPBK_Prediction),
-                                    as.vector(sptot_19$FPBK_Prediction),
-                                    as.vector(sptot_20$FPBK_Prediction), NA),
-                     se = c(as.vector(sqrt(sptot_14$PredVar)),
-                            as.vector(sqrt(sptot_15$PredVar)),
-                            NA,
-                            as.vector(sqrt(sptot_17$PredVar)),
-                            as.vector(sqrt(sptot_18$PredVar)),
-                            as.vector(sqrt(sptot_19$PredVar)),
-                            as.vector(sqrt(sptot_20$PredVar)),
-                            NA),
-                     method = "FPBK")
-
-pred_plot_df <- bind_rows(pred_df, sptotal_df) |>
-  mutate(year = factor(year)) |>
-  mutate(year_method = interaction(year, method, sep = "_"))
-ggplot(data = pred_plot_df, aes(x = year, y = prediction,
-                                colour = method, group = method)) +
-  geom_errorbar(aes(ymin = prediction - se,
-                    ymax = prediction + se)) +
-  theme_minimal() +
-  scale_colour_viridis_d() ## +
-  #  facet_grid(~method, scales = "free", switch = "x", space = "free_x") + 
-  #   theme(strip.placement = "outside")
-
-ggplot(data = pred_plot_df, aes(x = year, y = prediction,
-                                colour = method, group = method)) +
-  geom_errorbar(aes(ymin = prediction - 1.645 * se,
-                    ymax = prediction + 1.645 * se),
-               position = "dodge2") +
-  theme_minimal() +
-  scale_colour_viridis_d(end = 0.9) +
-  ylim(c(0, 4000))
-```
-
 
 For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the spatial FPBK prediction [@ver2008spatial] for the total abundance of moose in the year 2020 with stratum as a covariate. The spatial FPBK predictor is what is currently implemented in the widely used GSPE software for moose surveys [@delong2006geospatial]. 
 
@@ -604,9 +512,10 @@ moose_final_2020 <- moose_final_all |>
   dplyr::filter(Surveyyear == 2020)
 
 library(sptotal)
-fit_obj_2020 <- slmfit(formula = totalmoosena ~ newstrat,
+fit_obj_2020 <- slmfit(formula = totalmoosena ~ strat_origin,
                        data = moose_final_2020,
-                       xcoordcol = "xcoords", ycoordcol = "ycoords",
+                       xcoordcol = "xcoords",
+                       ycoordcol = "ycoords",
                        estmethod = "ML")
 pred_obj_2020 <- predict(fit_obj_2020)
 tab_sptotal <- cbind(pred_obj_2020$FPBK_Prediction, sqrt(pred_obj_2020$PredVar),
@@ -641,6 +550,113 @@ se_srs <- round(moose_2020_srs$se_srs, 0)
 ```
 
 For the purely spatial model, the prediction for the total number of moose in 2020 in the region is `r pred_sptotal` moose with a standard error of `r se_sptotal` moose. For the stratified random sampling design-based estimator, the estimated total number of moose in 2020 in the region is `r pred_srs` moose with a standard error of `r se_srs` moose. While the predictions for the total moose abundance are similar across the three methods, we see that the spatio-temporal model is most efficient ($SE$ = `r round(as.numeric(sqrt(predvar_all)), 0)` moose compared to `r se_sptotal` moose for the purely spatial model that ignores previous surveys and `r se_srs` moose for the stratified random sampling design-based estimator that ignores both previous surveys and spatial correlation in the current survey). 
+
+In addition to making a prediction for the abundance in the most recent survey, we can also use the spatio-temporal model to backcast predictions for the abundance in past survey years, interpolate predictions for years during which a survey was not completed, and forecast predictions for future years. For example, in the Taylor Corridor surveys, there was no survey conducted in the year 2016 because of insufficient snow cover. Leveraging the temporal structure of the st-FPBK predictor, we can still construct a prediction and corresponding standard error though, as expected, this standard error is larger than the standard errors of years where a survey was completed (Figure \ref{fig:trend}). Also, in Figure \ref{fig:trend}, we see a forecasted prediction and corresponding standard error for the abundance in 2021. Again, the standard error associated with the forecasted prediction is larger than the standard errors for the years with surveys. 
+
+```{r, fig.cap = "\\label{fig:trend} Moose abundance predictions for the Taylor Corridor from 2014 through 2021 with the spatial FPBK predictor and the ST-FPBK predictor. Predictions are given with a diamond symbol; the bars surrounding each prediction are standard error bars. Because surveys were not conducted in 2016 and 2021, there is no spatial FPBK predictor and the standard errors for the ST-FPBK predictor for those years is larger than the standard errors in the other years."}
+## Forecasting
+weights_df <- fit_obj_all$data |> 
+  mutate(wts_14 = if_else(Surveyyear == 2014, 1, 0),
+         wts_15 = if_else(Surveyyear == 2015, 1, 0),
+         wts_16 = if_else(Surveyyear == 2016, 1, 0),
+         wts_17 = if_else(Surveyyear == 2017, 1, 0),
+         wts_18 = if_else(Surveyyear == 2018, 1, 0),
+         wts_19 = if_else(Surveyyear == 2019, 1, 0),
+         wts_20 = if_else(Surveyyear == 2020, 1, 0),
+         wts_21 = if_else(Surveyyear == 2021, 1, 0))
+
+pred_14 <- predict(fit_obj_all, wts = weights_df |> pull(wts_14))
+pred_15 <- predict(fit_obj_all, wts = weights_df |> pull(wts_15))
+pred_16 <- predict(fit_obj_all, wts = weights_df |> pull(wts_16))
+pred_17 <- predict(fit_obj_all, wts = weights_df |> pull(wts_17))
+pred_18 <- predict(fit_obj_all, wts = weights_df |> pull(wts_18))
+pred_19 <- predict(fit_obj_all, wts = weights_df |> pull(wts_19))
+pred_20 <- predict(fit_obj_all, wts = weights_df |> pull(wts_20))
+pred_21 <- predict(fit_obj_all, wts = weights_df |> pull(wts_21))
+
+pred_df <- tibble(year = c(2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021),
+                  prediction = c(pred_14$totalpred,
+                  pred_15$totalpred,
+                  pred_16$totalpred,
+                  pred_17$totalpred,
+                  pred_18$totalpred, pred_19$totalpred,
+                  pred_20$totalpred,
+                  pred_21$totalpred),
+                  se = c(sqrt(pred_14$predvar),
+                         sqrt(pred_15$predvar),
+                         sqrt(pred_16$predvar),
+                         sqrt(pred_17$predvar),
+                         sqrt(pred_18$predvar),
+                         sqrt(pred_19$predvar),
+                         sqrt(pred_20$predvar),
+                         sqrt(pred_21$predvar)),
+                  method = "ST-FPBK")
+
+library(sptotal)
+
+fit_obj_14 <- slmfit(formula = totalmoosena ~ strat_origin,
+                       data = moose_final_all |> dplyr::filter(Surveyyear == 2014),
+                       xcoordcol = "xcoords", ycoordcol = "ycoords")
+fit_obj_15 <- slmfit(formula = totalmoosena ~ strat_origin,
+                       data = moose_final_all |> dplyr::filter(Surveyyear == 2015),
+                       xcoordcol = "xcoords", ycoordcol = "ycoords")
+fit_obj_17 <- slmfit(formula = totalmoosena ~ strat_origin,
+                       data = moose_final_all |> dplyr::filter(Surveyyear == 2017),
+                       xcoordcol = "xcoords", ycoordcol = "ycoords")
+fit_obj_18 <- slmfit(formula = totalmoosena ~ strat_origin,
+                       data = moose_final_all |> dplyr::filter(Surveyyear == 2018),
+                       xcoordcol = "xcoords", ycoordcol = "ycoords")
+fit_obj_19 <- slmfit(formula = totalmoosena ~ strat_origin,
+                       data = moose_final_all |> dplyr::filter(Surveyyear == 2019),
+                       xcoordcol = "xcoords", ycoordcol = "ycoords")
+fit_obj_20 <- slmfit(formula = totalmoosena ~ strat_origin,
+                       data = moose_final_all |> dplyr::filter(Surveyyear == 2020),
+                       xcoordcol = "xcoords", ycoordcol = "ycoords")
+sptot_14 <- predict(fit_obj_14)
+sptot_15 <- predict(fit_obj_15)
+sptot_17 <- predict(fit_obj_17)
+sptot_18 <- predict(fit_obj_18)
+sptot_19 <- predict(fit_obj_19)
+sptot_20 <- predict(fit_obj_20)
+
+sptotal_df <- tibble(year = c(2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021),
+                     prediction = c(as.vector(sptot_14$FPBK_Prediction), 
+                                    as.vector(sptot_15$FPBK_Prediction), NA,
+                                    as.vector(sptot_17$FPBK_Prediction),
+                                    as.vector(sptot_18$FPBK_Prediction),
+                                    as.vector(sptot_19$FPBK_Prediction),
+                                    as.vector(sptot_20$FPBK_Prediction), NA),
+                     se = c(as.vector(sqrt(sptot_14$PredVar)),
+                            as.vector(sqrt(sptot_15$PredVar)),
+                            NA,
+                            as.vector(sqrt(sptot_17$PredVar)),
+                            as.vector(sqrt(sptot_18$PredVar)),
+                            as.vector(sqrt(sptot_19$PredVar)),
+                            as.vector(sqrt(sptot_20$PredVar)),
+                            NA),
+                     method = "FPBK")
+
+pred_plot_df <- bind_rows(pred_df, sptotal_df) |>
+  mutate(year = factor(year)) |>
+  mutate(year_method = interaction(year, method, sep = "_"))
+
+pd <- position_dodge(0.3)
+ggplot(data = pred_plot_df, aes(x = year, y = prediction,
+                                colour = method, group = method)) +
+  geom_point(aes(x = year, y = prediction), position = pd,
+             shape = 18, size = 3) +
+  geom_errorbar(aes(ymin = prediction - se,
+                    ymax = prediction + se),
+               position = pd,
+               width = 0.7, 
+               linewidth = 0.9) +
+  theme_minimal() +
+  scale_colour_viridis_d(end = 0.9) +
+  ##ylim(c(0, 4000)) +
+  labs(y = "Count", x = "Year",
+       colour = "Method")
+```
+
 
 ```{r, eval = FALSE}
 pred_sptotal <- pred_obj_2020$Pred_df |>
@@ -683,7 +699,7 @@ moose_temp_high <- moose_14_20 |>
 
 ## keep only variables that are necessary for analysis
 moose_df_high <- moose_temp_high |>
-  select(totalmoosena, SurveyID, Surveyyear, ID,
+  select(totalmoosena, Surveyyear,
          newstrat, xcoords, ycoords, samp_frame)
 
 ## create a variable for what values we want added up for
@@ -692,7 +708,7 @@ moose_df_high <- moose_df_high |>
   mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1,
                            true = 1, false = 0)) |> ungroup()
 
-moose_df_merge <- moose_df_high |> filter(yearind == 1) |> select(ID)
+moose_df_merge <- moose_df_high |> filter(yearind == 1) |> select(xcoords, ycoords)
 moose_final_high <- semi_join(moose_df_high, moose_df_merge)
 
 ## nspat unique spatial points and ntime unique time points.
@@ -705,7 +721,7 @@ moose_temp_low <- moose_14_20 |> dplyr::filter(newstrat == "LOW")
 
 ## keep only variables that are necessary for analysis
 moose_df_low <- moose_temp_low |>
-  select(totalmoosena, SurveyID, Surveyyear, ID,
+  select(totalmoosena, Surveyyear,
          newstrat, xcoords, ycoords, samp_frame)
 
 ## create a variable for what values we want added up for
@@ -714,7 +730,7 @@ moose_df_low <- moose_df_low |>
   mutate(yearind = if_else(Surveyyear == 2020 & samp_frame == 1,
                            true = 1, false = 0)) |> ungroup()
 
-moose_df_merge_low <- moose_df_low |> filter(yearind == 1) |> select(ID)
+moose_df_merge_low <- moose_df_low |> filter(yearind == 1) |> select(xcoords, ycoords)
 moose_final_low <- semi_join(moose_df_low, moose_df_merge_low)
 
 ## n unique spatial points and n unique time points.
@@ -823,7 +839,7 @@ pis_sptotal <- pred_sptotal[1, 1] +
 
 \section{Simulation} \label{section:Simulation}
 
-```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
+```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide", cache = TRUE}
 library(tidyverse)
 library(here)
 
@@ -860,7 +876,7 @@ sim_parm_tab2 <- na_if(sim_parm_tab, 0)
 sim_parm_tab2 <- na_if(sim_parm_tab2, 1e-10)
 options(knitr.kable.NA = '0')
 
-knitr::kable(sim_parm_tab2, caption = "Covariance parameters used to simulate data. $\\sigma^2_{\\delta}$, $\\sigma^2_{\\gamma}$, and $\\phi$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\\sigma^2_{\\tau}$, $\\sigma^2_{\\eta}$, and $\\rho$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\\sigma^2_{\\omega}$ and $\\sigma^2_{\\nu}$ are the spatio-temporal dependent error variance and spatio-temporal independent error variance.",
+knitr::kable(sim_parm_tab2, caption = "Covariance parameters used to simulate data. $\\sigma^2_{\\delta}$, $\\sigma^2_{\\gamma}$, and $\\phi$ are the spatial dependent error variance, independent error variance, and range parameters, respectively. $\\sigma^2_{\\tau}$, $\\sigma^2_{\\eta}$, and $\\rho$ are the temporal dependent error variance, independent error variance, and range parameters, respectively. $\\sigma^2_{\\omega}$ and $\\sigma^2_{\\nu}$ are the spatio-temporal dependent error variance and spatio-temporal independent error variance. Note that both $\\phi$ (and $\\rho$) appear in $\\mathbf{R}_{st}$; therefore, their values can change the underlying covariance even when $\\sigma^2_{\\delta}$ (and $\\sigma^2_{\\tau}$) are equal to 0.",
                label = "simparmtab",
              digits = 2, escape = FALSE,
              booktabs = TRUE, linesep = "", align = "c") |>
@@ -886,7 +902,7 @@ The three scenarios in the table correspond to (1) __all-dev__: a scenario where
 Both $\mathbf{R}_{s}$ and $\mathbf{R}_t$ are generated from the exponential correlation function with $\phi$ and $\rho$ as the range parameters in equations \ref{equation:spatcov} and \ref{equation:tempcov}. The values $0.471$ and $0.3333$ are chosen for $\phi$ and $\rho$, respectively, so that the effective ranges, $3 \phi$ and $3 \rho$, are equal to the maximum distance between two data points in space ($\sqrt2 = 1.414$) and the maximum distance between two data points in time ($1$). A value of 0 for $\phi$ (or $\rho$) sets the  $\mathbf{R}_{s}$ (or the $\mathbf{R}_t$) matrix to the identity matrix. Figure \ref{fig:simcovplot} shows the model covariance of the errors used to generate data for the "all-dev" scenario.
 
 
-```{r, fig.cap = "\\label{fig:simcovplot} The model covariance used in the simulations for the spatio-temporal scenario. Covariance is approximately 0 for errors from data points that are $\\sqrt2$ distance units apart in space or 1 distance unit apart in time. The spatial dependent error variance ($\\sigma^2_{\\delta}$), spatial independent error variance ($\\sigma^2_{\\gamma}$), temporal dependent error variance ($\\sigma^2_{\\tau}$), and temporal independent error variance ($\\sigma^2_{\\eta}$) are shown with grey lines."}
+```{r, fig.cap = "\\label{fig:simcovplot} The model covariance used in the simulations for the spatio-temporal scenario. Covariance is approximately 0 for errors from data points that are $\\sqrt2$ distance units apart in space and 1 distance unit apart in time. The spatial dependent error variance ($\\sigma^2_{\\delta}$), spatial independent error variance ($\\sigma^2_{\\gamma}$), temporal dependent error variance ($\\sigma^2_{\\tau}$), and temporal independent error variance ($\\sigma^2_{\\eta}$) are shown with grey lines."}
 library(latex2exp)
 
 fit_fake <- fit_obj_all
@@ -923,9 +939,9 @@ p +
             parse = TRUE, nudge_x = .05)
 ```
 
-Each of these three scenarios is replicated for two different sample sizes: $n = 250$ and $n = 500$. A simple random sample of the 1000 total data points is used to select units to be in the sample. 
+Each of these three scenarios is replicated for two different sample sizes: $n = 250$ and $n = 500$. A simple random sample as chosen from the 1000 total data points.
 
-Finally, the simulation experiment is repeated for a skewed response variable. To create the skewed response variable, a normally-distributed response is simulated according to the parameters given in Table \ref{tab:simparmtab}, except that each of the variance parameters (not including $\phi$ and $\rho$) is divided by 2.89 so that the total variance is equal to 0.6931. This variable is then exponentiated so that the total variance after exponentiation is equal to 2. Note that, not only does exponentiation result in a right-skewed response variable, but exponentiating also allows for an assessment of how the ST-FPBK predictor performs when the covariance is mis-specified, as the resulting response variable is now simulated with an intractable covariance function form that is not used in the model fitting.
+Finally, the simulation experiment is repeated for a skewed response variable. To create the skewed response variable, a normally-distributed response is simulated according to the parameters given in Table \ref{tab:simparmtab}, except that each of the variance parameters (not including $\phi$ and $\rho$) is divided by 2.89 so that the total variance is equal to 0.6931. This variable is then exponentiated so that the total variance after exponentiation is equal to 2. Note that, not only does exponentiation result in a right-skewed response variable, but exponentiating also allows for an assessment of how the ST-FPBK predictor performs when the covariance is mis-specified, as the resulting response variable is now simulated with an intractable covariance function that is not used in the model fitting.
 
 Therefore, the simulation study has $12$ total settings coming from a $3 \times 2 \times 2$ (scenario $\times$ sample size $\times$ distribution shape) factorial design. For each setting, we simulate 1000 realizations of the response vector $\mathbf{y}$. For each realization, we use three methods to predict the total response for the "most current" time point, which is when the time index is equal to 1 on the interval $[0, 1]$). We will henceforth call this "total response for the most current time point quantity" the "current total." 
 
@@ -935,13 +951,13 @@ The third method uses a simple random sample (SRS) design-based estimator with d
 
 The SRS method gives an estimator, not a predictor, and a corresponding confidence interval, not a prediction interval, because the SRS design-based estimator treats the observed data as fixed, not as a random realization from a process [@brus2021statistical; @dumelle2022comparison]. However, in the remaining text and tables, we refer to the "current total" response quantity obtained from the three methods as a "prediction" and to the corresponding interval as a "prediction interval" to limit unnecessarily verbose text and tables.
 
-For each method, we calculate the root-mean-squared-prediction-error (rMSPE) as $\frac{1}{1000}\sqrt{(\sum_{i = 1}^{1000}(T_i - \hat{T}_i)^2)}$, where $T_i$ and $\hat{T}_i$ are the realized and predicted current totals, respectively, in the $i^{th}$ iteration. Bias is recorded as $\frac{1}{1000}\sum_{i = 1}^{1000}(T_i - \hat{T}_i)$. We also create a normal-based 90% prediction interval for the realized current total and record $\frac{1}{1000} \sum_{i = 1}^{1000}I(LB_i < T_i < UB_i)$, where $I(LB_i < T_i < UB_i)$ is an indicator variable that is equal to $1$ if the realized total in iteration $i$, $T_i$, is between the lower bound, $LB_i$, and the upper bound, $UB_i$, of the $i^{th}$ prediction interval. 
+For each method, we calculate the root-mean-squared-prediction-error (rMSPE) as $\sqrt{\frac{1}{1000}(\sum_{i = 1}^{1000}(T_i - \hat{T}_i)^2)}$, where $T_i$ and $\hat{T}_i$ are the realized and predicted current totals, respectively, in the $i^{th}$ iteration. Bias is recorded as $\frac{1}{1000}\sum_{i = 1}^{1000}(T_i - \hat{T}_i)$. We also create a normal-based 90% prediction interval for the realized current total and record $\frac{1}{1000} \sum_{i = 1}^{1000}I(LB_i < T_i < UB_i)$, where $I(LB_i < T_i < UB_i)$ is an indicator variable that is equal to $1$ if the realized total in iteration $i$, $T_i$, is between the lower bound, $LB_i$, and the upper bound, $UB_i$, of the $i^{th}$ prediction interval. 
 
 <!-- Finally, we record the median prediction interval length as $\text{Median}(UB_i - LB_i)$. -->
 
 \subsection{Results}
 
-Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and \ref{tab:simpitab} in Section \ref{section:appendix} give the rMSPE, bias, and interval coverage of the three methods in all 12 simulation settings. In Figure \ref{fig:rmspe}, we see that the ST-FPBK predictor outperforms both the purely spatial FPBK predictor and the simple random sample design-based estimator in all of the "all-dev" and "spt-iev" scenarios. In general, rMSPE improvement is larger for the smaller sample size.  
+Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and \ref{tab:simpitab} in the [Appendix](#appendix) give the rMSPE, bias, and interval coverage of the three methods in all 12 simulation settings. In Figure \ref{fig:rmspe}, we see that the ST-FPBK predictor outperforms both the purely spatial FPBK predictor and the simple random sample design-based estimator in all of the "all-dev" and "spt-iev" scenarios. In general, rMSPE improvement is larger for the smaller sample size.  
 
 We see little gains in rMSPE for the ST-FPBK predictor  in the "t-iev" scenario. This setting was chosen to explore how the spatio-temporal model would perform when most of the variability in the response comes from $\sigma^2_{\eta}$, which allows for data collected in different time points to be uncorrelated, and, for different time points to have very different realized totals. As expected, the ST-FPBK predictor performs no better than a purely spatial model or the SRS design-based estimator for this scenario; however, we can also say that the added complexity of the spatio-temporal model is not detrimental. 
 
@@ -1102,10 +1118,14 @@ p3 <- FPSpatioTemp::plot_cov(fit_fake, sp_epstol = c(0.01, max_sp),
 
 We see in the moose application in Section \ref{section:Application} that there is substantial reduction in the standard error of the predictor for the total moose abundance in 2020 when incorporating data from surveys in previous years. In the simulation study in \ref{section:Simulation}, we find that the ST-FPBK predictor has lower rMSPE than the FPBK predictor from a purely spatial model and an SRS design-based estimator in many settings. The ST-FPBK predictor is less beneficial when the temporal independent error variance contributes a large proportion to the overall variance. Additionally, the ST-FPBK predictor maintains appropriate interval coverage in all settings tested, even when the covariance for the errors is mis-specified.
 
-An additional possible benefit of using the ST-FPBK predictor compared to a purely spatial FPBK predictor is the potential for forecasting abundance before a survey is completed. For example, in our application, we can refit the model without any of the observed counts from the 2020 survey and examine the prediction for the total abundance in the year 2020. Table \ref{tab:forecast} compares the model with the 2020 data used and the model without the 2020 data used. We see that, while there is a substantial loss in precision by excluding the 2020 data (as we would expect), the prediction is not very different from the prediction with the 2020 data included. And, the prediction interval might be narrow enough to still be useful to wildlife management. We could also consider using such an approach if there is a year during which a survey cannot be completed for logistical reasons. For example, in the Tok region of Alaska, a moose survey was not conducted at all in the year 2016 because there was insufficient snow cover for the survey. The spatio-temporal predictor could still be applied to get a prediction for moose abundance using survey data from previous years.
+An additional possible benefit of using the ST-FPBK predictor compared to a purely spatial FPBK predictor is the potential for forecasting abundance before a survey is completed. In Figure \ref{fig:trend}, we see the forecasted prediction for abundance in the year 2021. While there is a (presumed) loss in precision by constructing a prediction for a year that has no observed samples, the prediction could still be useful to wildlife managers for decision-making before a survey from that year is completed and analyzed. Constructing a prediction for years or time points at which a survey is not completed can be applied to other contexts as well, including temporal interpolation (e.g., the year 2016 in Figure \ref{fig:trend}).
 
-```{r, cache = TRUE}
-fit_obj_all_fore <- stlmfit(formula = totalmoosena ~ newstrat,
+The ability to predict the abundance (or other quantity) in time points that were not surveyed also allows biologists to investigate how much efficiency is lost from, for example, sampling every other year instead of every year. These types of surveys are often expensive, so perhaps the drop in efficiency from sampling every other year is worth the cost of completing those surveys annually.
+
+<!-- For example, in our application, we can refit the model without any of the observed counts from the 2020 survey and examine the prediction for the total abundance in the year 2020. Table \ref{tab:forecast} compares the model with the 2020 data used and the model without the 2020 data used. We see that, while there is a substantial loss in precision by excluding the 2020 data (as we would expect), the prediction is not very different from the prediction with the 2020 data included. The prediction interval might be narrow enough to still be useful to wildlife management, and we could consider using such an approach if there is a year during which a survey cannot be completed for logistical reasons. For example, in the Tok region of Alaska, a moose survey was not conducted at all in the year 2016 because there was insufficient snow cover for the survey. The spatio-temporal predictor could still be applied to get a prediction for moose abundance using survey data from previous years. -->
+
+```{r, eval = FALSE}
+fit_obj_all_fore <- stlmfit(formula = totalmoosena ~ strat_origin,
                        data = moose_final_all |> 
                          mutate(totalmoosena = if_else(Surveyyear == 2020,
                                                        true = NA_real_,
@@ -1121,27 +1141,30 @@ tab_stlmfit_all_fore <- cbind(prediction_all_fore, sqrt(predvar_all_fore),
                           lb_all_fore, ub_all_fore)
 ```
 
-```{r}
+```{r, eval = FALSE}
 fore_tab <- rbind(tab_stlmfit_all, tab_stlmfit_all_fore)
 colnames(fore_tab) <- c("Prediction", "SE", "90\\% LB", "90\\% UB")
 rownames(fore_tab) <- c("2020 Data Included", "2020 Data Excluded")
 
-knitr::kable(fore_tab, caption = "Results from analysis on the Tok moose survey data with the 2020 survey included and excluded. We can see that, even with 2020 data excluded, we can obtain a prediction for moose abundance in 2020, though there is substantial loss in precision.",
+knitr::kable(fore_tab, caption = "Results from analysis on the Taylor Corridor moose survey data with the 2020 survey included and excluded. We can see that, even with 2020 data excluded, we can obtain a prediction for moose abundance in 2020, though there is substantial loss in precision.",
                label = "forecast",
              digits = 0, escape = FALSE,
              booktabs = TRUE, linesep = "", align = "c")  |>
     kable_styling(latex_options = "HOLD_position")
 ```
 
-We would also like to give our perception of the benefits and drawbacks of our approach with that of @schmidt2022bayesian, who use a hierarchical Bayesian model to predict total abundance, among other quantities of interest. The benefits of our frequentist approach include a faster fitting time, as there is no need to construct and implement the time-consuming Markov chain Monte Carlo sampler. Therefore, our approach is easier to assess in a simulation study, which would be too time-prohibitive for the Bayesian model. Biometricians could also use simulation with our approach to answer various questions given proposed values of covariance parameters like how much efficiency would drop if a survey was only conducted every other year. Additionally, we argue that our approach is simpler overall for a practitioner to use and could be integrated more readily with the current GSPE software.
+We would also like to give our perception of the benefits and drawbacks of our approach with that of @schmidt2022bayesian, who use a hierarchical Bayesian model with spatial radial basis functions that are estimated per year and with time as a trend component in the fixed effects. The benefits of our approach include a faster fitting time, as there is no need to construct and implement the time-consuming Markov chain Monte Carlo sampler. Therefore, our approach is easier to assess in a simulation study, which would be too time-prohibitive for the Bayesian model. Biometricians could also use simulation with our approach to answer various questions given proposed values of covariance parameters like how much efficiency would drop if a survey was only conducted every other year. We argue that our approach is simpler overall for a practitioner to use and could be integrated more readily with the current GSPE software. Finally, our approach allows for temporal interpolation and forecasting while the estimation of the spatial radial basis functions in @schmidt2022bayesian for each time point do not allow for inference outside of the time points observed.
 
-The Bayesian approach by @schmidt2022bayesian, however, offers features that would be harder to implement in our approach. In general, the model is more flexible, and allows for incorporation of more levels in the Bayesian hierarchical model, including allowing for imperfect detection of animals from a separate detectability survey. Additionally, the Bayesian hierarchical model can use a Poisson or negative binomial model for the counts. Therefore, an appropriate prediction interval for the response on one particular site could be constructed. On the other hand, for our approach, we rely on the central limit theorem for dependent data to form a prediction interval for the total, which would not apply for a prediction interval for the response on just one site.
+The Bayesian approach by @schmidt2022bayesian, however, offers features that would be harder to implement in our approach. Their method allows for incorporation of more levels in the Bayesian hierarchical model, including allowing for imperfect detection of animals from a separate detectability survey. Additionally, the Bayesian hierarchical model can use a Poisson or negative binomial model for the counts. Therefore, an appropriate prediction interval for the response on one particular site could be constructed. On the other hand, for our approach, we rely on the central limit theorem for dependent data to form a prediction interval for the total, which would not apply for a prediction interval for the response on just one site.
 
 We have developed a finite population block kriging predictor for spatio-temporal data, which adjusts the variance of the predictor to be appropriate for sampling from a finite population. The resulting predictor is generally at least as good as the predictor form a purely spatial model, and, is often much better. Monitoring programs that use regularly scheduled surveys should consider incorporating data from past surveys to improve precision in the predictor for the most current survey. 
 
 Future work in this area includes developing a frequentist model for which imperfect detection of units through time is incorporated into the predictor or how best to select sites to sample for future surveys given proposed values for the spatio-temporal covariance parameters. Additionally, for moose surveys in particular, updating the GSPE software to include analysis for spatio-temporal data could be useful for practitioners. Though we recognize that doing so would be a substantial undertaking, the \texttt{R} package that we provide could be a useful starting point for the integration.
 
-\section{Appendix} \label{section:appendix}
+\setcounter{table}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+
+# Appendix {#appendix .unnumbered}
 
 ```{r}
 rmspe_tab <- sims_sum |> ungroup() |>
