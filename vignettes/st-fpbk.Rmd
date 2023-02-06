@@ -7,9 +7,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Next steps: 
-fix all of the "NEED" issues in the vignette
-write the other necessary generics (AIC, residuals, etc.)
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -18,10 +15,51 @@ knitr::opts_chunk$set(
 )
 ```
 
-Throughout this vignette, we use the `moose_vignette` data set in the `FPSpatioTemp` package. 
+In addition to the `FPSpatioTemp` package, we also use the `ggplot2`, `dplyr`, and `tibble` packages in the tidyverse:
+
+```{r}
+library(FPSpatioTemp)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+```
+
+## Toy Example: Data Set-Up
+
+In order to use the functions in the package, the data frame needs to have a few characteristics. At minimum, the data frame needs four variables: a variable for the x-coordinates, a variable for the y-coordinates, a variable for the "time"-coordinate, and a variable for the response. The variable for the time coordinate should either be a `<dbl>` variable or an `<int>` variable; the time should not be of class `<date>`. The response variable should be `NA` for any spatial locations that were not sampled at a particular time point. For example, a toy data set with 4 spatial locations and 2 time points might look like:
+
+```{r}
+toy_df <- tibble::tibble(xcoordvar = c(1, 1, 2, 2, 1, 1, 2, 2),
+                         ycoordvar = c(1, 2, 1, 2, 1, 2, 1, 2),
+                         tcoordvar = c(1, 1, 1, 1, 2, 2, 2, 2),
+                         response = c(4, 2, NA, 1, 0, 0, NA, 5)
+)
+toy_df
+```
+
+The data does not need to be ordered in any particular way. We anticipate that, in some contexts, data might only contain non-missing values for the response, as below:
+
+```{r}
+toy_df2 <- tibble::tibble(xcoordvar = c(1, 1, 2, 1, 1, 2),
+                         ycoordvar = c(1, 2, 2, 1, 2, 2),
+                         tcoordvar = c(1, 1, 1, 2, 2, 2),
+                         response = c(4, 2, 1, 0, 0, 5)
+)
+```
+
+To add missing response values for combinations of an x-coordinate, y-coordinate, and time-coordinate variables that are not in the data, we can use the `complete()` function from the `tidyr` package:
+
+```{r}
+toy_df2 |> tidyr::complete(xcoordvar, ycoordvar, tcoordvar)
+```
+
+For the rest of the vignette, we assume that the data frame used is already structured in this way. 
+
+## Moose Example Introduction
+
+We also now use the `moose_vignette` data set in the `FPSpatioTemp` package. 
 
 ```{r setup}
-library(FPSpatioTemp)
 data(moose_vignette)
 ```
 
@@ -139,13 +177,6 @@ The `t_max` and `sp_epstol` arguments to `plot_cov()` can be used to change the 
 plot_cov(mod, sp_epstol = c(0, 4, 40), t_max = 5)
 ```
 
-NEED to update error message when incorrect covariance structure is used.
-
-NEED to fix error message when elev_mean has all NAs
-
-ADD error message where space-time combinations are repeated.
-
-
 #### Other Functionality to `predict()`
 
 The other primary argument of predict is `wts`, which can be used to specify specific weights used for the prediction. By default, `wts` is a vector of `0`'s and `1`'s with a `1` for any observation in the response in the most recent time point and a `0` otherwise. With the default, we are predicting the total abundance in the most recent time point.
@@ -233,8 +264,3 @@ predict(mod_2023)
 ```
 
 The standard error for the total abundance for the forecasting model is higher than the standard error from the previous model because, without survey data from 2023, we are less certain about what the total abundance is.
-
-
-
-
-

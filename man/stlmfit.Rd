@@ -20,16 +20,16 @@ response variable as well as covariates for predicting the response on the unsam
 
 \item{data}{is a data frame or tibble with the response column, the covariates to be used for the block kriging, the spatio-temporal coordinates for all of the sites.}
 
-\item{xcoord}{is the name of the column in the data frame with x coordinates or longitudinal coordinates.}
+\item{xcoord}{is the name (as a string) of the column in the data frame with x coordinates or longitudinal coordinates.}
 
-\item{ycoord}{is the name of the column in the data frame with y coordinates or latitudinal coordinates.}
+\item{ycoord}{is the name (as a string) of the column in the data frame with y coordinates or latitudinal coordinates.}
 
-\item{tcoord}{is the name of the column in the data frame with 
+\item{tcoord}{is the name (as a string) of the column in the data frame with 
 the time points.}
 
-\item{cor_model_sp}{a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each spatial covariance type are available in Details.}
+\item{cor_model_sp}{a correlation model for the spatial correlation. Options are \code{"exponential"} (default), \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each spatial covariance type are available in Details.}
 
-\item{cor_model_t}{a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each temporal covariance type are available in Details.}
+\item{cor_model_t}{a correlation model for the temporal correlation. Options are \code{"exponential"} (default), \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each temporal covariance type are available in Details.}
 }
 \value{
 a list with \itemize{

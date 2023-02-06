@@ -21,11 +21,7 @@
 
 order_spt <- function(data, xcoord, ycoord, tcoord) {
 
-  # browser()
-  
-  # tcoord <- substitute(tcoord)
-  # xcoord <- substitute(xcoord)
-  # ycoord <- substitute(ycoord)
+  ## browser()
   
   data_ord <- data |> dplyr::filter(!is.na(.data[[xcoord]]) & !is.na(.data[[ycoord]]) & !is.na(.data[[tcoord]])) |>
     dplyr::arrange(.data[[tcoord]], .data[[xcoord]], .data[[ycoord]])
@@ -57,6 +53,7 @@ order_spt <- function(data, xcoord, ycoord, tcoord) {
   h_sp_large <- stats::dist(data_ord |> dplyr::select(dplyr::any_of(c(xcoord, ycoord))),
                             diag = TRUE, upper = TRUE) |>
     as.matrix()
+  
   
   n_sp <- nrow(key_sp)
   data <- dplyr::full_join(data_ord, key_sp) |> dplyr::full_join(key_t)

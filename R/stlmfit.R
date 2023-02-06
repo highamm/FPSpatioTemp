@@ -7,12 +7,12 @@
 #' @param formula is an \code{R} linear model formula specifying the
 #' response variable as well as covariates for predicting the response on the unsampled sites.
 #' @param data is a data frame or tibble with the response column, the covariates to be used for the block kriging, the spatio-temporal coordinates for all of the sites.
-#' @param xcoord is the name of the column in the data frame with x coordinates or longitudinal coordinates.
-#' @param ycoord is the name of the column in the data frame with y coordinates or latitudinal coordinates.
-#' @param tcoord is the name of the column in the data frame with 
+#' @param xcoord is the name (as a string) of the column in the data frame with x coordinates or longitudinal coordinates.
+#' @param ycoord is the name (as a string) of the column in the data frame with y coordinates or latitudinal coordinates.
+#' @param tcoord is the name (as a string) of the column in the data frame with 
 #' the time points.
-#' @param cor_model_sp a correlation model for the spatial correlation. Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each spatial covariance type are available in Details.
-#' @param cor_model_t a correlation model for the temporal correlation Options are \code{"exponential"}, \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each temporal covariance type are available in Details.
+#' @param cor_model_sp a correlation model for the spatial correlation. Options are \code{"exponential"} (default), \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each spatial covariance type are available in Details.
+#' @param cor_model_t a correlation model for the temporal correlation. Options are \code{"exponential"} (default), \code{"gaussian"}, \code{"spherical"}, or \code{"tent"}. Specific parameterizations of each temporal covariance type are available in Details.
 #' 
 #' @details The parameterizations for the correlation functions available for \code{cor_model_sp} and \code{cor_model_t} for distance \eqn{h} and general range parameter $\eqn{\phi}$ are
 #' \itemize{
@@ -40,21 +40,33 @@
 #'  xcoord = "xcoords", ycoord = "ycoords", tcoord = "times") 
 #' @import stats
 #' @export stlmfit
-             
-# stlmfit(formula = response_na ~ 1, data = samp_data,
-# xcoord = "xcoords", ycoord = "ycoords", tcoord = "times")
-                     
+
 stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
                     cor_model_sp = "exponential",
                     cor_model_t = "exponential") {
 
-  ## order the data so that sites are in the same order within each time
-  ## need to mess with this some more for NSE
+  ## various errors
+  if (xcoord %in% names(data) == FALSE | ycoord %in% names(data) ==FALSE | tcoord %in% names(data) == FALSE) {
+    stop("'xcoord', 'ycoord', and 'tcoord' must be quoted names of the columns in data.")
+  }
+  
+  if (cor_model_sp %in% c("exponential", "spherical", "gaussian", "tent") == FALSE) {
+    stop("cor_model_sp must be either 'exponential', 'spherical', 'gaussian', or 'tent'")
+  }
+  
+  if (cor_model_t %in% c("exponential", "spherical", "gaussian", "tent") == FALSE) {
+    stop("cor_model_t must be either 'exponential', 'spherical', 'gaussian', or 'tent'")
+  }
+  
   xcoord <- substitute(xcoord)
   ycoord <- substitute(ycoord)
   tcoord <- substitute(tcoord)
   
-
+  if (!inherits(data[[tcoord]], "numeric")) {
+    stop("The time coordinate column must be of class 'numeric'.")
+  }
+  
+  ## order the data so that sites are in the same order within each time
   order_spt_obj <- order_spt(data, xcoord, ycoord, tcoord)
   
   ## rows with missing coordinates (space or time) have been removed
@@ -63,7 +75,11 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   ## data_obs contains rows in the original sampling frame of data.
   data_og <- data_ordered |> dplyr::filter(.data$.observed == TRUE)
   
-  
+  n_unique_combs <- data |> dplyr::distinct(.data[[xcoord]], .data[[ycoord]], .data[[tcoord]]) |> nrow()
+  if (n_unique_combs < nrow(data)) {
+    stop("There are non-distinct xcoord-ycoord-tcoord combinations. There cannot be multiple rows corresponding to the same spatial_location-time_point combination.")
+    }
+
   ## make data frame of only predictors
   data_preds_only <- data.frame(data_og[ ,all.vars(formula)[-1]])
   colnames(data_preds_only) <- all.vars(formula)[-1]
@@ -150,8 +166,6 @@ stlmfit <- function(formula, data, xcoord, ycoord, tcoord,
   data_sa <- data_obs[ind_sa, ]
   data_un <- data_obs[ind_un, ]
   
-  # data_test <- data |> mutate(resp2 = rnorm(12, 0, 1))
-
   ## CANNOT HAVE A COLUMN NAMED index, spindex, or tindex
   fast_est <- stlmm(
     formula = formula,
