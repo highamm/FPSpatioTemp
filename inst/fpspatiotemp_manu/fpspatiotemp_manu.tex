@@ -84,22 +84,27 @@ Wells. Email: \href{mailto:jeff.wells@alaska.gov}{\nolinkurl{jeff.wells@alaska.g
 \maketitle
 
 \begin{abstract}
-Spatio-temporal predictors can incorporate both spatial and temporal
-information to predict means, totals, and proportions of a finite
-resource from a samples of spatial locations collected across time. We
-develop a spatio-temporal finite-population block kriging (ST-FPBK)
-predictor that incorporates an appropriate variance reduction for
-sampling from a finite population. Through an application to moose
-surveys in the east-central region of Alaska, we show that the predictor
-has a substantially smaller standard error compared to a predictor from
-the purely spatial model that is currently used to analyze moose surveys
-in the region. A separate simulation study shows that the
-spatio-temporal predictor is unbiased and that prediction intervals from
-the ST-FPBK predictor attain appropriate coverage. For ecological
-monitoring surveys completed with some regularity through time, use of
-ST-FPBK could improve precision. We also give an \texttt{R} package that
-ecologists and resource managers could use to incorporate data from past
-surveys in predicting a quantity from a current survey.
+Spatio-temporal models can be used to analyze data collected at various
+spatial locations throughout multiple time points. However, even with a
+finite number of spatial locations, there may be a lack of resources to
+sample every spatial location at every time point. We develop a
+spatio-temporal finite-population block kriging (ST-FPBK) method to
+predict a quantity of interest, such as a mean or total, across a finite
+number of spatial locations. This ST-FPBK predictor incorporates an
+appropriate variance reduction for sampling from a finite population.
+Through an application to moose surveys in the east-central region of
+Alaska, we show that the predictor has a substantially smaller standard
+error compared to a predictor from the purely spatial model that is
+currently used to analyze moose surveys in the region. We also show how
+the model can be used to forecast a prediction for abundance in a time
+point for which spatial locations have not yet been surveyed. A separate
+simulation study shows that the spatio-temporal predictor is unbiased
+and that prediction intervals from the ST-FPBK predictor attain
+appropriate coverage. For ecological monitoring surveys completed with
+some regularity through time, use of ST-FPBK could improve precision. We
+also give an \texttt{R} package that ecologists and resource managers
+could use to incorporate data from past surveys in predicting a quantity
+from a current survey.
 \end{abstract}
 
 \begin{keywords}
@@ -651,7 +656,7 @@ the standard errors of years where a survey was completed (Figure
 \ref{fig:trend}). Also, in Figure \ref{fig:trend}, we see a forecasted
 prediction and corresponding standard error for the abundance in 2021.
 Again, the standard error associated with the forecasted prediction is
-larger than the standard errors for years with surveys.
+larger than the standard errors for the years with surveys.
 
 \begin{figure}
 \centering
@@ -938,6 +943,31 @@ software to include analysis for spatio-temporal data could be useful
 for practitioners. Though we recognize that doing so would be a
 substantial undertaking, the \texttt{R} package that we provide could be
 a useful starting point for the integration.
+
+\hypertarget{data-and-code-availability}{%
+\section*{Data and Code Availability}\label{data-and-code-availability}}
+\addcontentsline{toc}{section}{Data and Code Availability}
+
+This manuscript has a supplementary \texttt{R} package that contains all
+of the data and code used in its creation, with the exception of the
+shapefile used to make the maps in some of the figures (which cannot be
+released due to Alaska Department of Fish and Game policy). The
+supplementary \texttt{R} package is hosted on GitHub and can be found at
+
+\url{https://github.com/highamm/FPSpatioTemp}.
+
+\hypertarget{acknowledgements}{%
+\section{Acknowledgements}\label{acknowledgements}}
+
+The views expressed in this manuscript are those of the authors and do
+not necessarily represent the views or policies of the U.S.
+Environmental Protection Agency or the National Oceanic and Atmospheric
+Administration. Any mention of trade names, products, or services does
+not imply an endorsement by the U.S. government, the U.S. Environmental
+Protection Agency, or the National Oceanic and Atmospheric
+Administration. The U.S. Environmental Protection Agency and National
+Oceanic and Atmospheric Administration do not endorse any commercial
+products, services, or enterprises.
 
 \setcounter{table}{0}
 \renewcommand{\thetable}{A\arabic{table}}
