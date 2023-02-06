@@ -1,10 +1,10 @@
 ---
-title: "st-fpbk"
+title: "Spatio-temporal Models for Finite Population Prediction"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{st-fpbk}
+  %\VignetteIndexEntry{Spatio-temporal Models for Finite Population Prediction}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r, include = FALSE}
