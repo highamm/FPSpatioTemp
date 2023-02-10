@@ -52,10 +52,10 @@ header-includes: |
   \usepackage{lineno}
   \linenumbers
 preamble: >
+  \usepackage{subcaption}
   \usepackage{bm}
   \usepackage{bbm}
   \usepackage{color}
-  \usepackage{subfig}
   \DeclareMathOperator{\var}{{var}}
   \DeclareMathOperator{\cov}{{cov}}
 output: rticles::tf_article
@@ -462,8 +462,7 @@ tab_stlmfit_all <- cbind(prediction_all, sqrt(predvar_all),
 
 We now use the fitted spatio-temporal model with the BLUP from equation \ref{equation:blup} and weights given in equation \ref{equation:currentweights} to predict the total abundance across all sites in the year 2020, the most recent year of the survey. Plugging in estimates of the covariance parameters into equations \ref{equation:blup} and \ref{equation:predvar} and letting elements of $\mathbf{b}_a$ be equal to 1 for data points in 2020 and equal to 0 otherwise, we obtain a prediction of `r round(as.numeric(prediction_all), 0)` moose and a standard error (the square root of the prediction variance) of `r round(as.numeric(sqrt(predvar_all)), 0)` moose. A 90% normal-based prediction interval for the total abundance in 2020 is (`r round(lb_all, 0)`, `r round(ub_all, 0)`) moose. Note that, though the response in this example is a count, a normal-based prediction interval for the total is still appropriate through an application of the central limit theorem for dependent data [@smith1980central]. Sitewise predictions for sites in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
 
-```{r, fig.cap = "\\label{fig:sitepredmap} (Left). A map of the predictions for the sites in the year 2020 from the spatio-temporal model. A site with a grey dot in the center means that the site was sampled in 2020. (Right). A map of the stratification of sites in 2020. NOTE: need to update these to be proper sub-figures if we keep the stratification figure."}
-## 
+```{r, fig.cap = "\\label{fig:sitepredmap} A map of the sites composing the Taylor corridor in eastern-central Alaska. (a). A map of the predictions for the sites in the year 2020 from the spatio-temporal model. A site with a grey dot in the center means that the site was sampled in 2020. (b). A map of the stratification of sites in 2020."}
 pred_obj_map <- predict(object = fit_obj_all,
                         wts = "yearind")
 pred_joined_private <- left_join(pred_obj_map$data,
@@ -480,16 +479,53 @@ p1 <- ggplot(data = moose_shp_preds_2020) +
   theme_void() +
   scale_fill_viridis_c() +
   geom_point(data = moose_shp_preds_2020 |> dplyr::filter(ind_sa == 1), aes(x = CentoidX, y = CentroidY), size = 0.40, colour = grey(.7)) +
-  labs(fill = "Counts")
+  labs(fill = "Counts") +
+  theme(plot.margin = unit(c(5.5, 5.5, 15, 5.5), "points"))
 
 p2 <- ggplot(data = moose_shp_preds_2020) +
   geom_sf(aes(fill = newstrat)) +
   theme_void() +
   scale_fill_viridis_d(end = 0.90, direction = -1) +
-  labs(fill = "Stratum")
+  labs(fill = "Stratum") +
+  theme(plot.margin = unit(c(5.5, 5.5, 15, 5.5), "points"))
 
-gridExtra::grid.arrange(p1, p2, nrow = 1)
+# ggsave(p1, width = 4, height = 4,
+       # file = "inst/fpspatiotemp_manu/predmap.png")
+# ggsave(p2, width = 4, height = 4,
+       # file = "inst/fpspatiotemp_manu/stratmap.png")
+library(ggpubr)
+p1 <- p1 |> annotate_figure(fig.lab = c("(a)"),
+                            fig.lab.pos = "bottom",
+                            fig.lab.face = "plain")
+p2 <- p2 |> annotate_figure(fig.lab = c("(b)"),
+                            fig.lab.pos = "bottom",
+                            fig.lab.face = "plain")
+gridExtra::grid.arrange(p1, p2, nrow = 1) 
+# ggarrange(p1, p2, ncol = 2, labels = c("a)","b)"),
+#           label.x = c(1, 1),
+#           font.label = face = "plain")
+
 ```
+
+<!-- \begin{figure} -->
+<!-- \centering -->
+<!-- \begin{subfigure} -->
+<!--   \centering -->
+<!--   \includegraphics[width = 0.5\linewidth]{predmap.png} -->
+<!--   \caption{Assignment of level-one cells to the spatial domain. Grey circles indicate population units.} -->
+<!--   \label{fig:grts_level1} -->
+<!-- \end{subfigure} -->
+<!-- \begin{subfigure} -->
+<!--   \centering -->
+<!--   \includegraphics[width = 0.5\linewidth]{stratmap.png} -->
+<!--   \caption{Assignment of level-two cells to the spatial domain. Grey circles indicate population units.} -->
+<!--   \label{fig:grts_level2} -->
+<!-- \end{subfigure} -->
+<!-- \caption{Assignment of level-one and level-two cells to the spatial domain. In (a), each level-one cells is randomly given a level-one address of 0, 1, 2, or 3. In (b), each level-two cell within each level-one cell is randomly given a level-two address of 0, 1, 2, or 3.} -->
+<!-- \label{fig:sitepredmap} -->
+<!-- \end{figure} -->
+
+
 
 For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the spatial FPBK prediction [@ver2008spatial] for the total abundance of moose in the year 2020 with stratum as a covariate. The spatial FPBK predictor is what is currently implemented in the widely used GSPE software for moose surveys [@delong2006geospatial]. 
 
@@ -768,7 +804,9 @@ For each method, we calculate the root-mean-squared-prediction-error (rMSPE) as 
 
 Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and \ref{tab:simpitab} in the [Appendix](#appendix) give the rMSPE, bias, and interval coverage of the three methods in all 12 simulation settings. In Figure \ref{fig:rmspe}, we see that the ST-FPBK predictor outperforms both the purely spatial FPBK predictor and the simple random sample design-based estimator in all of the "all-dev" and "spt-iev" scenarios. In general, rMSPE improvement is larger for the smaller sample size.  
 
-We see little gains in rMSPE for the ST-FPBK predictor  in the "t-iev" scenario. This setting was chosen to explore how the spatio-temporal model would perform when most of the variability in the response comes from $\sigma^2_{\eta}$, which allows for data collected in different time points to be uncorrelated, and, for different time points to have very different realized totals. As expected, the ST-FPBK predictor performs no better than a purely spatial model or the SRS design-based estimator for this scenario; however, we can also say that the added complexity of the spatio-temporal model is not detrimental. 
+<!-- , which allows for data collected in different time points to be uncorrelated, and, for different time points to have very different realized totals. -->
+
+We see little gains in rMSPE for the ST-FPBK predictor  in the "t-iev" scenario. This setting was chosen to explore how the spatio-temporal model would perform when most of the variability in the response comes from $\sigma^2_{\eta}$. In this scenario, the mean of the response, conditional on the random effects, can fluctuate from time point to time point. Therefore, in a model without any fixed effects, the realized total is susceptible to time point to time point increases and decreases moreso than the realized total is in the other scenarios. As expected, the ST-FPBK predictor performs no better than a purely spatial model or the SRS design-based estimator for the "t-iev" scenario; however, we can also say that the added complexity of the spatio-temporal model is not detrimental. 
 
 ```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
 sims_df <- bind_rows(sims_readin) 
@@ -866,7 +904,7 @@ Future work in this area includes developing a frequentist model for which imper
 
 # Data and Code Availability {.unnumbered}
 
-This manuscript has a supplementary \texttt{R} package that contains all of the data and code used in its creation, with the exception of the shapefile used to make the maps in some of the figures (which cannot be released due to Alaska Department of Fish and Game policy). The supplementary \texttt{R} package is hosted on GitHub and can be found at
+This manuscript has a supplementary \texttt{R} package that contains all of the data and code used in its creation, with the exception of the shapefile used to make the maps in some of the figures (which cannot be released due to Alaska Department of Fish and Game policy). The supplementary \texttt{R} package is hosted on GitHub and can be found at (note: the repository is currently private)
 
 [https://github.com/highamm/FPSpatioTemp](https://github.com/highamm/FPSpatioTemp).
 

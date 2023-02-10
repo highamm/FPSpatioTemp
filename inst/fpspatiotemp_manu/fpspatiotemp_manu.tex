@@ -601,11 +601,11 @@ in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
 \begin{figure}
 \centering
 \includegraphics{fpspatiotemp_manu_files/figure-latex/unnamed-chunk-9-1.pdf}
-\caption{\label{fig:sitepredmap} (Left). A map of the predictions for
+\caption{\label{fig:sitepredmap} A map of the sites composing the Taylor
+corridor in eastern-central Alaska. (a). A map of the predictions for
 the sites in the year 2020 from the spatio-temporal model. A site with a
-grey dot in the center means that the site was sampled in 2020. (Right).
-A map of the stratification of sites in 2020. NOTE: need to update these
-to be proper sub-figures if we keep the stratification figure.}
+grey dot in the center means that the site was sampled in 2020. (b). A
+map of the stratification of sites in 2020.}
 \end{figure}
 
 For comparison, we use the spatial \texttt{sptotal} package
@@ -823,12 +823,15 @@ the smaller sample size.
 We see little gains in rMSPE for the ST-FPBK predictor in the ``t-iev''
 scenario. This setting was chosen to explore how the spatio-temporal
 model would perform when most of the variability in the response comes
-from \(\sigma^2_{\eta}\), which allows for data collected in different
-time points to be uncorrelated, and, for different time points to have
-very different realized totals. As expected, the ST-FPBK predictor
-performs no better than a purely spatial model or the SRS design-based
-estimator for this scenario; however, we can also say that the added
-complexity of the spatio-temporal model is not detrimental.
+from \(\sigma^2_{\eta}\). In this scenario, the mean of the response,
+conditional on the random effects, can fluctuate from time point to time
+point. Therefore, in a model without any fixed effects, the realized
+total is susceptible to time point to time point increases and decreases
+moreso than the realized total is in the other scenarios. As expected,
+the ST-FPBK predictor performs no better than a purely spatial model or
+the SRS design-based estimator for the ``t-iev'' scenario; however, we
+can also say that the added complexity of the spatio-temporal model is
+not detrimental.
 
 \begin{figure}
 \centering
@@ -955,6 +958,7 @@ of the data and code used in its creation, with the exception of the
 shapefile used to make the maps in some of the figures (which cannot be
 released due to Alaska Department of Fish and Game policy). The
 supplementary \texttt{R} package is hosted on GitHub and can be found at
+(note: the repository is currently private)
 
 \url{https://github.com/highamm/FPSpatioTemp}.
 
