@@ -806,7 +806,7 @@ Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and \ref{tab:simpitab} in th
 
 <!-- , which allows for data collected in different time points to be uncorrelated, and, for different time points to have very different realized totals. -->
 
-We see little gains in rMSPE for the ST-FPBK predictor  in the "t-iev" scenario. This setting was chosen to explore how the spatio-temporal model would perform when most of the variability in the response comes from $\sigma^2_{\eta}$. In this scenario, the mean of the response, conditional on the random effects, can fluctuate from time point to time point. Therefore, in a model without any fixed effects, the realized total is susceptible to time point to time point increases and decreases moreso than the realized total is in the other scenarios. As expected, the ST-FPBK predictor performs no better than a purely spatial model or the SRS design-based estimator for the "t-iev" scenario; however, we can also say that the added complexity of the spatio-temporal model is not detrimental. 
+We see little gains in rMSPE for the ST-FPBK predictor  in the "t-iev" scenario. This setting was chosen to explore how the spatio-temporal model would perform when most of the variability in the response comes from $\sigma^2_{\eta}$. In this scenario, the mean of the response, conditional on the random effects, can fluctuate from time point to time point. Therefore, in a model without any fixed effects, the realized total is susceptible to time point to time point increases and decreases more than the realized total is in the other scenarios. As expected, the ST-FPBK predictor performs no better than a purely spatial model or the SRS design-based estimator for the "t-iev" scenario; however, we can also say that the added complexity of the spatio-temporal model is not detrimental. 
 
 ```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
 sims_df <- bind_rows(sims_readin) 
@@ -849,6 +849,7 @@ sims_rmspe_long <- sims_sum |> pivot_longer(starts_with("rmspe"),
   mutate(method = fct_recode(method, "ST-FPBK" = "rmspe",
                              "FPBK" = "rmspe_sptot",
          "SRS" = "rmspe_srs")) |>
+  mutate(method = fct_relevel(method, "SRS", "FPBK", "ST-FPBK")) |>
   mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "skewed"))) |>
   mutate(scenario = fct_relevel(scenario, c("all-dev", "t-iev", "spt-iev")))
 ggplot(data = sims_rmspe_long, aes(x = n_sim |> factor(), y = rmspe, colour = method)) +
@@ -872,7 +873,7 @@ sims_pi_long <- sims_sum |> pivot_longer(starts_with("cover"),
   mutate(method = fct_recode(method, "ST-FPBK" = "coverage",
                              "FPBK" = "coverage_sptot",
          "SRS" = "coverage_srs")) |>
-  mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "skewed")))  |>
+    mutate(method = fct_relevel(method, "SRS", "FPBK", "ST-FPBK")) |> mutate(resp_type_sim = fct_relevel(resp_type_sim, c("normal", "skewed")))  |>
   mutate(scenario = fct_relevel(scenario, c("all-dev", "t-iev", "spt-iev")))
 ggplot(data = sims_pi_long, aes(x = n_sim |> factor(),
                                 y = coverage,
@@ -924,6 +925,7 @@ rmspe_tab <- sims_sum |> ungroup() |>
          FPBK = "rmspe_sptot",
          SRS = "rmspe_srs",
          n = "n_sim", `Response Type` = "resp_type_sim") |>
+  select(scenario, n, `Response Type`, SRS, FPBK, `ST-FPBK`) |>
   arrange(desc(`Response Type`))
 
 knitr::kable(rmspe_tab, caption = "root-mean-squared-prediction-error (rMSPE) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, the rMSPE for the ST-FPBK predictor is approximately equal to or lower than the rMSPE for the other two methods.",
@@ -943,6 +945,7 @@ bias_tab <- sims_sum |> ungroup() |>
          FPBK = "bias_sptot",
          SRS = "bias_srs",
          n = "n_sim", `Response Type` = "resp_type_sim") |>
+    select(scenario, n, `Response Type`, SRS, FPBK, `ST-FPBK`) |>
   arrange(desc(`Response Type`))
 
 knitr::kable(bias_tab, caption = "Bias (Realized Current Total - Predicted Current Total) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, all methods appear fairly unbiased.",
@@ -961,6 +964,7 @@ pi_tab <- sims_sum |> ungroup() |>
          FPBK = "coverage_sptot",
          SRS = "coverage_srs",
          n = "n_sim", `Response Type` = "resp_type_sim") |>
+  select(scenario, n, `Response Type`, SRS, FPBK, `ST-FPBK`) |>
   arrange(desc(`Response Type`))
 
 knitr::kable(pi_tab, caption = "Prediction interval coverage for the ST-FPBK predictor, the FPBK predictor, and the SRS for each of the 12 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90.",
