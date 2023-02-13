@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^inst/data_private$
 ^inst/fpspatiotemp_manu$
+^inst/preprint_springer$
 ^inst/papers$
 ^inst/simulations$
 ^inst/ADFG_Taylor_Corridor$

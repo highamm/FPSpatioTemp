@@ -2,8 +2,14 @@ Package: FPSpatioTemp
 Type: Package
 Title: Prediction of Counts with Spatio-temporal Data for Finite Populations
 Version: 0.1.0
-Author: Matt Higham
-Maintainer: Matt Higham <mhigham@stlawu.edu>
+Authors@R: c(
+    person("Matt", "Higham", email = "mhigham@stlawu.edu", role = c("cre", "aut")),
+    person("Michael", "Dumelle", email = "Dumelle.Michael@epa.gov", role = "aut",
+        comment = c(ORCID = "0000-0002-3393-5529")),
+    person("Carly", "Hammond", email = "carly.hammond@bayer.com", role = "aut"),
+    person("Jay", "Ver Hoef", email = "jay.verhoef@noaa.gov", role = "aut"),
+    person("Jeff", "Wells", email = "jeff.wells@alaska.gov", role = "aut")
+    )
 Description: This package can be used to predict abundance using survey data from
     the current year as well as data from past surveys using spatio-temporal
     modeling.
