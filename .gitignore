@@ -12,3 +12,5 @@ inst/doc
 inst/extra_analysis.Rmd
 /doc/
 /Meta/
+inst/preprint_springer/preprint_springer_cache
+inst/preprint_springer/preprint_springer_files
