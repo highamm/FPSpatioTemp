@@ -51,7 +51,6 @@ header-includes: |
   \usepackage[utf8]{inputenc}
   \def\tightlist{}
   \usepackage{lineno}
-  \linenumbers
 preamble: >
   \usepackage{subcaption}
   \usepackage{bm}
@@ -332,7 +331,9 @@ ggplot(data = moose_shp_2020) +
   labs(fill = "Count")
 ```
 
-The Taylor Corridor in the east-central region of Alaska is a popular habitat for moose and other wildlife. Abundance surveys for moose are performed in the Taylor Corridor of the east-central region of Alaska annually so that biologists have an idea about the abundance of moose each year. In particular, surveys were conducted from 2014 through 2020 in every year except 2016, during which there was not sufficient snow cover to perform a survey. The spatial sampling frame for our study area consists of `r nspat` sites. There are a total of `r ntime` unique time points represented in the data, including the missing year of 2016. Therefore, $N$ is `r nspat * ntime`. 
+
+
+The Taylor Corridor in the east-central region of Alaska is a popular area for moose hunters. Within the Taylor Corridor, abundance surveys for moose are performed annually so that biologists can assess annual abundance and monitor the moose population size. In particular, surveys were conducted from 2014 through 2020 in every year except 2016, during which there was not sufficient snow cover to perform a survey. The spatial sampling frame for our study area consists of `r nspat` sites. There are a total of `r ntime` unique time points represented in the data, including the missing year of 2016. Therefore, $N$ is `r nspat * ntime`. 
 
 ```{r, echo = FALSE, eval = TRUE, cache = TRUE}
 ## using stratum as a predictor
@@ -349,12 +350,27 @@ sites_2021 <- moose_final_all |>
          yearind = 0)
 
 moose_final_all <- bind_rows(moose_final_all, sites_2021)
-## Sys.time()
+
+Sys.time()
 fit_obj_all <- stlmfit(formula = totalmoosena ~ strat_origin,
                        data = moose_final_all,
                        xcoord = "xcoords", ycoord = "ycoords",
                        tcoord = "Surveyyear")
-## Sys.time(): fit time: about 9 minutes
+Sys.time()##: fit time: about 10.25
+
+fit_tib <- tibble::tibble(n_years = c(7, 6, 5, 4, 3, 2, 1),
+                          n = c(90 + 76 + 80 + 80 + 0 + 80 + 81,
+                                90 + 76 + 80 + 80 + 0 + 80,
+                                90 + 76 + 80 + 80 + 0,
+                                90 + 76 + 80 + 80,
+                                90 + 76 + 80,
+                                90 + 76,
+                                90),
+                          N = c(381 * 7, 381 * 6, 381 * 5, 381 * 4,
+                                381 * 3, 381 * 2, 381 * 1),
+                          time = c(10.25, 7.25, 3.1, 3.1, 1.5, 0.3, 0.1))
+## mention that ADF&G surveys go back further
+
 fixed_vec <- round(fit_obj_all$fixed_parms, 2)
 
 cov_vec <- fit_obj_all$cov_parms
@@ -422,7 +438,7 @@ gridExtra::grid.arrange(p2, p1, nrow = 1)
 
 ```
 
-In each year of the survey, a team of biologists stratifies all of the spatial sites into a "High" stratum and a "Low" stratum (Figure \ref{fig:sitepredmap}. They then select some of the `r nspat` sites to survey. The number of sites that were selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites were sampled as many as five different times while others were never sampled at all. The number of units sampled throughout all survey years, $n$, was `r sum(!is.na(moose_final_all$totalmoosena))` units. Figure \ref{fig:sitepredmap} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data]. 
+In each year of the survey, a team of biologists stratifies all of the spatial sites into a "High" stratum and a "Low" stratum (Figure \ref{fig:sitepredmap}). They then select some of the `r nspat` sites to survey. The number of sites that were selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites were sampled as many as five different times while others were never sampled at all. The number of units sampled throughout all survey years, $n$, was `r sum(!is.na(moose_final_all$totalmoosena))` units. Figure \ref{fig:sitepredmap} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data]. 
 
 The goal of the following analysis is to predict the total abundance of moose across all sites in the year 2020, the most recent year of the survey, using stratum as a covariate in the spatio-temporal model.
 
@@ -472,7 +488,7 @@ The estimated vector of fixed effects, using "High" as the reference group, is $
                     
 We now use the fitted spatio-temporal model with the BLUP from equation \ref{equation:blup} and weights given in equation \ref{equation:currentweights} to predict the total abundance across all sites in the year 2020, the most recent year of the survey. Plugging in estimates of the covariance parameters into equations \ref{equation:blup} and \ref{equation:predvar} and letting elements of $\mathbf{b}_a$ be equal to 1 for data points in 2020 and equal to 0 otherwise, we obtain a prediction of `r round(as.numeric(prediction_all), 0)` moose and a standard error (the square root of the prediction variance) of `r round(as.numeric(sqrt(predvar_all)), 0)` moose. A 90% normal-based prediction interval for the total abundance in 2020 is (`r round(lb_all, 0)`, `r round(ub_all, 0)`) moose. Note that, though the response in this example is a count, a normal-based prediction interval for the total is still appropriate through an application of the central limit theorem for dependent data [@smith1980central]. Sitewise predictions for sites in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
 
-For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the spatial FPBK prediction [@ver2008spatial] for the total abundance of moose in the year 2020 with stratum as a covariate. The spatial FPBK predictor is what is currently implemented in the widely used GSPE software for moose surveys [@delong2006geospatial]. 
+For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the spatial FPBK prediction [@ver2008spatial] for the total abundance of moose in the year 2020 with stratum as a covariate. Note that the widely used GSPE software for moose surveys allows for the strata to have different covariance parameters and does not treat stratum as a covariate [@delong2006geospatial]. Analyzing each stratum individually often results in better precision for the total moose abundance predictor. 
 
 We also use the stratified random sampling design-based estimator
 \mbox{}
@@ -519,7 +535,7 @@ pred_srs <- round(moose_2020_srs$pred_srs, 0)
 se_srs <- round(moose_2020_srs$se_srs, 0)
 ```
 
-For the purely spatial model, the prediction for the total number of moose in 2020 in the region is `r pred_sptotal` moose with a standard error of `r se_sptotal` moose. For the stratified random sampling design-based estimator, the estimated total number of moose in 2020 in the region is `r pred_srs` moose with a standard error of `r se_srs` moose. While the predictions for the total moose abundance are similar across the three methods, we see that the spatio-temporal model is most efficient ($SE$ = `r round(as.numeric(sqrt(predvar_all)), 0)` moose compared to `r se_sptotal` moose for the purely spatial model that ignores previous surveys and `r se_srs` moose for the stratified random sampling design-based estimator that ignores both previous surveys and spatial correlation in the current survey). 
+For the purely spatial model with stratum as a covariate, the prediction for the total number of moose in 2020 in the region is `r pred_sptotal` moose with a standard error of `r se_sptotal` moose. For the stratified random sampling design-based estimator, the estimated total number of moose in 2020 in the region is `r pred_srs` moose with a standard error of `r se_srs` moose. While the predictions for the total moose abundance are similar across the three methods, we see that the spatio-temporal model is most efficient ($SE$ = `r round(as.numeric(sqrt(predvar_all)), 0)` moose compared to `r se_sptotal` moose for the purely spatial model that ignores previous surveys and `r se_srs` moose for the stratified random sampling design-based estimator that ignores both previous surveys and spatial correlation in the current survey). 
 
 In addition to making a prediction for the abundance in the most recent survey, we can also use the spatio-temporal model to backcast predictions for the abundance in past survey years, interpolate predictions for years during which a survey was not completed, and forecast predictions for future years. For example, in the Taylor Corridor surveys, there was no survey conducted in the year 2016 because of insufficient snow cover. Leveraging the temporal structure of the ST-FPBK predictor, we can still construct a prediction and corresponding standard error though, as expected, this standard error is larger than the standard errors of years where a survey was completed (Figure \ref{fig:trend}). Also, in Figure \ref{fig:trend}, we see a forecasted prediction and corresponding standard error for the abundance in 2021. Again, the standard error associated with the forecasted prediction is larger than the standard errors for the years with completed surveys. 
 
@@ -661,7 +677,7 @@ sims_readin <- map(files, read_csv, col_names = TRUE)
 
 ## Description
 
-To evaluate performance of the ST-FPBK predictor, we conduct a simulation study. We simulate a response vector $\mathbf{y}$ of length $N = 1000$ on a $10 \times 10$ grid of 100 spatial sites on the unit square ($[0, 1] \times [0, 1]$) and 10 equally-spaced time points in the interval $[0, 1]$, so that each spatial site has a response value at each time point. $\mathbf{y}$ is multivariate normal with mean $\mathbf{0}$ and product-sum covariance matrix $\bm{\Sigma}$ defined in equation \ref{equation:var} with the covariance parameters given in Table \ref{tab:simparmtab}.
+To evaluate performance of the ST-FPBK predictor, we conduct a simulation study. We simulate a response vector $\mathbf{y}$ of length $N = 1000$ on a $10 \times 10$ grid of 100 spatial sites on the unit square ($[0, 1] \times [0, 1]$) and 10 equally-spaced time points in the interval $[0, 1]$, so that each spatial site has a response value at each time point. The random vector $\mathbf{y}$ is multivariate normal with mean $\mathbf{0}$ and product-sum covariance matrix $\bm{\Sigma}$ defined in equation \ref{equation:var} with the covariance parameters given in Table \ref{tab:simparmtab}.
 
 ```{r, results = "asis"}
 library(kableExtra)
@@ -766,6 +782,10 @@ We see little gains in rMSPE for the ST-FPBK predictor  in the "t-iev" scenario.
 ```{r, eval = TRUE, echo = FALSE, fig.keep = "none", results = "hide"}
 sims_df <- bind_rows(sims_readin) 
 
+# sims_df |> group_by(n_sim, sp_de_sim,
+#                                 sp_range_sim, t_ie_sim,
+#                                 resp_type_sim) |>
+#   summarise(med_fit = median(pred_time))
 sims_sum <- sims_df |> group_by(n_sim, sp_de_sim,
                                 sp_range_sim, t_ie_sim,
                                 resp_type_sim) |>
@@ -850,11 +870,13 @@ An additional possible benefit of using the ST-FPBK predictor compared to a pure
 
 The ability to predict the abundance (or other quantity) in time points that were not surveyed also allows biologists to investigate how much efficiency is lost from, for example, sampling every other year instead of every year. These types of surveys are often expensive, so perhaps the drop in efficiency from sampling every other year is worth the cost of completing those surveys annually.
 
-We would also like to give our perception of the benefits and drawbacks of our approach with that of @schmidt2022bayesian, who use a hierarchical Bayesian model with spatial radial basis functions that are estimated per year and with time as a trend component in the fixed effects to make predictions for finite populations. The benefits of our approach include a faster fitting time, as there is no need to construct and implement the time-consuming Markov chain Monte Carlo sampler. Therefore, our approach is easier to assess in a simulation study, which would be too time-prohibitive for the Bayesian model. Biometricians could also use simulation with our approach to answer various questions given proposed values of covariance parameters like how much efficiency would drop if a survey was only conducted every other year. We argue that our approach is simpler overall for a practitioner to use and could be integrated more readily with the current GSPE software. Finally, our approach allows for temporal interpolation and forecasting while the estimation of the spatial radial basis functions in @schmidt2022bayesian for each time point does not allow for inference outside of the time points observed.
+We would also like to give our perception of the benefits and drawbacks of our approach with that of @schmidt2022bayesian, who use a hierarchical Bayesian model with spatial radial basis functions that are estimated per year and with time as a trend component in the fixed effects to make predictions for finite populations. The benefits of our approach include a faster fitting time, as there is no need to construct and implement the time-consuming Markov chain Monte Carlo sampler. The moose application model in Section \ref{section:Application} takes about 10 minutes to fit. There is a trade-off here between how many surveys to incorporate into the model (the Alaska Department of Fish and Game has done surveys with this structure since the late 1990's) and how long the model will take to fit. We expect there to be diminishing returns in precision when incorporating older surveys, though the rate at which the returns diminish is dependent upon the application at hand.
+
+Because of the shorter fitting time, our approach is easier to assess in a simulation study, which would be too time-prohibitive for the Bayesian model. Biometricians could also use simulation with our approach to answer various questions given proposed values of covariance parameters like how much efficiency would drop if a survey was only conducted every other year. We argue that our approach is simpler overall for a practitioner to use and could be integrated more readily with the current GSPE software. Finally, our approach allows for temporal interpolation and forecasting while the estimation of the spatial radial basis functions in @schmidt2022bayesian for each time point does not allow for inference outside of the time points observed.
 
 The Bayesian approach by @schmidt2022bayesian, however, offers features that would be harder to implement in our approach. Their method allows for incorporation of more levels in the Bayesian hierarchical model, including allowing for imperfect detection of animals from a separate detectability survey. Additionally, the Bayesian hierarchical model can use a Poisson or negative binomial model for the counts. Therefore, an appropriate prediction interval for the response on one particular site could be constructed. On the other hand, for our approach, we rely on the central limit theorem for dependent data to form a prediction interval for the total, which would not apply to a prediction interval for the response on just one site.
 
-We have developed a finite population block kriging predictor for spatio-temporal data, which adjusts the variance of the predictor to be appropriate for sampling from a finite population. The resulting predictor is generally at least as good as the predictor form a purely spatial model, and, is often much better. Monitoring programs that use regularly scheduled surveys should consider incorporating data from past surveys to improve precision in the predictor for the most current survey. 
+We have developed a finite population block kriging predictor for spatio-temporal data, which adjusts the variance of the predictor to be appropriate for sampling from a finite population. The resulting predictor is generally at least as good as the predictor from a purely spatial model, and, is often much better. Monitoring programs that use regularly scheduled surveys should consider incorporating data from past surveys to improve precision in the predictor for the most current survey. 
 
 Future work in this area includes developing a frequentist model for which imperfect detection of units through time is incorporated into the predictor or how best to select sites to sample for future surveys given proposed values for the spatio-temporal covariance parameters. Additionally, for moose surveys in particular, updating the GSPE software to include analysis for spatio-temporal data could be useful for practitioners. Though we recognize that doing so would be a substantial undertaking, the \texttt{R} package that we provide could be a useful starting point for the integration.
 
