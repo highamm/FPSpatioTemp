@@ -80,7 +80,7 @@ In ecological monitoring, we are often interested in prediction of a total or a 
 
 ## Motivating Example
 
-To motivate the development of the predictor in Section \ref{section:Methods}, we consider moose surveys, which are performed annually or every other year in many regions of Alaska and western Canada. The most common goal of these surveys is to predict moose abundance, the total number of moose, in some region to inform harvest regulations [@kellie2019challenges]. Because of time and money constraints, only some spatial indices, or sites, in the region of interest are selected to be in the survey at a particular time point. Biologists fly to these selected sites, count the number of moose, and then use FPBK to find a prediction for the finite abundance for that year. These surveys are historically analyzed with software developed by @delong2006geospatial, which calculates the "GeoSpatial Population Estimator" (GSPE) for a given survey. The GSPE is an application of the FPBK predictor developed by @ver2008spatial.
+To motivate the development of the predictor in Section \ref{section:Methods}, we consider moose surveys, which are performed annually or every other year in many regions of Alaska and western Canada. The most common goal of these surveys is to predict moose abundance, the total number of moose, in some region to inform harvest regulations [@kellie2019challenges]. Because of time and money constraints, only some spatial indices, or sites, in the region of interest are selected to be in the survey at a particular time point. Biologists fly to these selected sites, count the number of moose, and then use FPBK to find a prediction for the finite abundance for that year. These surveys are historically analyzed with the "WinfoNet" site developed by @delong2006geospatial, which calculates the "GeoSpatial Population Estimator" (GSPE) for a given survey. The GSPE is an application of the FPBK predictor developed by @ver2008spatial.
  
 Though many of these surveys are completed regularly, most are analyzed completely independently of surveys from previous years [e.g. @gasaway1986estimating; @kellie_geospatial_2006; @boertje2009managing; @peters2014contrasting]. For example, a model for a survey conducted in the year 2019 constructs a prediction for total abundance only from counts on sites that were sampled in that year. However, using counts from previous years in a model that incorporates both spatial and temporal (spatio-temporal) correlation while also using a finite population correction factor based on the proportion of sites surveyed in the most recent year could result in a prediction for the realized total that is more precise than predictions from a purely spatial model. Shortly, we describe such a predictor.
 
@@ -351,12 +351,12 @@ sites_2021 <- moose_final_all |>
 
 moose_final_all <- bind_rows(moose_final_all, sites_2021)
 
-Sys.time()
+## Sys.time()
 fit_obj_all <- stlmfit(formula = totalmoosena ~ strat_origin,
                        data = moose_final_all,
                        xcoord = "xcoords", ycoord = "ycoords",
                        tcoord = "Surveyyear")
-Sys.time()##: fit time: about 10.25
+## Sys.time()##: fit time: about 10.25
 
 fit_tib <- tibble::tibble(n_years = c(7, 6, 5, 4, 3, 2, 1),
                           n = c(90 + 76 + 80 + 80 + 0 + 80 + 81,
@@ -438,7 +438,7 @@ gridExtra::grid.arrange(p2, p1, nrow = 1)
 
 ```
 
-In each year of the survey, a team of biologists stratifies all of the spatial sites into a "High" stratum and a "Low" stratum (Figure \ref{fig:sitepredmap}). They then select some of the `r nspat` sites to survey. The number of sites that were selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites were sampled as many as five different times while others were never sampled at all. The number of units sampled throughout all survey years, $n$, was `r sum(!is.na(moose_final_all$totalmoosena))` units. Figure \ref{fig:sitepredmap} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data]. 
+In each year of the survey, a team of biologists stratifies all of the spatial sites into a "High" stratum and a "Low" stratum based on wildlife biologist knowledge of moose density in the region (Figure \ref{fig:sitepredmap}). They then select some of the `r nspat` sites to survey. The number of sites that were selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites were sampled as many as five different times while others were never sampled at all. The number of units sampled throughout all survey years, $n$, was `r sum(!is.na(moose_final_all$totalmoosena))` units. Figure \ref{fig:sitepredmap} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data]. 
 
 The goal of the following analysis is to predict the total abundance of moose across all sites in the year 2020, the most recent year of the survey, using stratum as a covariate in the spatio-temporal model.
 
@@ -467,7 +467,7 @@ knitr::kable(tab, caption = "Estimated covariance parameters in the model. $\\ha
  ## row_spec(c(3, 6, 9), hline_after = TRUE)
 ```
 
-To help interpret what some of these fitted covariance parameter estimates mean, we can construct a fitted covariance plot (Figure \ref{fig:covplot}). As the spatial distance between two sites increases (dark colour to light colour), the covariance of two random errors decreases to 0, with the $\hat{\phi}$ parameter estimate controlling the rate of decay. In fact, the model estimates the covariance to be nearly 0 when two sites are 20 or more kilometers apart, no matter what the temporal distance is. The covariance between two errors that are six years apart is still estimated to be positive if the two errors come from the same site or from adjacent sites. 
+To help interpret what some of these fitted covariance parameter estimates mean, we can construct a fitted covariance plot (Figure \ref{fig:covplot}). As the spatial distance between two sites increases (dark colour to light colour), the covariance of two random errors decreases to 0, with the $\hat{\phi}$ parameter estimate controlling the rate of decay. In fact, the model estimates the covariance to be nearly 0 when the centroids of two sites are 20 or more kilometers apart, no matter what the temporal distance is. The covariance between two errors that are six years apart is still estimated to be positive if the two errors come from the same site or from adjacent sites. 
 
 ```{r covplot, fig.cap = "\\label{fig:covplot} Estimated covariance of the errors from the estimated parameters in a spatio-temporal product-sum model. Distance between two sites is calculated from the site centroids; the centroids of two sites directly adjacent to one another are about 4 kilometers apart."}
 # moose_14 <- moose_df_all |> filter(Surveyyear == 2014)
@@ -488,7 +488,7 @@ The estimated vector of fixed effects, using "High" as the reference group, is $
                     
 We now use the fitted spatio-temporal model with the BLUP from equation \ref{equation:blup} and weights given in equation \ref{equation:currentweights} to predict the total abundance across all sites in the year 2020, the most recent year of the survey. Plugging in estimates of the covariance parameters into equations \ref{equation:blup} and \ref{equation:predvar} and letting elements of $\mathbf{b}_a$ be equal to 1 for data points in 2020 and equal to 0 otherwise, we obtain a prediction of `r round(as.numeric(prediction_all), 0)` moose and a standard error (the square root of the prediction variance) of `r round(as.numeric(sqrt(predvar_all)), 0)` moose. A 90% normal-based prediction interval for the total abundance in 2020 is (`r round(lb_all, 0)`, `r round(ub_all, 0)`) moose. Note that, though the response in this example is a count, a normal-based prediction interval for the total is still appropriate through an application of the central limit theorem for dependent data [@smith1980central]. Sitewise predictions for sites in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
 
-For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the spatial FPBK prediction [@ver2008spatial] for the total abundance of moose in the year 2020 with stratum as a covariate. Note that the widely used GSPE software for moose surveys allows for the strata to have different covariance parameters and does not treat stratum as a covariate [@delong2006geospatial]. Analyzing each stratum individually often results in better precision for the total moose abundance predictor. 
+For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the spatial FPBK prediction [@ver2008spatial] for the total abundance of moose in the year 2020 with stratum as a covariate. Note that the widely used GSPE software for moose surveys allows for the strata to have different covariance parameters and does not treat stratum as a covariate [@delong2006geospatial]. For the application of moose abundance prediction, analyzing each stratum individually often results in better precision. The separate-stratum analysis is discussed in more detail in the Supplementary Material in Section \ref{section:suppmaterial}. 
 
 We also use the stratified random sampling design-based estimator
 \mbox{}
@@ -882,7 +882,7 @@ Future work in this area includes developing a frequentist model for which imper
 
 # Data and Code Availability {.unnumbered}
 
-This manuscript has a supplementary \texttt{R} package that contains all of the data and code used in its creation, with the exception of the shapefile used to make the maps in some of the figures (which cannot be released due to Alaska Department of Fish and Game policy). The supplementary \texttt{R} package is hosted on GitHub and can be found at (note: the repository is currently private and the link is not given here to protect the double-blind review process):
+The Alaska Department of Fish and Game collected and provided the moose survey data used in this study. This manuscript has a supplementary \texttt{R} package that contains all of the data and code used in its creation, with the exception of the shapefile used to make the maps in some of the figures (which cannot be released due to Alaska Department of Fish and Game policy). The supplementary \texttt{R} package is hosted on GitHub and can be found at (note: the repository is currently private and the link is not given here to protect the double-blind review process):
 
 <!-- [Link to GitHub](https://github.com/highamm/FPSpatioTemp). -->
 
@@ -956,3 +956,103 @@ knitr::kable(pi_tab, caption = "Prediction interval coverage for the ST-FPBK pre
     kable_styling(latex_options = "HOLD_position") |>
   row_spec(c(3, 6, 9), hline_after = TRUE)
 ```
+
+# Supplementary Material {#suppmaterial .unnumbered}
+
+As mentioned in Section \ref{section:Application}, moose surveys in Alaska are often stratified into "High" and "Low" sites. When using stratum as a covariate in a spatio-temporal (or spatial, if performing a purely spatial analysis) model, we assume that all errors in the model are generated from the same underlying spatio-temporal (or spatial) parameters. However, for many moose surveys, it is more reasonable to allow the sites in the High stratum to have a different set of spatio-temporal (or spatial) parameters than the sites in the Low stratum. 
+
+If we allow the strata to have different covariance parameters, then, to construct the ST-FPBK predictor, we simply fit the model once for each stratum. If we assume that there is no cross-covariance (i.e. errors from sites in different strata are not correlated), then the BLUP for $\mathbf{b}'_a \mathbf{y}_a$ is
+
+\begin{equation} \label{equation:blup_strat}
+\widehat{\mathbf{b}'_a \mathbf{y}_a} = \bm{\lambda}_{o, l}' \mathbf{y}_{o, l} + \bm{\lambda}_{o, h}' \mathbf{y}_{o, h},
+\end{equation}
+
+where $\bm{\lambda}_{o, l}$ and $\bm{\lambda}_{o, h}'$ are the kriging weights for the Low and High strata, respectively (equation \ref{equation:blup}), and $\mathbf{y}_{o, l}$ and $\mathbf{y}_{o, h}$ are the vectors of observed responses for the Low and High strata, respectively. 
+
+Again assuming that there is no cross-covariance, the prediction variance is simply the sum of the prediction variances of $\bm{\lambda}_{o, l}' \mathbf{y}_{o, l}$ and $\bm{\lambda}_{o, h}' \mathbf{y}_{o, h}$ using equation \ref{equation:predvar}.
+
+```{r, cache = TRUE}
+## replicate separate strata fit for FPBK and st-FPBK 
+moose_final_2020 <- moose_final_all |> dplyr::filter(Surveyyear == 2020)
+sep_strat_fpbk <- sptotal::slmfit(totalmoosena ~ 1, data = moose_final_2020,
+                                  xcoordcol = "xcoords", ycoordcol = "ycoords",
+                                  stratacol = "strat_origin")
+spatial_pred <- predict(sep_strat_fpbk)
+
+moose_low <- moose_final_all |> filter(strat_origin == "LOW")
+
+moose_low_final <- moose_low |> complete(Surveyyear, nesting(xcoords, ycoords),
+                                       fill = list(samp_frame = 0,
+                                                   yearind = 0)) |>
+  group_by(xcoords, ycoords) |>
+  fill(xcoords, .direction = "downup") |>
+  fill(ycoords, .direction = "downup") |>
+  ungroup()
+
+
+moose_low_fit <- stlmfit(formula = totalmoosena ~ 1,
+                       data = moose_low_final,
+                       xcoord = "xcoords", ycoord = "ycoords",
+                       tcoord = "Surveyyear")
+pred_low <- predict(object = moose_low_fit, wts = "yearind")
+
+prediction_low <- pred_low$totalpred
+prediction_var_low <- pred_low$predvar
+lb_low <- pred_low$lb
+ub_low <- pred_low$ub
+tab_low <- cbind(prediction_low, sqrt(prediction_var_low),
+                          lb_low, ub_low)
+
+
+
+moose_high <- moose_final_all |> filter(strat_origin == "HIGH")
+
+moose_high_final <- moose_high |> complete(Surveyyear, nesting(xcoords, ycoords),
+                                       fill = list(samp_frame = 0,
+                                                   yearind = 0)) |>
+  group_by(xcoords, ycoords) |>
+  fill(xcoords, .direction = "downup") |>
+  fill(ycoords, .direction = "downup") |>
+  ungroup()
+
+
+moose_high_fit <- stlmfit(formula = totalmoosena ~ 1,
+                       data = moose_high_final,
+                       xcoord = "xcoords", ycoord = "ycoords",
+                       tcoord = "Surveyyear")
+pred_high <- predict(object = moose_high_fit, wts = "yearind")
+
+prediction_high <- pred_high$totalpred
+prediction_var_high <- pred_high$predvar
+lb_high <- pred_high$lb
+ub_high <- pred_high$ub
+tab_high <- cbind(prediction_high, sqrt(prediction_var_high),
+                          lb_high, ub_high)
+```
+
+We can use the purely spatial model and FPBK as well as the spatio-temporal model and ST-FPBK to predict the total moose abundance in 2020, using separate covariance models for the strata in the moose data set in Section \ref{section:Application}. Table \ref{tab:sepstratres} shows the results.
+
+```{r}
+fpbk_info <- spatial_pred$summary_info[3, ]
+st_fpbk_info <- tibble::tibble(Prediction = tab_low[ ,1] + tab_high[ ,1], SE = sqrt(tab_low[ ,2] ^ 2 + tab_high[ ,2] ^ 2))
+sep_strat_tab <- bind_rows(fpbk_info, st_fpbk_info) |>
+  mutate(method = c("FPBK Sep. Strat.", "ST-FPBK Sep. Strat.")) |>
+  relocate(method) |>
+  select(1:3) |>
+  add_row(method = "FPBK", Prediction = pred_sptotal, SE = se_sptotal) |>
+  add_row(method = "ST-FPBK", Prediction = as.numeric(prediction_all),
+          SE = as.numeric(sqrt(predvar_all)))
+
+knitr::kable(sep_strat_tab, caption = "Prediction and standard error for total abundance in 2020 using a model that allows errors in separate strata to be modeled with different covariance parameters. For reference, the prediction and standard error from the models with stratum as a covariate are also given.",
+               label = "sepstratres",
+             digits = 0, escape = FALSE,
+             booktabs = TRUE, linesep = "", align = "c") |>
+    kable_styling(latex_options = "HOLD_position") |>
+  row_spec(2, hline_after = TRUE)
+```
+
+The spatio-temporal predictors still have a smaller standard error than their purely spatial model counterparts. Interestingly, the purely spatial FPBK predictor has a slightly lower standard error when fitting strata separately while the ST-FPBK predictor has a slightly lower standard error when using stratum as a covariate. Whether it makes more sense for stratum to be a covariate or for the strata to be fit separately is application dependent. 
+
+For the moose application data, fitting separate covariance models to each stratum is probably the better choice, as the errors for sites in the high stratum have much more overall variability than the errors in the low stratum. However, we choose to have the separate-strata model in the supplementary materials for two reasons. First, the method can be applied to any data set with spatio-temporal covariance and a finite number of sites, and applications in other domains may not have stratification at all. Second, the syntax in the development of the ST-FPBK predictor is much cleaner when stratum is treated as a covariate than when the strata are fit separately. Using the model with stratum as a covariate allows for a better focus on the proposed method itself.
+
+# References {#references .unnumbered}
