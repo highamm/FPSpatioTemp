@@ -38,7 +38,7 @@ authors:
   email: jeff.wells@alaska.gov
 
 keywords: |
-  spatial; temporal; kriging; total; resource monitoring; forecast
+  forecast; kriging; resource monitoring; spatial; temporal; total
 
 abstract: |
   Spatio-temporal models can be used to analyze data collected at various spatial locations throughout multiple time points. However, even with a finite number of spatial locations, there may be a lack of resources to sample every spatial location at every time point. We develop a spatio-temporal finite-population block kriging (ST-FPBK) method to predict a quantity of interest, such as a mean or total, across a finite number of spatial locations. This ST-FPBK predictor incorporates an appropriate variance reduction for sampling from a finite population. Through an application to moose surveys in the east-central region of Alaska, we show that the predictor has a substantially smaller standard error compared to a predictor from the purely spatial model that is currently used to analyze moose surveys in the region. We also show how the model can be used to forecast a prediction for abundance in a time point for which spatial locations have not yet been surveyed. A separate simulation study shows that the spatio-temporal predictor is unbiased and that prediction intervals from the ST-FPBK predictor attain appropriate coverage. For ecological monitoring surveys completed with some regularity through time, use of ST-FPBK could improve precision. We also give an \texttt{R} package that ecologists and resource managers could use to incorporate data from past surveys in predicting a quantity from a current survey.
@@ -488,7 +488,7 @@ The estimated vector of fixed effects, using "High" as the reference group, is $
                     
 We now use the fitted spatio-temporal model with the BLUP from equation \ref{equation:blup} and weights given in equation \ref{equation:currentweights} to predict the total abundance across all sites in the year 2020, the most recent year of the survey. Plugging in estimates of the covariance parameters into equations \ref{equation:blup} and \ref{equation:predvar} and letting elements of $\mathbf{b}_a$ be equal to 1 for data points in 2020 and equal to 0 otherwise, we obtain a prediction of `r round(as.numeric(prediction_all), 0)` moose and a standard error (the square root of the prediction variance) of `r round(as.numeric(sqrt(predvar_all)), 0)` moose. A 90% normal-based prediction interval for the total abundance in 2020 is (`r round(lb_all, 0)`, `r round(ub_all, 0)`) moose. Note that, though the response in this example is a count, a normal-based prediction interval for the total is still appropriate through an application of the central limit theorem for dependent data [@smith1980central]. Sitewise predictions for sites in 2020 are given in the map in Figure \ref{fig:sitepredmap}.
 
-For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the spatial FPBK prediction [@ver2008spatial] for the total abundance of moose in the year 2020 with stratum as a covariate. Note that the widely used GSPE software for moose surveys allows for the strata to have different covariance parameters and does not treat stratum as a covariate [@delong2006geospatial]. For the application of moose abundance prediction, analyzing each stratum individually often results in better precision. The separate-stratum analysis is discussed in more detail in the Supplementary Material in Section \ref{section:suppmaterial}. 
+For comparison, we use the spatial `sptotal` package [@higham2021sptotal] to compute the spatial FPBK prediction [@ver2008spatial] for the total abundance of moose in the year 2020 with stratum as a covariate. Note that the widely used GSPE software for moose surveys allows for the strata to have different covariance parameters and does not treat stratum as a covariate [@delong2006geospatial]. For the application of moose abundance prediction, analyzing each stratum individually often results in better precision. The separate-stratum analysis is discussed in more detail in the Supplementary Material in the [Appendix](#appendix). 
 
 We also use the stratified random sampling design-based estimator
 \mbox{}
@@ -882,11 +882,10 @@ Future work in this area includes developing a frequentist model for which imper
 
 # Data and Code Availability {.unnumbered}
 
-The Alaska Department of Fish and Game collected and provided the moose survey data used in this study. This manuscript has a supplementary \texttt{R} package that contains all of the data and code used in its creation, with the exception of the shapefile used to make the maps in some of the figures (which cannot be released due to Alaska Department of Fish and Game policy). The supplementary \texttt{R} package is hosted on GitHub and can be found at (note: the repository is currently private and the link is not given here to protect the double-blind review process):
+The Alaska Department of Fish and Game collected and provided the moose survey data used in this study. This manuscript has a supplementary \texttt{R} package that contains all of the data and code used in its creation, with the exception of the shapefile used to make the maps in some of the figures (which cannot be released due to Alaska Department of Fish and Game policy). The supplementary \texttt{R} package is hosted on GitHub and can be found at [https://github.com/highamm/FPSpatioTemp](https://github.com/highamm/FPSpatioTemp).
 
-<!-- [Link to GitHub](https://github.com/highamm/FPSpatioTemp). -->
 
-The data set is also available on Zenodo: [https://doi.org/10.5281/zenodo.7636130](https://doi.org/10.5281/zenodo.7636130).
+The data set is also available on Zenodo at [https://doi.org/10.5281/zenodo.7636130](https://doi.org/10.5281/zenodo.7636130).
 
 # Acknowledgements
 
@@ -894,9 +893,13 @@ The views expressed in this manuscript are those of the authors and do not neces
 
 
 \setcounter{table}{0}
+\setcounter{subsection}{0}
 \renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thesubsection}{A\arabic{subsection}}
 
 # Appendix {#appendix .unnumbered}
+
+\subsection{Simulation Tables}
 
 ```{r}
 rmspe_tab <- sims_sum |> ungroup() |>
@@ -957,7 +960,7 @@ knitr::kable(pi_tab, caption = "Prediction interval coverage for the ST-FPBK pre
   row_spec(c(3, 6, 9), hline_after = TRUE)
 ```
 
-# Supplementary Material {#suppmaterial .unnumbered}
+\subsection{Supplementary Analysis}
 
 As mentioned in Section \ref{section:Application}, moose surveys in Alaska are often stratified into "High" and "Low" sites. When using stratum as a covariate in a spatio-temporal (or spatial, if performing a purely spatial analysis) model, we assume that all errors in the model are generated from the same underlying spatio-temporal (or spatial) parameters. However, for many moose surveys, it is more reasonable to allow the sites in the High stratum to have a different set of spatio-temporal (or spatial) parameters than the sites in the Low stratum. 
 

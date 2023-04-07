@@ -156,8 +156,8 @@ could use to incorporate data from past surveys in predicting a quantity
 from a current survey.
 \\
 \keywords{
-        spatial; temporal; kriging; total; resource monitoring;
-forecast \and
+        forecast; kriging; resource monitoring; spatial; temporal;
+total \and
     }
 
 
@@ -670,8 +670,8 @@ strata to have different covariance parameters and does not treat
 stratum as a covariate (DeLong 2006). For the application of moose
 abundance prediction, analyzing each stratum individually often results
 in better precision. The separate-stratum analysis is discussed in more
-detail in the Supplementary Material in Section
-\ref{section:suppmaterial}.
+detail in the Supplementary Material in the
+\protect\hyperlink{appendix}{Appendix}.
 
 We also use the stratified random sampling design-based estimator
 \mbox{} \begin{equation*}
@@ -1022,11 +1022,10 @@ survey data used in this study. This manuscript has a supplementary
 creation, with the exception of the shapefile used to make the maps in
 some of the figures (which cannot be released due to Alaska Department
 of Fish and Game policy). The supplementary \texttt{R} package is hosted
-on GitHub and can be found at (note: the repository is currently private
-and the link is not given here to protect the double-blind review
-process):
+on GitHub and can be found at
+\url{https://github.com/highamm/FPSpatioTemp}.
 
-The data set is also available on Zenodo:
+The data set is also available on Zenodo at
 \url{https://doi.org/10.5281/zenodo.7636130}.
 
 \hypertarget{acknowledgements}{%
@@ -1043,11 +1042,15 @@ Oceanic and Atmospheric Administration do not endorse any commercial
 products, services, or enterprises.
 
 \setcounter{table}{0}
+\setcounter{subsection}{0}
 \renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thesubsection}{A\arabic{subsection}}
 
 \hypertarget{appendix}{%
 \section*{Appendix}\label{appendix}}
 \addcontentsline{toc}{section}{Appendix}
+
+\subsection{Simulation Tables}
 
 \begin{table}[H]
 
@@ -1136,9 +1139,7 @@ all-dev & 500 & skewed & 0.89 & 0.87 & 0.89\\
 \end{tabular}
 \end{table}
 
-\hypertarget{suppmaterial}{%
-\section*{Supplementary Material}\label{suppmaterial}}
-\addcontentsline{toc}{section}{Supplementary Material}
+\subsection{Supplementary Analysis}
 
 As mentioned in Section \ref{section:Application}, moose surveys in
 Alaska are often stratified into ``High'' and ``Low'' sites. When using
