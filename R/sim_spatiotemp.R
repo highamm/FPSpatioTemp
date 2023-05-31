@@ -4,7 +4,10 @@
 #' spatiotemporal data from a product-sum model.
 #' 
 #' @param resp_type is the distribution of the response variable (either
-#' \code{"normal"} or \code{"lognormal"})
+#' \code{"normal"}, \code{"lognormal"}, or \code{"poisson"}). For \code{"poisson"}
+#' response, the random errors are simulated on the log scale and are then 
+#' backtransformed for use as the mean for a Poisson draw to obtain a
+#' count response.
 #' @param nx is the number of x coordinates for a spatial grid on the unit square
 #' @param ny is the number of y coordinates for a spatial grid on the unit square
 #' @param ntime is the number of equally spaced time points on the [0, 1] interval.
@@ -80,6 +83,10 @@ sim_spatiotemp <- function(resp_type = "normal",
   
   if (resp_type == "lognormal") {
     response <- exp(response)
+
+   } else if (resp_type == "poisson") {
+    response <- exp(response)
+    response <- rpois(length(response), lambda = response)
   }
 
   out_df <- tibble::tibble(allcoords, response)

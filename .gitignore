@@ -3,14 +3,12 @@
 .RData
 .Ruserdata
 inst/simulations/raw_sims
-inst/simulations/raw_sims_2
 inst/papers
-inst/fpspatiotemp_manu/fpspatiotemp_manu_cache
-inst/fpspatiotemp_manu/fpspatiotemp_manu_files
 inst/data_private
 inst/doc
-inst/extra_analysis.Rmd
+inst/ADFG_Taylor_Corridor
 /doc/
 /Meta/
 inst/preprint_springer/preprint_springer_cache
 inst/preprint_springer/preprint_springer_files
+inst/reviewer_comments.md

@@ -6,6 +6,8 @@ library(sptotal)
 ## All functions now use the effective range. The manuscript
 ## converts these "back" to regular ranges.
 
+## UPDATE CLUSTER TO REINSTALL THE PACKAGE
+
 seed <- sample(1e9, size = 1)
 
 sim_fun <- function(resp_type = "normal", 
@@ -111,6 +113,9 @@ sim_fun <- function(resp_type = "normal",
   return(sim_output)
 }      
 
+# sim_fun(n = 50)
+# sim_fun(n = 250)
+# sim_fun(n = 400)
 ## do 1 simulation
 ## old sim parms: nx = 20, ny = 20, ntime = 10, n = 500
 # 
@@ -160,15 +165,38 @@ sim_parm_df <- tibble::tribble(~sp_de, ~sp_ie, ~t_de, ~t_ie, ~spt_de, ~spt_ie,
                 0, 0, 0, 1.5 / const, 0.25 / const, 0.25 / const,
                 sqrt(2), 1e-10, 250, "lognormal",
                 0, 0, 0, 1.5 / const, 0.25 / const, 0.25 / const,
-                sqrt(2), 1e-10, 500, "lognormal")
-# 
-# sim_parm_df <- tibble::tribble(~sp_de, ~sp_ie, ~t_de, ~t_ie, ~spt_de, ~spt_ie,
-#                                ~sp_range, ~t_range, ~n, ~resp_type,
-#                                0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-#                                sqrt(2), 1, 100, "normal",
-#                                0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-#                                sqrt(2), 1, 100, "lognormal")
-#    
+                sqrt(2), 1e-10, 500, "lognormal",
+                
+                ## poisson
+                0.5 / const, 0.1675 / const, 0.5 / const, 0.1675 / const,
+                0.5 / const, 0.1675 / const, 
+                sqrt(2), 1, 250, "poisson",
+                0.5 / const, 0.1675 / const, 0.5 / const, 0.1675 / const,
+                0.5 / const, 0.1675 / const,
+                sqrt(2), 1, 500, "poisson",
+                0, 0, 0, 0, 0, 2 / const,
+                1e-10, 1e-10, 250, "poisson",
+                0, 0, 0, 0, 0, 2 / const,
+                1e-10, 1e-10, 500, "poisson",
+                0, 0, 0, 0, 1.5 / const, 0.5 / const,
+                sqrt(2), 1e-10, 250, "poisson",
+                0, 0, 0, 0, 1.5 / const, 0.5 / const,
+                sqrt(2), 1e-10, 500, "poisson",
+                0, 0, 0, 1.5 / const, 0.25 / const, 0.25 / const,
+                sqrt(2), 1e-10, 250, "poisson",
+                0, 0, 0, 1.5 / const, 0.25 / const, 0.25 / const,
+                sqrt(2), 1e-10, 500, "poisson")
+
+
+sim_parm_df <- tibble::tribble(~sp_de, ~sp_ie, ~t_de, ~t_ie, ~spt_de, ~spt_ie,
+                               ~sp_range, ~t_range, ~n, ~resp_type,
+                               0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
+                               sqrt(2), 1, 100, "normal",
+                               0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
+                               sqrt(2), 1, 100, "lognormal",
+                               0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
+                               sqrt(2), 1, 100, "poisson")
+
 
 sim_output_df <- pmap_dfr(sim_parm_df, sim_fun,
                           nx = 10, ny = 10, ntime = 10,

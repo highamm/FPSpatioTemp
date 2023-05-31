@@ -6,6 +6,7 @@
 ^inst/papers$
 ^inst/simulations$
 ^inst/ADFG_Taylor_Corridor$
+^inst/ADFG_Taylor_Corridor$
 ^inst/20E_ADFG_GSPE_survey_area_units$
 ^inst/datasets$
 ^inst/extra_analysis.Rmd$
