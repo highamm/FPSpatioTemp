@@ -1,0 +1,104 @@
+% !TeX program = pdfLaTeX
+\documentclass[smallextended]{svjour3}       % onecolumn (second format)
+%\documentclass[twocolumn]{svjour3}          % twocolumn
+%
+\smartqed  % flush right qed marks, e.g. at end of proof
+%
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+
+\usepackage[hyphens]{url} % not crucial - just used below for the URL
+\usepackage{hyperref}
+
+%
+% \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+%
+% insert here the call for the packages your document requires
+%\usepackage{latexsym}
+% etc.
+%
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+%
+% Insert the name of "your journal" with
+% \journalname{myjournal}
+%
+
+%% load any required packages here
+\usepackage{subcaption} \usepackage{bm} \usepackage{bbm} \usepackage{color} \DeclareMathOperator{\var}{{var}} \DeclareMathOperator{\cov}{{cov}}
+
+
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\def\tightlist{}
+\usepackage{lineno}
+
+\begin{document}
+
+
+\title{An Application of Spatio-temporal Modeling to Finite Population
+Abundance Prediction }
+
+
+    \titlerunning{Spatio-temporal Prediction for Finite Populations}
+
+\author{  Matt Higham \and  Michael Dumelle \and  Carly
+Hammond \and  Jay Ver Hoef \and  Jeff Wells \and  }
+
+    \authorrunning{ Higham et al. }
+
+\institute{
+        Matt Higham \at
+     Department of Math, Computer Science, and Statistics, St.~Lawrence
+University \\
+     \email{\href{mailto:mhigham@stlawu.edu}{\nolinkurl{mhigham@stlawu.edu}}}  %  \\
+%             \emph{Present address:} of F. Author  %  if needed
+    \and
+        Michael Dumelle \at
+     United States Environmental Protection Agency \\
+     \email{\href{mailto:Dumelle.Michael@epa.gov}{\nolinkurl{Dumelle.Michael@epa.gov}}}  %  \\
+%             \emph{Present address:} of F. Author  %  if needed
+    \and
+        Carly Hammond \at
+     Bayer Crop Science \\
+     \email{\href{mailto:carly.hammond@bayer.com}{\nolinkurl{carly.hammond@bayer.com}}}  %  \\
+%             \emph{Present address:} of F. Author  %  if needed
+    \and
+        Jay Ver Hoef \at
+     National Oceanic and Atmospheric Administration \\
+     \email{\href{mailto:jay.verhoef@noaa.gov}{\nolinkurl{jay.verhoef@noaa.gov}}}  %  \\
+%             \emph{Present address:} of F. Author  %  if needed
+    \and
+        Jeff Wells \at
+     Alaska Department of Fish and Game \\
+     \email{\href{mailto:jeff.wells@alaska.gov}{\nolinkurl{jeff.wells@alaska.gov}}}  %  \\
+%             \emph{Present address:} of F. Author  %  if needed
+    \and
+    }
+
+\date{Received: date / Accepted: date}
+% The correct dates will be entered by the editor
+
+
+\maketitle
+
+
+\def\spacingset#1{\renewcommand{\baselinestretch}%
+{#1}\small\normalsize} \spacingset{1}
+
+
+
+
+
+\bibliographystyle{spphys}
+\bibliography{}
+
+
+\end{document}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  7 APR 2023 13:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  2 JUN 2023 14:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -800,20 +800,20 @@ Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
 ) (./preprint_springer.aux)
 \openout1 = `preprint_springer.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 86.
-LaTeX Font Info:    ... okay on input line 86.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
 Unknown journal: specify \journalname{<name of your journal>} in preambel
 
 (/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
@@ -843,7 +843,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box49
-Package hyperref Info: Link coloring OFF on input line 86.
+Package hyperref Info: Link coloring OFF on input line 87.
 (/usr/local/texlive/2016/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
@@ -851,9 +851,9 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count167
 )
-LaTeX Info: Redefining \ref on input line 86.
-LaTeX Info: Redefining \pageref on input line 86.
-LaTeX Info: Redefining \nameref on input line 86.
+LaTeX Info: Redefining \ref on input line 87.
+LaTeX Info: Redefining \pageref on input line 87.
+LaTeX Info: Redefining \nameref on input line 87.
 (./preprint_springer.out) (./preprint_springer.out)
 \@outlinefile=\write3
 \openout3 = `preprint_springer.out'.
@@ -870,96 +870,119 @@ Package caption Info: End \AtBeginDocument code.
 SVJour3 warning: Missing \journalname
 
 LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <13> not available
-(Font)              size <12> substituted on input line 134.
+(Font)              size <12> substituted on input line 107.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 136--161
+Underfull \hbox (badness 10000) in paragraph at lines 109--134
 
  []
 
-[1{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [
-3] [4] [5] [6] [7]
-<preprint_springer_files/figure-latex/unnamed-chunk-7-1.pdf, id=138, 428.60126p
+[1{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
+Overfull \hbox (2.13171pt too wide) in paragraph at lines 214--217
+\OT1/cmr/m/n/10 PROPER UNI-FORM PRIOR ON CO-VARI-ANCE PA-RAM-E-TER DOES NOT
+ []
+
+[3] [4] [5] [6] [7] [8]
+<preprint_springer_files/figure-latex/unnamed-chunk-8-1.pdf, id=138, 428.60126p
 t x 237.88875pt>
-File: preprint_springer_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (
+File: preprint_springer_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (
 type pdf)
-<use preprint_springer_files/figure-latex/unnamed-chunk-7-1.pdf>
-Package pdftex.def Info: preprint_springer_files/figure-latex/unnamed-chunk-7-1
-.pdf used on input line 570.
+<use preprint_springer_files/figure-latex/unnamed-chunk-8-1.pdf>
+Package pdftex.def Info: preprint_springer_files/figure-latex/unnamed-chunk-8-1
+.pdf used on input line 627.
 (pdftex.def)             Requested size: 428.6002pt x 237.88815pt.
 
-Overfull \hbox (90.6002pt too wide) in paragraph at lines 570--575
- [][] 
- []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-[8 <./preprint_springer_files/figure-latex/unnamed-chunk-7-1.pdf>]
-<preprint_springer_files/figure-latex/covplot-1.pdf, id=164, 457.71pt x 243.911
-25pt>
-File: preprint_springer_files/figure-latex/covplot-1.pdf Graphic file (type pdf
-)
-<use preprint_springer_files/figure-latex/covplot-1.pdf>
-Package pdftex.def Info: preprint_springer_files/figure-latex/covplot-1.pdf use
-d on input line 632.
-(pdftex.def)             Requested size: 457.7089pt x 243.91064pt.
-
-Overfull \hbox (119.7089pt too wide) in paragraph at lines 632--637
+Overfull \hbox (90.6002pt too wide) in paragraph at lines 627--636
  [][] 
  []
 
 [9]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[10 <./preprint_springer_files/figure-latex/covplot-1.pdf>]
-<preprint_springer_files/figure-latex/unnamed-chunk-11-1.pdf, id=198, 453.695pt
- x 240.9pt>
-File: preprint_springer_files/figure-latex/unnamed-chunk-11-1.pdf Graphic file 
-(type pdf)
-<use preprint_springer_files/figure-latex/unnamed-chunk-11-1.pdf>
-Package pdftex.def Info: preprint_springer_files/figure-latex/unnamed-chunk-11-
-1.pdf used on input line 721.
-(pdftex.def)             Requested size: 453.6939pt x 240.8994pt.
-
-Overfull \hbox (115.6939pt too wide) in paragraph at lines 721--731
- [][] 
- []
-
-[11]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-[12 <./preprint_springer_files/figure-latex/unnamed-chunk-11-1.pdf>]
-<preprint_springer_files/figure-latex/unnamed-chunk-15-1.pdf, id=224, 457.71pt 
-x 243.91125pt>
-File: preprint_springer_files/figure-latex/unnamed-chunk-15-1.pdf Graphic file 
-(type pdf)
-<use preprint_springer_files/figure-latex/unnamed-chunk-15-1.pdf>
-Package pdftex.def Info: preprint_springer_files/figure-latex/unnamed-chunk-15-
-1.pdf used on input line 794.
+[10 <./preprint_springer_files/figure-latex/unnamed-chunk-8-1.pdf>]
+<preprint_springer_files/figure-latex/covplot-1.pdf, id=173, 457.71pt x 243.911
+25pt>
+File: preprint_springer_files/figure-latex/covplot-1.pdf Graphic file (type pdf
+)
+<use preprint_springer_files/figure-latex/covplot-1.pdf>
+Package pdftex.def Info: preprint_springer_files/figure-latex/covplot-1.pdf use
+d on input line 719.
 (pdftex.def)             Requested size: 457.7089pt x 243.91064pt.
 
-Overfull \hbox (119.7089pt too wide) in paragraph at lines 794--802
+Overfull \hbox (119.7089pt too wide) in paragraph at lines 719--724
  [][] 
  []
 
-[13] [14 <./preprint_springer_files/figure-latex/unnamed-chunk-15-1.pdf>]
-<preprint_springer_files/figure-latex/unnamed-chunk-17-1.pdf, id=254, 453.695pt
+
+LaTeX Warning: Reference `##subsection:modelfit' on page 11 undefined on input 
+line 752.
+
+[11] [12 <./preprint_springer_files/figure-latex/covplot-1.pdf>]
+<preprint_springer_files/figure-latex/unnamed-chunk-13-1.pdf, id=204, 453.695pt
  x 240.9pt>
+File: preprint_springer_files/figure-latex/unnamed-chunk-13-1.pdf Graphic file 
+(type pdf)
+<use preprint_springer_files/figure-latex/unnamed-chunk-13-1.pdf>
+Package pdftex.def Info: preprint_springer_files/figure-latex/unnamed-chunk-13-
+1.pdf used on input line 822.
+(pdftex.def)             Requested size: 453.6939pt x 240.8994pt.
+
+Overfull \hbox (115.6939pt too wide) in paragraph at lines 822--832
+ [][] 
+ []
+
+[13]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[14 <./preprint_springer_files/figure-latex/unnamed-chunk-13-1.pdf>]
+<preprint_springer_files/figure-latex/unnamed-chunk-17-1.pdf, id=230, 457.71pt 
+x 243.91125pt>
 File: preprint_springer_files/figure-latex/unnamed-chunk-17-1.pdf Graphic file 
 (type pdf)
 <use preprint_springer_files/figure-latex/unnamed-chunk-17-1.pdf>
 Package pdftex.def Info: preprint_springer_files/figure-latex/unnamed-chunk-17-
-1.pdf used on input line 900.
-(pdftex.def)             Requested size: 453.6939pt x 240.8994pt.
+1.pdf used on input line 895.
+(pdftex.def)             Requested size: 457.7089pt x 243.91064pt.
 
-Overfull \hbox (115.6939pt too wide) in paragraph at lines 900--904
+Overfull \hbox (119.7089pt too wide) in paragraph at lines 895--903
  [][] 
  []
 
-[15] [16 <./preprint_springer_files/figure-latex/unnamed-chunk-17-1.pdf>] [17] 
-[18] [19] [20] [21]
-Overfull \hbox (21.08405pt too wide) in paragraph at lines 1316--1320
+[15]
+Underfull \vbox (badness 6204) has occurred while \output is active []
+
+[16 <./preprint_springer_files/figure-latex/unnamed-chunk-17-1.pdf>] [17]
+<preprint_springer_files/figure-latex/unnamed-chunk-19-1.pdf, id=270, 453.695pt
+ x 240.9pt>
+File: preprint_springer_files/figure-latex/unnamed-chunk-19-1.pdf Graphic file 
+(type pdf)
+<use preprint_springer_files/figure-latex/unnamed-chunk-19-1.pdf>
+Package pdftex.def Info: preprint_springer_files/figure-latex/unnamed-chunk-19-
+1.pdf used on input line 1007.
+(pdftex.def)             Requested size: 453.6939pt x 240.8994pt.
+
+Overfull \hbox (115.6939pt too wide) in paragraph at lines 1007--1011
+ [][] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[18 <./preprint_springer_files/figure-latex/unnamed-chunk-19-1.pdf>] [19] [20] 
+[21]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[22] [23]
+Overfull \hbox (15.02847pt too wide) in paragraph at lines 1363--1368
+\OT1/cmr/m/n/10 ``Pre-dict-ing Spa-tiotem-po-ral Abun-dance of Breed-ing Wa-ter
+-fowl Across Canada:
+ []
+
+[24]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[25]
+Overfull \hbox (21.08405pt too wide) in paragraph at lines 1478--1482
 []\OT1/cmr/m/n/10 Mart^^S^^Pnez-Beneito, Miguel A, An-to-nio L^^Sopez-Quilez, a
 nd Paloma Botella-Rocamora.
  []
@@ -967,38 +990,40 @@ nd Paloma Botella-Rocamora.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[22]
-Overfull \hbox (7.00072pt too wide) in paragraph at lines 1367--1371
+[26]
+Overfull \hbox (7.00072pt too wide) in paragraph at lines 1567--1571
 []\OT1/cmr/m/n/10 Xu, Ji-aqi, and Hong Shu. 2015. ``Spatio-Temporal Krig-ing Ba
 sed on the Product-
  []
 
 No file preprint_springer.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1379.
-[23]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1379.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1579.
+[27]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1579.
 (./preprint_springer.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1379.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1379.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1579.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1579.
 
 Package rerunfilecheck Info: File `preprint_springer.out' has not changed.
-(rerunfilecheck)             Checksum: 6D4399BA9A8E48C57D7238B498468AEF;429.
+(rerunfilecheck)             Checksum: 3E525A4253AD31E88017327347588773;364.
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1379.
+
+LaTeX Warning: There were undefined references.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1579.
  ) 
 Here is how much of TeX's memory you used:
- 9793 strings out of 493014
- 142414 string characters out of 6133351
- 265817 words of memory out of 5000000
- 13049 multiletter control sequences out of 15000+600000
- 12702 words of font info for 47 fonts, out of 8000000 for 9000
+ 9817 strings out of 493014
+ 142814 string characters out of 6133351
+ 267229 words of memory out of 5000000
+ 13052 multiletter control sequences out of 15000+600000
+ 12834 words of font info for 47 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,12n,40p,860b,376s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pf
-b></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+ 42i,12n,40p,860b,367s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
 /usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
@@ -1011,16 +1036,16 @@ l/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/t
 exlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texl
 ive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive
 /2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/20
-16/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/201
-6/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2016/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2016/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2016/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2016/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on preprint_springer.pdf (23 pages, 350265 bytes).
+16/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2016
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2016/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2016/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2016/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2016/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on preprint_springer.pdf (27 pages, 361161 bytes).
 PDF statistics:
- 455 PDF objects out of 1000 (max. 8388607)
- 390 compressed objects within 4 object streams
- 119 named destinations out of 1000 (max. 500000)
- 98 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 487 PDF objects out of 1000 (max. 8388607)
+ 418 compressed objects within 5 object streams
+ 139 named destinations out of 1000 (max. 500000)
+ 90 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -68,6 +68,7 @@
 \usepackage[utf8]{inputenc}
 \def\tightlist{}
 \usepackage{lineno}
+\linenumbers
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -92,38 +93,10 @@ Abundance Prediction }
 
     \titlerunning{Spatio-temporal Prediction for Finite Populations}
 
-\author{  Matt Higham \and  Michael Dumelle \and  Carly
-Hammond \and  Jay Ver Hoef \and  Jeff Wells \and  }
+\author{  }
 
-    \authorrunning{ Higham et al. }
 
 \institute{
-        Matt Higham \at
-     Department of Math, Computer Science, and Statistics, St.~Lawrence
-University \\
-     \email{\href{mailto:mhigham@stlawu.edu}{\nolinkurl{mhigham@stlawu.edu}}}  %  \\
-%             \emph{Present address:} of F. Author  %  if needed
-    \and
-        Michael Dumelle \at
-     United States Environmental Protection Agency \\
-     \email{\href{mailto:Dumelle.Michael@epa.gov}{\nolinkurl{Dumelle.Michael@epa.gov}}}  %  \\
-%             \emph{Present address:} of F. Author  %  if needed
-    \and
-        Carly Hammond \at
-     Bayer Crop Science \\
-     \email{\href{mailto:carly.hammond@bayer.com}{\nolinkurl{carly.hammond@bayer.com}}}  %  \\
-%             \emph{Present address:} of F. Author  %  if needed
-    \and
-        Jay Ver Hoef \at
-     National Oceanic and Atmospheric Administration \\
-     \email{\href{mailto:jay.verhoef@noaa.gov}{\nolinkurl{jay.verhoef@noaa.gov}}}  %  \\
-%             \emph{Present address:} of F. Author  %  if needed
-    \and
-        Jeff Wells \at
-     Alaska Department of Fish and Game \\
-     \email{\href{mailto:jeff.wells@alaska.gov}{\nolinkurl{jeff.wells@alaska.gov}}}  %  \\
-%             \emph{Present address:} of F. Author  %  if needed
-    \and
     }
 
 \date{Received: date / Accepted: date}
@@ -136,8 +109,8 @@ University \\
 Spatio-temporal models can be used to analyze data collected at various
 spatial locations throughout multiple time points. However, even with a
 finite number of spatial locations, there may be a lack of resources to
-sample every spatial location at every time point. We develop a
-spatio-temporal finite-population block kriging (ST-FPBK) method to
+collect data from every spatial location at every time point. We develop
+a spatio-temporal finite-population block kriging (ST-FPBK) method to
 predict a quantity of interest, such as a mean or total, across a finite
 number of spatial locations. This ST-FPBK predictor incorporates an
 appropriate variance reduction for sampling from a finite population.
@@ -186,16 +159,69 @@ Models for spatio-temporal data have applications in a wide variety of
 scientific fields (see Wikle, Zammit-Mangion, and Cressie 2019 for many
 examples). One such application is ecological monitoring of a particular
 resource, such as animal or plant abundance, rainfall, concentration of
-a compound in soil samples, etc.
+a compound in soil samples, etc. A common goal of ecological monitoring
+is to predict the total abundance of a resource at the most recent time
+point using data collected in a subset of the region of interest at the
+most recent time point and in past time points. Often, the region of
+interest is divided into a finite number of areal sampling units and
+data is collected on a subset of these areal sampling units, leaving the
+remaining sampling units unsampled. We refer to the goal of predicting
+abundance in the most recent time point as \emph{spatio-temporal
+abundance prediction}.
 
-In ecological monitoring, we are often interested in prediction of a
-total or a mean of a particular variable in a finite region at the most
-recent time point. Ver Hoef (2008) developed Finite Population Block
-Kriging (FPBK) to predict a linear function of the realized values of a
-response variable measured at one particular time point in a finite
-number of sampling units, incorporating a finite population correction
-to the variance of the predictor. Typically, the linear function is
-either a mean or a total of the realized values of the response.
+Conn et al. (2015) offer a review of methods and issues with
+spatio-temporal abundance prediction, comparing Bayesian formulations of
+a few different hierarchical models. Bayesian hierarchical models have
+been used for spatio-temporal abundance prediction by Ver Hoef and
+Jansen (2007) for Harbor seals in Alaska, Sauer and Link (2011) for
+birds in North America, Davy, Squires, and Zimmerling (2021) for bats in
+Canada, Adde et al. (2020) for waterfowl in Canada, and Schmidt et al.
+(2022) for moose in Alaska. While a Bayesian hierarchical model allows
+for a large amount of flexibility in the model formulation and are thus
+powerful tools for statistical inference, Conn et al. (2015) note that
+``care must be taken to tailor models to match the study population and
+survey data available.'' We discuss Bayesian hierarchical models for
+abundance prediction more in Section \ref{section:Discussion}.
+
+Spatio-temporal predictions can also be constructed in a frequentist
+framework. For example, Ross, Hooten, and Koons (2012) use Integrated
+Nested Laplace Approximation (INLA) to model spatio-temporal abundance
+data in a hierarchical framework while Breivik et al. (2021) use a
+Gaussian model to predict abundance of cod in the Barents Sea. While a
+prediction for the total abundance is fairly straightforward to obtain
+in the frequentist setting by making predictions for the response at
+each unobserved site and then summing the observed response values and
+the predictions, obtaining the prediction variance is more challenging.
+If the number of sites in the region of interest is finite, then the
+spatio-temporal abundance prediction variance should incorporate a
+finite population correction such that, if all spatial sites are sampled
+in the most recent time point, the prediction variance for the total
+abundance in the most recent time point is equal to 0.
+
+Ver Hoef (2008) developed Finite Population Block Kriging (FPBK) to
+predict a linear function of the realized values of a response variable,
+such as the total abundance, for a survey at one particular time point,
+incorporating a finite population correction to the variance of the
+predictor. In this paper, we extend the approach of Ver Hoef (2008) to
+the spatio-temporal context, appropriately adjusting the finite
+population prediction variance correction and allowing for the
+covariance matrix of the response vector to include spatio-temporal
+structure.
+
+Conn et al. (2015) perils: bottom-right of page 239 and bottom-left of
+page 237
+
+MENTION EXPERT KNOWLEDGE IN BAYESIAN APPROACH: IMPROPER UNIFORM PRIOR ON
+COVARIANCE PARAMETER DOES NOT TRANSLATE TO LOG SCALE, FOR EXAMPLE. Ver
+Hoef upper bound on harbor seal abundance blow up.
+
+Clarification on Finite correction N = 10, n = 8, generated iid normal
+with unknown mean \(\mu\) and known variance \(\sigma^2 = 4\). If we
+care about the mean generating the process, then we use a standard error
+of sqrt(4) / 8 and our point estimate is the sample mean. If we care
+about the realized mean (as we do in most monitoring scenarios), then we
+use a standard error with a correction factor but our point estimate is
+still the sample mean.
 
 \hypertarget{motivating-example}{%
 \subsection{Motivating Example}\label{motivating-example}}
@@ -204,14 +230,18 @@ To motivate the development of the predictor in Section
 \ref{section:Methods}, we consider moose surveys, which are performed
 annually or every other year in many regions of Alaska and western
 Canada. The most common goal of these surveys is to predict moose
-abundance, the total number of moose, in some region to inform harvest
-regulations (Kellie, Colson, and Reynolds 2019). Because of time and
-money constraints, only some spatial indices, or sites, in the region of
-interest are selected to be in the survey at a particular time point.
+abundance, the total number of moose, in some finite region to inform
+harvest regulations (Kellie, Colson, and Reynolds 2019). The region of
+interest is divided into a finite number of areal polygons. Because of
+time and money constraints, only some polygons, or sites, in the region
+of interest are selected to be in the survey at a particular time point.
 Biologists fly to these selected sites, count the number of moose, and
 then use FPBK to find a prediction for the finite abundance for that
-year. These surveys are historically analyzed with the ``WinfoNet'' site
-developed by DeLong (2006), which calculates the ``GeoSpatial Population
+year. Note that the interest is in predicting the realized total
+abundance so that, if there were enough resources to survey every site
+in a year, we would know the abundance in that year exactly. These
+surveys are historically analyzed with the ``WinfoNet'' site developed
+by DeLong (2006), which calculates the ``GeoSpatial Population
 Estimator'' (GSPE) for a given survey. The GSPE is an application of the
 FPBK predictor developed by Ver Hoef (2008).
 
@@ -262,25 +292,24 @@ coordinates for the \(i^{th}\) spatial site, \(n_s\) is the number of
 unique sites, \(t_j\) is the time index for the \(j^{th}\) time point,
 and \(n_t\) is the number of unique time points. If each site is
 represented at every time point, a vector of the
-\(Y(\mathbf{s}_{i}, t_j)\), denoted \(\mathbf{y}(\mathbf{s}_{i}, t_j)\),
-has length \(n_{s} \cdot n_{t} \equiv N\). Note that, the above
-formulation assumes that each site is observed at each time point. We
-choose to make this assumption here because doing so ensures cleaner
-notation throughout the model development; however, in subsection
-\ref{subsection:fpbk}, we no longer assume that the response is recorded
-at every site-time point combination. Then, a spatio-temporal model for
-\(\mathbf{y}(\mathbf{s}_{i}, t_j)\) is \mbox{} \begin{equation}
-\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \bm{\epsilon}(\mathbf{s}_{i}, t_j),
+\(Y(\mathbf{s}_{i}, t_j)\), denoted \(\mathbf{y}\), has length
+\(n_{s} \cdot n_{t} \equiv N\). Note that, the above formulation assumes
+that each site is observed at each time point. We choose to make this
+assumption here because doing so ensures cleaner notation throughout the
+model development; however, in subsection \ref{subsection:fpbk}, we no
+longer assume that the response is recorded at every site-time point
+combination. Then, a spatio-temporal model for \(\mathbf{y}\) is \mbox{}
+\begin{equation}
+\mathbf{y} = \mathbf{X} \bm{\beta} + \bm{\epsilon},
 \end{equation}
 
 \noindent where \(\mathbf{X}\) is a design matrix for the fixed effects
 and \(\bm{\beta}\) is a parameter vector of fixed effects. As in Dumelle
-et al. (2021), we can decompose the error vector
-\(\bm{\epsilon}(\mathbf{s}_{i}, t_j)\) into spatial, temporal, and
-spatio-temporal components, each of which will be explained in detail in
-the subsequent paragraphs: \mbox{}
+et al. (2021), we can decompose the error vector \(\bm{\epsilon}\) into
+spatial, temporal, and spatio-temporal components, each of which will be
+explained in detail in the subsequent paragraphs: \mbox{}
 \begin{equation} \label{equation:basicmod}
-\bm{\epsilon}(\mathbf{s}_{i}, t_j) = \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu}.
+\bm{\epsilon} = \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu}.
 \end{equation}
 
 In the spatial component of equation \ref{equation:basicmod}
@@ -333,13 +362,17 @@ error variance (or spatio-temporal nugget).
 
 Though there are a few types of models for the errors that can be built
 from equation \ref{equation:basicmod} by setting certain error variances
-to 0 (e.g.~a sum-with-error model sets \(\sigma^2_{\omega} = 0\)) and/or
-by allowing \(\mathbf{R}_{st}\) to take certain forms, we focus only on
-the product-sum model (De Cesare, Myers, and Posa 2001; Sandra De Iaco,
+to 0 (e.g.~a sum-with-error model sets \(\sigma^2_{\omega} = 0\) while a
+separable model sets all covariance parameters equal to \(0\) except
+\(\sigma^2_{\omega}\) and uses the structure for \(\mathbf{R}_{st}\)
+given in equation \ref{equation:Rst} below) and/or by allowing
+\(\mathbf{R}_{st}\) to take certain forms, we focus only on the
+product-sum model (De Cesare, Myers, and Posa 2001; Sandra De Iaco,
 Myers, and Posa 2001). In a common formulation of the product-sum model,
-\(\mathbf{R}_{st}\) is \mbox{} \begin{equation*}
+\(\mathbf{R}_{st}\) is \mbox{} \begin{equation}
+\label{equation:Rst}
 \mathbf{R}_{st} \equiv \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' \odot \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t',
-\end{equation*} \noindent where \(\odot\) is the Hadamard product
+\end{equation} \noindent where \(\odot\) is the Hadamard product
 operator. Note that, in order to save on the number of parameters, we
 will assume that the \(\mathbf{R}_s\) and \(\mathbf{R}_t\) that form
 \(\mathbf{R}_{st}\) are the same as the \(\mathbf{R}_s\) and
@@ -432,9 +465,10 @@ total response across all sites and all time points.
 
 Unbiasedness implies that
 \(E(\mathbf{q'}\mathbf{y}_o) = E(\mathbf{b}_a'\mathbf{y}_a)\) for all
-\(\bm{\beta}\). So, denoting \(\mathbf{X}_o\) as the design matrix for
-the observed data points and \(\mathbf{X}_a\) as the design matrix for
-all data points, \(\mathbf{q'} \mathbf{X}_o \bm{\beta}\) =
+\(\bm{\beta}\). So, denoting \(\mathbf{X}_o\) as the \(n_o \times p\)
+design matrix for the observed data points (where \(p\) is the number of
+fixed effects) and \(\mathbf{X}_a\) as the design matrix for all data
+points, \(\mathbf{q'} \mathbf{X}_o \bm{\beta}\) =
 \(\mathbf{b'}_a \mathbf{X}_a \bm{\beta}\) for every \(\bm{\beta}\),
 implying that \(\mathbf{q'} \mathbf{X}_o = \mathbf{b'}_a \mathbf{X}_a\).
 Kriging weights are then found by finding \(\bm{\lambda}_o\), an
@@ -447,11 +481,11 @@ prediction equations are
 \begin{equation}
 \begin{pmatrix}
 \bm{\Sigma}_{o, o} & \mathbf{X}_o \\
-\mathbf{X}_o' & 0
+\mathbf{X}_o' & \mathbf{0}
 \end{pmatrix} 
 \begin{pmatrix}
 \bm{\lambda} \\
-m
+\mathbf{m}
 \end{pmatrix} = 
 \begin{pmatrix}
 \bm{\Sigma}_{o, o} & \bm{\Sigma}_{o, u} \\
@@ -461,17 +495,19 @@ m
 \mathbf{b}_{o} \\
 \mathbf{b}_{u}
 \end{pmatrix},
-\end{equation} \noindent where again the subscripts \(o\) and \(u\)
-denote observed and unobserved data points. For example,
-\(\bm{\Sigma}_{o, o}\) denotes the \(n_o \times n_o\) submatrix of
-\(\bm{\Sigma}\) (from equation \ref{equation:var}) corresponding only to
-rows and columns of observed data points and \(\bm{\Sigma}_{u, o}\)
-denotes the \((N - n_o) \times n_o\) submatrix of \(\bm{\Sigma}\)
-corresponding to rows of data points that were not observed and columns
-of data points that were observed. Solving the prediction equations, the
-optimal prediction weights that are both unbiased and have the smallest
-possible prediction variance compared to any other linear predictor are
-\mbox{} \begin{equation}
+\end{equation} \noindent where \(\mathbf{m}\) is a \(p\)-length column
+vector of the Lagrange multipliers due to the unbiasedness constraint
+and the subscripts \(o\) and \(u\) denote observed and unobserved data
+points. For example, \(\bm{\Sigma}_{o, o}\) denotes the
+\(n_o \times n_o\) submatrix of \(\bm{\Sigma}\) (from equation
+\ref{equation:var}) corresponding only to rows and columns of observed
+data points and \(\bm{\Sigma}_{u, o}\) denotes the
+\((N - n_o) \times n_o\) submatrix of \(\bm{\Sigma}\) corresponding to
+rows of data points that were not observed and columns of data points
+that were observed. Solving the prediction equations, the optimal
+prediction weights that are both unbiased and have the smallest possible
+prediction variance compared to any other linear predictor are \mbox{}
+\begin{equation}
 \bm{\lambda}_o' = \mathbf{b}_{o}' + \mathbf{b}_{u}'\left[ (\bm{\Sigma}_{u, o}\bm{\Sigma}_{o, o}^{-1}) - (\bm{\Sigma}_{u, o} \bm{\Sigma}_{o, o}^{-1})\mathbf{X}_o\mathbf{W}_o^{-1}\mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1} + \mathbf{X}_{u}'\mathbf{W}_o^{-1}\mathbf{X}_o \bm{\Sigma}_{o, o}^{-1} \right],
 \end{equation} \noindent where
 \(\mathbf{W}_o = \mathbf{X}_o'\bm{\Sigma}_{o, o}^{-1}\mathbf{X}_o\). The
@@ -482,7 +518,7 @@ BLUP for \(\mathbf{b}'_a \mathbf{y}_a\) is then \mbox{}
 \begin{equation*}
 \mathbf{b}_{o}'\mathbf{y}_{o} + \mathbf{b}_{u}' \mathbf{\hat{y}}_{u},
 \end{equation*} \noindent where
-\(\mathbf{\hat{y}}_{u} = \bm{\Sigma}_{o, s} \Sigma_{o, o}^{-1} (\mathbf{y}_o - \bm{\hat{\mu}}_o) + \bm{\hat{\mu}}_u\)
+\(\mathbf{\hat{y}}_{u} = \bm{\Sigma}_{u, o} \Sigma_{o, o}^{-1} (\mathbf{y}_o - \bm{\hat{\mu}}_o) + \bm{\hat{\mu}}_u\)
 with \(\bm{\hat{\mu}}_o = \mathbf{X}_o \bm{\hat{\beta}}\) and
 \(\bm{\hat{\mu}}_u = \mathbf{X}_u \bm{\hat{\beta}}\).
 \(\bm{\hat{\beta}}\) is the generalized least squares estimator
@@ -494,7 +530,7 @@ multiplied with relevant weights from the \(\mathbf{b}_u\) vector.
 
 The prediction variance of the predictor in equation \ref{equation:blup}
 is \mbox{} \begin{equation} \label{equation:predvar}
-E((\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)(\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)) = \\
+E((\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)^2) = \\
 \bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_a' \bm{\Sigma}_{a, o} \bm{\lambda}_o + \mathbf{b}_a' \bm{\Sigma}_{a, a} \mathbf{b}_a.
 \end{equation}
 
@@ -518,6 +554,17 @@ and \(oc\) denote unobserved sites in past surveys, unobserved sites in
 the current survey, observed sites in past surveys, and observed sites
 in the current survey, respectively.
 
+Though we are interested in predicting \(\mathbf{b}_a ' \mathbf{y}_a\)
+in the development above so that we are predicting a single quantity of
+interest and obtaining a single prediction variance, we can also predict
+for multiple quantities of interest and obtain a prediction covariance
+matrix with \(\mathbf{B}' \mathbf{y}_a\), where \(\mathbf{B}\) is an
+\(N \times n_{pred}\) matrix and \(n_{pred}\) is the number of different
+quantities we wish to predict. One setting where such development is
+potentially useful is predicting the total abundance for each time point
+in the study, as is done in Section \ref{section:Application} in Figure
+\ref{fig:trend}.
+
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}
 
@@ -539,10 +586,20 @@ Cressie and Lahiri 1993).
 
 However, REML estimation can be computationally burdensome, particularly
 for large spatio-temporal data sets with many observed sites and time
-points. Therefore, we use developments from Dumelle et al. (2021) in the
-application, the simulations described in the next section, and the
-accompanying \texttt{R} package to speed up estimation of
-\(\bm{\theta}\).
+points. To speed up estimation of \(\bm{\theta}\), Dumelle et al. (2021)
+iteratively apply the Sherman-Morrison-Woodbury formula Woodbury (1950)
+on the Stegle eigendecomposition (Stegle et al. 2011) of \(\bm{\Sigma}\)
+to more quickly obtain \(\bm{\Sigma}^{-1}\) during the optimization
+process. When the response is not observed in at least one space-time
+point combination, Helmert-Wolf blocking (Wolf 1979) is also
+incorporated to retain computational efficiency during estimation. To
+give a rough idea of the computational efficiency gained, Dumelle et al.
+(2021) found that the computation time for a single matrix inversion for
+13,000 data points was about 60 seconds with their methodology, compared
+to over 1000 seconds for an inversion computed with the standard
+Cholesky decomposition. We use these developments in the application,
+the simulations described in the next section, and the accompanying
+\texttt{R} package to speed up estimation of \(\bm{\theta}\).
 
 \hypertarget{section:Application}{%
 \section{Application}\label{section:Application}}
@@ -567,25 +624,39 @@ the missing year of 2016. Therefore, \(N\) is 2667.
 
 \begin{figure}
 \centering
-\includegraphics{preprint_springer_files/figure-latex/unnamed-chunk-7-1.pdf}
+\includegraphics{preprint_springer_files/figure-latex/unnamed-chunk-8-1.pdf}
 \caption{\label{fig:sitepredmap} A map of the sites composing the Taylor
-corridor in eastern-central Alaska. (a). A map of the stratification for
-the sites in the year 2020. (b). A map of the predictions of sites in
-2020 from the spatio-temporal model. A site with a grey dot in the
-center means that the site was sampled in 2020.}
+corridor in eastern-central Alaska. Each site is roughly 4 kilometers in
+length and roughly 3.5 kilometers in width so that the centroids of two
+horizontally adjacent sites are about 4 kilometers apart and the
+centroids of two vertically adjacent sites are about 3.5 kilometers
+apart. (a). A map of the stratification for the sites in the year 2020.
+(b). A map of the predictions of sites in 2020 from the spatio-temporal
+model. A site with a grey dot in the center means that the site was
+sampled in 2020.}
 \end{figure}
 
 In each year of the survey, a team of biologists stratifies all of the
 spatial sites into a ``High'' stratum and a ``Low'' stratum based on
-wildlife biologist knowledge of moose density in the region (Figure
-\ref{fig:sitepredmap}). They then select some of the 381 sites to
-survey. The number of sites that were selected varies from a low of 76
-in the year 2019 to a high of 90 in the year 2020. Throughout the 7
-unique years, some sites were sampled as many as five different times
-while others were never sampled at all. The number of units sampled
-throughout all survey years, \(n\), was 487 units. Figure
-\ref{fig:sitepredmap} and all remaining figure graphics are constructed
-with the \(\texttt{ggplot2 R}\) package (Wickham 2016).
+wildlife biologist knowledge of moose density in the region, which sites
+have land cover more suitable to moose habitat, and informal aerial
+surveys done prior to the moose survey (Figure \ref{fig:sitepredmap}).
+The stratification scheme therefore can change from year to year, though
+the majority of spatial sites are classified into the same stratum in
+every year. Biologists then randomly select some of the 381 sites to
+survey, and subsequently select a few additional sites non-randomly in
+such a way that there are no large areas without a sampled site. The
+non-randomly selected sites are a small proportion of the overall sample
+size (about 10\% of the sites are selected non-randomly), and these
+sites are not selected preferentially by the number of expected moose or
+observed moose counts in previous survey years. The total number of
+sites that were selected varies from a low of 76 in the year 2019 to a
+high of 90 in the year 2020. Throughout the 7 unique years, some sites
+were sampled as many as five different times while others were never
+sampled at all. The number of units sampled throughout all survey years,
+\(n\), was 487 units. Figure \ref{fig:sitepredmap} and all remaining
+figure graphics are constructed with the \(\texttt{ggplot2 R}\) package
+(Wickham 2016).
 
 The goal of the following analysis is to predict the total abundance of
 moose across all sites in the year 2020, the most recent year of the
@@ -596,10 +667,26 @@ survey, using stratum as a covariate in the spatio-temporal model.
 
 We fit the product-sum covariance model defined in equation
 \ref{equation:model} using REML with stratum as a covariate in the
-design matrix, an exponential spatial correlation structure defined in
-equation \ref{equation:spatcov}, and an exponential temporal correlation
-structure defined in equation \ref{equation:tempcov}. Table
-\ref{tab:paramest} gives the estimated parameters from the model fit.
+design matrix. To select the spatial and temporal correlation
+structures, we examined the AIC values for each of the nine crossed
+combinations of the exponential, spherical, and gaussian spatial
+correlation structures (Cressie 2015) and the exponential, spherical,
+and gaussian temporal correlation structures to assess model fit. The
+combination with the lowest AIC was the ``gaussian spatial - exponential
+temporal'' model. However, in this application, we opted to use the
+``exponential spatial - exponential temporal'' model, with the
+exponential spatial correlation structure defined in equation
+\ref{equation:spatcov} and the exponential temporal correlation
+structure defined in equation \ref{equation:tempcov} so that the
+application correlation structure matches that of the simulations in
+\ref{section:Simulation} (which are easier to conceptualize when both
+the spatial and temporal correlations decay according to the same
+function). Additionally, the AIC value for this model was within four
+points of the best model, indicating that the quality of the model fits
+are not too different anyway.
+
+Table \ref{tab:paramest} gives the estimated parameters from the model
+fit with the exponential correlation structures.
 
 \begin{table}[H]
 
@@ -633,12 +720,14 @@ the two errors come from the same site or from adjacent sites.
 \caption{\label{fig:covplot} Estimated covariance of the errors from the
 estimated parameters in a spatio-temporal product-sum model. Distance
 between two sites is calculated from the site centroids; the centroids
-of two sites directly adjacent to one another are about 4 kilometers
-apart.}
+of two sites directly adjacent to one another are about 3.5 to 4
+kilometers apart.}
 \end{figure}
 
 The estimated vector of fixed effects, using ``High'' as the reference
-group, is \(\bm{\hat{\beta}}\) = (9.62, -4.55). Therefore, the overall
+group, is \(\bm{\hat{\beta}}'\) = \((\hat{\beta}_0, \hat{\beta}_1)\) =
+(9.62, -4.55). The standard error for \(\hat{\beta}_0\) is 1.01 while
+the standard error for \(\hat{\beta}_1\) is 0.93. Therefore, the overall
 mean for sites in the ``High'' stratum is estimated to be 9.62 moose
 while the overall mean for sites in the ``Low'' stratum is estimated to
 be 5.07 moose.
@@ -654,13 +743,21 @@ estimates of the covariance parameters into equations
 \ref{equation:blup} and \ref{equation:predvar} and letting elements of
 \(\mathbf{b}_a\) be equal to 1 for data points in 2020 and equal to 0
 otherwise, we obtain a prediction of 3001 moose and a standard error
-(the square root of the prediction variance) of 217 moose. A 90\%
-normal-based prediction interval for the total abundance in 2020 is
-(2644, 3357) moose. Note that, though the response in this example is a
-count, a normal-based prediction interval for the total is still
-appropriate through an application of the central limit theorem for
-dependent data (Smith 1980). Sitewise predictions for sites in 2020 are
-given in the map in Figure \ref{fig:sitepredmap}.
+(the square root of the prediction variance) of 217 moose. The
+prediction for the total and the prediction variance were fairly robust
+to other combinations of correlation functions to model the spatial and
+the temporal correlation, with the prediction never deviating from 3001
+by more than 100 moose for any of the other 8 spatial and temporal
+correlation function combinations discussed at the beginning of
+Subsection \ref{#subsection:modelfit}.
+
+A 90\% normal-based prediction interval for the total abundance in 2020
+(with the exponential spatial and temporal correlation) is (2644, 3357)
+moose. Note that, though the response in this example is a count, a
+normal-based prediction interval for the total is still appropriate
+through an application of the central limit theorem for dependent data
+(Smith 1980). Sitewise predictions for sites in 2020 are given in the
+map in Figure \ref{fig:sitepredmap}.
 
 For comparison, we use the spatial \texttt{sptotal} package (Higham et
 al. 2021) to compute the spatial FPBK prediction (Ver Hoef 2008) for the
@@ -687,7 +784,11 @@ observed data points in 2020 in the \(i^{th}\) stratum and \(n_i\) is
 the number of observed data points in 2020 in the \(i^{th}\) stratum.
 Both the purely spatial model fit with \texttt{sptotal} and the
 stratified random sampling design-based estimator use data only from
-2020.
+2020. Note that the stratified random sampling estimator is not actually
+appropriate for this application because not all sites are randomly
+selected within each stratum. However, the number of sites that are not
+randomly selected is small, so we still include the stratified random
+sampling estimator for a baseline comparison estimator.
 
 For the purely spatial model with stratum as a covariate, the prediction
 for the total number of moose in 2020 in the region is 2870 moose with a
@@ -718,7 +819,7 @@ larger than the standard errors for the years with completed surveys.
 
 \begin{figure}
 \centering
-\includegraphics{preprint_springer_files/figure-latex/unnamed-chunk-11-1.pdf}
+\includegraphics{preprint_springer_files/figure-latex/unnamed-chunk-13-1.pdf}
 \caption{\label{fig:trend} Moose abundance predictions for the Taylor
 Corridor from 2014 through 2021 with the stratified random sampling
 (StRS) estimator, the spatial FPBK predictor, and the ST-FPBK predictor.
@@ -758,8 +859,8 @@ covariance parameters given in Table \ref{tab:simparmtab}.
 scenario & $\sigma^2_{\delta}$ & $\sigma^2_{\gamma}$ & $\phi$ & $\sigma^2_{\tau}$ & $\sigma^2_{\eta}$ & $\rho$ & $\sigma^2_{\omega}$ & $\sigma^2_{\nu}$\\
 \midrule
 all-dev & 0.5 & 0.17 & 0.47 & 0.5 & 0.17 & 0.33 & 0.50 & 0.17\\
-t-iev & 0 & 0 & 0.47 & 0 & 1.50 & 0 & 0.25 & 0.25\\
-spt-iev & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 2.00\\
+t-iev & 0.0 & 0.00 & 0.47 & 0.0 & 1.50 & 0.00 & 0.25 & 0.25\\
+spt-iev & 0.0 & 0.00 & 0.00 & 0.0 & 0.00 & 0.00 & 0.00 & 2.00\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -791,7 +892,7 @@ scenario.
 
 \begin{figure}
 \centering
-\includegraphics{preprint_springer_files/figure-latex/unnamed-chunk-15-1.pdf}
+\includegraphics{preprint_springer_files/figure-latex/unnamed-chunk-17-1.pdf}
 \caption{\label{fig:simcovplot} The model covariance used in the
 simulations for the spatio-temporal scenario. Covariance is
 approximately 0 for errors from data points that are \(\sqrt2\) distance
@@ -806,22 +907,28 @@ Each of these three scenarios is replicated for two different sample
 sizes: \(n = 250\) and \(n = 500\). A simple random sample is chosen
 from the 1000 total data points.
 
-Finally, the simulation experiment is repeated for a skewed response
-variable. To create the skewed response variable, a normally-distributed
-response is simulated according to the parameters given in Table
-\ref{tab:simparmtab}, except that each of the variance parameters (not
-including \(\phi\) and \(\rho\)) is divided by 2.89 so that the total
-variance is equal to 0.6931. This variable is then exponentiated so that
-the total variance after exponentiation is equal to 2. Note that, not
-only does exponentiation result in a right-skewed response variable, but
-exponentiating also allows for an assessment of how the ST-FPBK
-predictor performs when the covariance is mis-specified, as the
-resulting response variable is now simulated with an intractable
-covariance function that is not used in the model fitting.
+Finally, the simulation experiment is repeated for a continuous skewed
+response variable and for a skewed response variable of discrete counts.
+To create the continuous skewed response variable for the setting called
+``skewed,'' a normally-distributed response is simulated according to
+the parameters given in Table \ref{tab:simparmtab}, except that each of
+the variance parameters (not including \(\phi\) and \(\rho\)) is divided
+by 2.89 so that the total variance is equal to 0.6931. This variable is
+then exponentiated so that the total variance after exponentiation is
+equal to 2. Note that, not only does exponentiation result in a
+right-skewed response variable, but exponentiating also allows for an
+assessment of how the ST-FPBK predictor performs when the covariance is
+mis-specified, as the resulting response variable is now simulated with
+an intractable covariance function that is not used in the model
+fitting. To create the skewed response variable of discrete counts for
+the setting called ``poisson,'' for each response value, we take a
+Poisson draw with the continuous skewed response value as the mean
+(conditional on the mean, each Poisson draw is done independently of all
+other Poisson draws).
 
-Therefore, the simulation study has \(12\) total settings coming from a
-\(3 \times 2 \times 2\) (scenario \(\times\) sample size \(\times\)
-distribution shape) factorial design. For each setting, we simulate 1000
+Therefore, the simulation study has \(18\) total settings coming from a
+\(3 \times 2 \times 3\) (scenario \(\times\) sample size \(\times\)
+distribution) factorial design. For each setting, we simulate 1000
 realizations of the response vector \(\mathbf{y}\). For each
 realization, we use three methods to predict the total response for the
 ``most current'' time point, which is when the time index is equal to 1
@@ -897,11 +1004,11 @@ spatio-temporal model is not detrimental.
 
 \begin{figure}
 \centering
-\includegraphics{preprint_springer_files/figure-latex/unnamed-chunk-17-1.pdf}
+\includegraphics{preprint_springer_files/figure-latex/unnamed-chunk-19-1.pdf}
 \caption{\label{fig:rmspe} root-mean-squared-prediction-error (rMSPE)
 for all simulation settings. The ST-FPBK predictor has the smallest
-rMSPE in all settings tested, though it is similar to the rMSPE of the
-other two methods in the t-iev scenario.}
+rMSPE in all of the `all-dev' and `spt-iev' scenarios while the three
+methods perform similarly in all of the `t-iev' scenarios.}
 \end{figure}
 
 All methods appear relatively unbiased in all simulation settings: Table
@@ -910,15 +1017,16 @@ compared to the squares of the rMSPE values given in Table
 \ref{tab:simrmspetab}.
 
 The normal-based prediction intervals (Smith 1980) for the abundance in
-the most recent time point from the ST-FPBK method maintain appropriate
-coverage (90\%) for all of the simulation settings used, including the
-scenarios where the errors are skewed right and the covariance model is
-mis-specified (Table \ref{tab:simpitab}). The spatial model and the SRS
-design-based estimator have lower than nominal coverage in some settings
-because of the small sample size used (recall that the \(n = 250\)
-observed samples span 10 unique time points so that, on average, the
-spatial model and SRS design-based estimator only have 25 observed
-responses to use in the current time point).
+the most recent time point from the ST-FPBK method maintain close to
+appropriate coverage (90\%) for all of the simulation settings used,
+including the scenarios where the response is skewed right and the
+covariance model is mis-specified and the scenarios where the response
+is both discrete and skewed right (Table \ref{tab:simpitab}). The
+spatial model and the SRS design-based estimator have lower than nominal
+coverage in some settings because of the small sample size used (recall
+that the \(n = 250\) observed samples span 10 unique time points so
+that, on average, the spatial model and SRS design-based estimator only
+have 25 observed responses to use in the current time point).
 
 \hypertarget{section:Discussion}{%
 \section{Discussion}\label{section:Discussion}}
@@ -1012,24 +1120,36 @@ for practitioners. Though we recognize that doing so would be a
 substantial undertaking, the \texttt{R} package that we provide could be
 a useful starting point for the integration.
 
+\hypertarget{declarations}{%
+\section{Declarations}\label{declarations}}
+
+\hypertarget{conflicts-of-interest}{%
+\subsection*{Conflicts of Interest}\label{conflicts-of-interest}}
+\addcontentsline{toc}{subsection}{Conflicts of Interest}
+
+The authors declare no conflict of interest.
+
 \hypertarget{data-and-code-availability}{%
-\section*{Data and Code Availability}\label{data-and-code-availability}}
-\addcontentsline{toc}{section}{Data and Code Availability}
+\subsection*{Data and Code
+Availability}\label{data-and-code-availability}}
+\addcontentsline{toc}{subsection}{Data and Code Availability}
 
 The Alaska Department of Fish and Game collected and provided the moose
 survey data used in this study. This manuscript has a supplementary
 \texttt{R} package that contains all of the data and code used in its
 creation, with the exception of the shapefile used to make the maps in
 some of the figures (which cannot be released due to Alaska Department
-of Fish and Game policy). The supplementary \texttt{R} package is hosted
-on GitHub and can be found at
-\url{https://github.com/highamm/FPSpatioTemp}.
+of Fish and Game policy). The supplementary \texttt{R} package, along
+with the data used in the application, is hosted on GitHub and can be
+found at (link not provided because repository would identify at least
+one author).
 
 The data set is also available on Zenodo at
 \url{https://doi.org/10.5281/zenodo.7636130}.
 
 \hypertarget{acknowledgements}{%
-\section{Acknowledgements}\label{acknowledgements}}
+\subsection*{Acknowledgements}\label{acknowledgements}}
+\addcontentsline{toc}{subsection}{Acknowledgements}
 
 The views expressed in this manuscript are those of the authors and do
 not necessarily represent the views or policies of the U.S.
@@ -1044,7 +1164,7 @@ products, services, or enterprises.
 \setcounter{table}{0}
 \setcounter{subsection}{0}
 \renewcommand{\thetable}{A\arabic{table}}
-\renewcommand{\thesubsection}{A\arabic{subsection}}
+\renewcommand{\thesubsection}{A.\arabic{subsection}:}
 
 \hypertarget{appendix}{%
 \section*{Appendix}\label{appendix}}
@@ -1054,7 +1174,7 @@ products, services, or enterprises.
 
 \begin{table}[H]
 
-\caption{\label{tab:simrmspetab}root-mean-squared-prediction-error (rMSPE) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, the rMSPE for the ST-FPBK predictor is approximately equal to or lower than the rMSPE for the other two methods.}
+\caption{\label{tab:simrmspetab}root-mean-squared-prediction-error (rMSPE) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 18 simulation settings. In all settings, the rMSPE for the ST-FPBK predictor is approximately equal to or lower than the rMSPE for the other two methods.}
 \centering
 \begin{tabular}[t]{cccccc}
 \toprule
@@ -1062,28 +1182,34 @@ products, services, or enterprises.
 \cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
 scenario & n & Response Type & SRS & FPBK & ST-FPBK\\
 \midrule
-spt-iev & 250 & normal & 24.64 & 25.06 & 14.58\\
-t-iev & 250 & normal & 10.76 & 10.53 & 10.31\\
-all-dev & 250 & normal & 17.23 & 14.97 & 11.18\\
+spt-iev & 250 & normal & 24.85 & 25.19 & 14.99\\
+t-iev & 250 & normal & 11.44 & 11.01 & 10.88\\
+all-dev & 250 & normal & 17.91 & 15.33 & 11.38\\
 \midrule
-spt-iev & 500 & normal & 14.71 & 14.91 & 10.84\\
-t-iev & 500 & normal & 6.50 & 6.22 & 6.12\\
-all-dev & 500 & normal & 10.24 & 8.43 & 6.09\\
+spt-iev & 500 & normal & 14.53 & 14.63 & 11.06\\
+t-iev & 500 & normal & 6.55 & 6.10 & 6.05\\
+all-dev & 500 & normal & 9.68 & 8.13 & 5.87\\
 \midrule
-spt-iev & 250 & skewed & 24.56 & 26.14 & 15.49\\
-t-iev & 250 & skewed & 12.05 & 12.10 & 11.89\\
-all-dev & 250 & skewed & 19.46 & 18.35 & 14.28\\
+spt-iev & 250 & skewed & 26.21 & 27.28 & 15.73\\
+t-iev & 250 & skewed & 12.60 & 12.98 & 12.69\\
+all-dev & 250 & skewed & 21.42 & 19.10 & 16.19\\
 \midrule
-spt-iev & 500 & skewed & 15.04 & 15.38 & 11.22\\
-t-iev & 500 & skewed & 7.82 & 7.32 & 7.34\\
-all-dev & 500 & skewed & 11.45 & 9.89 & 7.55\\
+spt-iev & 500 & skewed & 14.86 & 15.01 & 10.91\\
+t-iev & 500 & skewed & 7.45 & 6.84 & 6.80\\
+all-dev & 500 & skewed & 11.75 & 10.71 & 8.68\\
+spt-iev & 250 & poisson & 33.63 & 34.57 & 20.19\\
+t-iev & 250 & poisson & 24.39 & 25.84 & 24.73\\
+all-dev & 250 & poisson & 30.78 & 29.32 & 27.14\\
+spt-iev & 500 & poisson & 18.60 & 18.84 & 14.21\\
+t-iev & 500 & poisson & 14.13 & 14.09 & 13.82\\
+all-dev & 500 & poisson & 17.12 & 16.99 & 15.90\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[H]
 
-\caption{\label{tab:simbiastab}Bias (Realized Current Total - Predicted Current Total) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 12 simulation settings. In all settings, all methods appear fairly unbiased.}
+\caption{\label{tab:simbiastab}Bias (Realized Current Total - Predicted Current Total) for the ST-FPBK predictor, the FPBK predictor, and the SRS estimator for each of the 18 simulation settings. In all settings, all methods appear fairly unbiased.}
 \centering
 \begin{tabular}[t]{cccccc}
 \toprule
@@ -1091,28 +1217,34 @@ all-dev & 500 & skewed & 11.45 & 9.89 & 7.55\\
 \cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
 scenario & n & Response Type & SRS & FPBK & ST-FPBK\\
 \midrule
-spt-iev & 250 & normal & 1.55 & 1.38 & 0.73\\
-t-iev & 250 & normal & 0.47 & 0.39 & 0.44\\
-all-dev & 250 & normal & 0.45 & 0.27 & 0.48\\
+spt-iev & 250 & normal & -0.40 & -0.63 & 0.34\\
+t-iev & 250 & normal & -0.28 & -0.48 & -0.38\\
+all-dev & 250 & normal & -0.30 & -0.45 & -0.36\\
 \midrule
-spt-iev & 500 & normal & 0.67 & 0.60 & 0.46\\
-t-iev & 500 & normal & 0.07 & 0.14 & 0.15\\
-all-dev & 500 & normal & 0.04 & 0.07 & 0.04\\
+spt-iev & 500 & normal & -0.30 & -0.35 & 0.05\\
+t-iev & 500 & normal & -0.20 & -0.21 & -0.20\\
+all-dev & 500 & normal & 0.11 & -0.08 & -0.19\\
 \midrule
-spt-iev & 250 & skewed & 1.48 & 0.56 & 0.36\\
-t-iev & 250 & skewed & 0.41 & 0.22 & 0.33\\
-all-dev & 250 & skewed & -0.49 & -0.85 & -0.07\\
+spt-iev & 250 & skewed & -0.58 & -1.72 & -0.14\\
+t-iev & 250 & skewed & -0.49 & -1.02 & -0.82\\
+all-dev & 250 & skewed & -0.19 & -0.74 & -0.47\\
 \midrule
-spt-iev & 500 & skewed & 0.66 & 0.29 & 0.32\\
-t-iev & 500 & skewed & 0.08 & 0.15 & 0.24\\
-all-dev & 500 & skewed & -0.37 & -0.39 & -0.10\\
+spt-iev & 500 & skewed & -0.44 & -0.69 & -0.15\\
+t-iev & 500 & skewed & -0.23 & -0.33 & -0.30\\
+all-dev & 500 & skewed & 0.18 & -0.08 & -0.01\\
+spt-iev & 250 & poisson & -0.72 & -1.79 & -0.03\\
+t-iev & 250 & poisson & -0.70 & -1.25 & -1.01\\
+all-dev & 250 & poisson & -0.52 & -1.34 & -0.67\\
+spt-iev & 500 & poisson & -0.28 & -0.43 & 0.07\\
+t-iev & 500 & poisson & -0.61 & -0.69 & -0.61\\
+all-dev & 500 & poisson & 0.57 & 0.30 & 0.61\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[H]
 
-\caption{\label{tab:simpitab}Prediction interval coverage for the ST-FPBK predictor, the FPBK predictor, and the SRS for each of the 12 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90.}
+\caption{\label{tab:simpitab}Prediction interval coverage for the ST-FPBK predictor, the FPBK predictor, and the SRS for each of the 18 simulation settings. All intervals are normal-based and have a nominal coverage level of 0.90.}
 \centering
 \begin{tabular}[t]{cccccc}
 \toprule
@@ -1120,21 +1252,27 @@ all-dev & 500 & skewed & -0.37 & -0.39 & -0.10\\
 \cmidrule(l{3pt}r{3pt}){1-3} \cmidrule(l{3pt}r{3pt}){4-6}
 scenario & n & Response Type & SRS & FPBK & ST-FPBK\\
 \midrule
-spt-iev & 250 & normal & 0.89 & 0.87 & 0.92\\
-t-iev & 250 & normal & 0.91 & 0.88 & 0.91\\
-all-dev & 250 & normal & 0.91 & 0.88 & 0.90\\
+spt-iev & 250 & normal & 0.89 & 0.88 & 0.91\\
+t-iev & 250 & normal & 0.88 & 0.87 & 0.89\\
+all-dev & 250 & normal & 0.88 & 0.87 & 0.90\\
 \midrule
-spt-iev & 500 & normal & 0.88 & 0.86 & 0.90\\
-t-iev & 500 & normal & 0.89 & 0.87 & 0.89\\
-all-dev & 500 & normal & 0.89 & 0.89 & 0.88\\
+spt-iev & 500 & normal & 0.89 & 0.88 & 0.90\\
+t-iev & 500 & normal & 0.89 & 0.88 & 0.89\\
+all-dev & 500 & normal & 0.91 & 0.88 & 0.90\\
 \midrule
-spt-iev & 250 & skewed & 0.84 & 0.82 & 0.90\\
-t-iev & 250 & skewed & 0.90 & 0.86 & 0.90\\
-all-dev & 250 & skewed & 0.89 & 0.86 & 0.89\\
+spt-iev & 250 & skewed & 0.86 & 0.83 & 0.90\\
+t-iev & 250 & skewed & 0.88 & 0.86 & 0.90\\
+all-dev & 250 & skewed & 0.86 & 0.86 & 0.89\\
 \midrule
-spt-iev & 500 & skewed & 0.84 & 0.84 & 0.89\\
-t-iev & 500 & skewed & 0.88 & 0.87 & 0.89\\
-all-dev & 500 & skewed & 0.89 & 0.87 & 0.89\\
+spt-iev & 500 & skewed & 0.86 & 0.86 & 0.90\\
+t-iev & 500 & skewed & 0.89 & 0.88 & 0.92\\
+all-dev & 500 & skewed & 0.89 & 0.86 & 0.90\\
+spt-iev & 250 & poisson & 0.86 & 0.84 & 0.91\\
+t-iev & 250 & poisson & 0.89 & 0.87 & 0.90\\
+all-dev & 250 & poisson & 0.87 & 0.86 & 0.85\\
+spt-iev & 500 & poisson & 0.88 & 0.87 & 0.90\\
+t-iev & 500 & poisson & 0.89 & 0.88 & 0.91\\
+all-dev & 500 & poisson & 0.87 & 0.86 & 0.88\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1207,7 +1345,7 @@ separately is application dependent.
 For the moose application data, fitting separate covariance models to
 each stratum is probably the better choice, as the errors for sites in
 the high stratum have much more overall variability than the errors in
-the low stratum. However, we choose to have the separate-strata model in
+the low stratum. However, we chose to have the separate-strata model in
 the supplementary materials for two reasons. First, the method can be
 applied to any data set with spatio-temporal covariance and a finite
 number of sites, and applications in other domains may not have
@@ -1222,15 +1360,33 @@ a covariate allows for a better focus on the proposed method itself.
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-adde2020predicting}{}}%
+Adde, Antoine, Marcel Darveau, Nicole Barker, and Steven Cumming. 2020.
+{``Predicting Spatiotemporal Abundance of Breeding Waterfowl Across
+Canada: A Bayesian Hierarchical Modelling Approach.''} \emph{Diversity
+and Distributions} 26 (10): 1248--63.
+
 \leavevmode\vadjust pre{\hypertarget{ref-boertje2009managing}{}}%
 Boertje, Rodney D, Mark A Keech, Donald D Young, Kalin A Kellie, and C
 Tom Seaton. 2009. {``Managing for Elevated Yield of Moose in Interior
 Alaska.''} \emph{The Journal of Wildlife Management} 73 (3): 314--27.
 
+\leavevmode\vadjust pre{\hypertarget{ref-breivik2021predicting}{}}%
+Breivik, Olav Nikolai, Fredrik Aanes, Guldborg Søvik, Asgeir Aglen,
+Sigbjørn Mehl, and Espen Johnsen. 2021. {``Predicting Abundance Indices
+in Areas Without Coverage with a Latent Spatio-Temporal Gaussian
+Model.''} \emph{ICES Journal of Marine Science} 78 (6): 2031--42.
+
 \leavevmode\vadjust pre{\hypertarget{ref-brus2021statistical}{}}%
 Brus, Dick J. 2021. {``Statistical Approaches for Spatial Sample Survey:
 Persistent Misconceptions and New Developments.''} \emph{European
 Journal of Soil Science} 72 (2): 686--703.
+
+\leavevmode\vadjust pre{\hypertarget{ref-conn2015using}{}}%
+Conn, Paul B, Devin S Johnson, Jay M Ver Hoef, Mevin B Hooten, Joshua M
+London, and Peter L Boveng. 2015. {``Using Spatiotemporal Statistical
+Models to Estimate Animal Abundance and Infer Ecological Dynamics from
+Survey Counts.''} \emph{Ecological Monographs} 85 (2): 235--52.
 
 \leavevmode\vadjust pre{\hypertarget{ref-cressie2015statistics}{}}%
 Cressie, Noel. 2015. \emph{Statistics for Spatial Data - Revised
@@ -1240,6 +1396,12 @@ Edition}. John Wiley \& Sons.
 Cressie, Noel, and Soumendra Nath Lahiri. 1993. {``The Asymptotic
 Distribution of REML Estimators.''} \emph{Journal of Multivariate
 Analysis} 45 (2): 217--33.
+
+\leavevmode\vadjust pre{\hypertarget{ref-davy2021estimation}{}}%
+Davy, Christina M, Kelly Squires, and J Ryan Zimmerling. 2021.
+{``Estimation of Spatiotemporal Trends in Bat Abundance from Mortality
+Data Collected at Wind Turbines.''} \emph{Conservation Biology} 35 (1):
+227--38.
 
 \leavevmode\vadjust pre{\hypertarget{ref-de2001product}{}}%
 De Cesare, Luigi, DE Myers, and D Posa. 2001. {``Product-Sum Covariance
@@ -1330,10 +1492,20 @@ Webb, Mike Russell, Curtis Stambaugh, and Robert B Anderson. 2014.
 Sightability in West-Central Alberta, Canada.''} \emph{Wildlife Society
 Bulletin} 38 (3): 639--49.
 
+\leavevmode\vadjust pre{\hypertarget{ref-ross2012accessible}{}}%
+Ross, Beth E, Mevin B Hooten, and David N Koons. 2012. {``An Accessible
+Method for Implementing Hierarchical Models with Spatio-Temporal
+Abundance Data.''} \emph{PLoS One} 7 (11): e49395.
+
 \leavevmode\vadjust pre{\hypertarget{ref-sahu2022bayesian}{}}%
 Sahu, Sujit K, and Dankmar Böhning. 2022. {``Bayesian Spatio-Temporal
 Joint Disease Mapping of Covid-19 Cases and Deaths in Local Authorities
 of England.''} \emph{Spatial Statistics} 49: 100519.
+
+\leavevmode\vadjust pre{\hypertarget{ref-sauer2011analysis}{}}%
+Sauer, John R, and William A Link. 2011. {``Analysis of the North
+American Breeding Bird Survey Using Hierarchical Models.''} \emph{The
+Auk} 128 (1): 87--98.
 
 \leavevmode\vadjust pre{\hypertarget{ref-schabenberger2017statistical}{}}%
 Schabenberger, Oliver, and Carol A Gotway. 2017. \emph{Statistical
@@ -1347,14 +1519,30 @@ of Moose Count Data: Increasing Estimator Efficiency and Exploring
 Ecological Hypotheses.''} \emph{The Journal of Wildlife Management},
 e22220.
 
+\leavevmode\vadjust pre{\hypertarget{ref-sherman1950adjustment}{}}%
+Sherman, Jack, and Winifred J Morrison. 1950. {``Adjustment of an
+Inverse Matrix Corresponding to a Change in One Element of a Given
+Matrix.''} \emph{The Annals of Mathematical Statistics} 21 (1): 124--27.
+
 \leavevmode\vadjust pre{\hypertarget{ref-smith1980central}{}}%
 Smith, Tony E. 1980. {``A Central Limit Theorem for Spatial Samples.''}
 \emph{Geographical Analysis} 12 (4): 299--324.
+
+\leavevmode\vadjust pre{\hypertarget{ref-stegle2011efficient}{}}%
+Stegle, Oliver, Christoph Lippert, Joris M Mooij, Neil Lawrence, and
+Karsten Borgwardt. 2011. {``Efficient Inference in Matrix-Variate
+Gaussian Models with\(\backslash\)iid Observation Noise.''}
+\emph{Advances in Neural Information Processing Systems} 24.
 
 \leavevmode\vadjust pre{\hypertarget{ref-ver2008spatial}{}}%
 Ver Hoef, Jay M. 2008. {``Spatial Methods for Plot-Based Sampling of
 Wildlife Populations.''} \emph{Environmental and Ecological Statistics}
 15 (1): 3--13.
+
+\leavevmode\vadjust pre{\hypertarget{ref-ver2007space}{}}%
+Ver Hoef, Jay M, and John K Jansen. 2007. {``Space---Time Zero-Inflated
+Count Models of Harbor Seals.''} \emph{Environmetrics: The Official
+Journal of the International Environmetrics Society} 18 (7): 697--712.
 
 \leavevmode\vadjust pre{\hypertarget{ref-wickham2016data}{}}%
 Wickham, Hadley. 2016. {``Data Analysis.''} In \emph{Ggplot2}, 189--201.
@@ -1363,6 +1551,18 @@ Springer.
 \leavevmode\vadjust pre{\hypertarget{ref-wikle2019spatio}{}}%
 Wikle, Christopher K, Andrew Zammit-Mangion, and Noel Cressie. 2019.
 \emph{Spatio-Temporal Statistics with r}. Chapman; Hall/CRC.
+
+\leavevmode\vadjust pre{\hypertarget{ref-wolf1979helmert}{}}%
+Wolf, Helmut. 1979. {``THE HELMERT BLOCK METHOD ITS ORIGIN.''} In
+\emph{Proceedings: Second International Symposium on Problems Related to
+the Redefinition of North American Geodetic Networks, Held at the
+Marriott Hotel, Arlington, Virginia, April 24 to 28, 1978}, 55:319.
+Department of Commerce, National Oceanic; Atmospheric
+Administration~\ldots.
+
+\leavevmode\vadjust pre{\hypertarget{ref-woodbury1950inverting}{}}%
+Woodbury, Max A. 1950. \emph{Inverting Modified Matrices}. Department of
+Statistics, Princeton University.
 
 \leavevmode\vadjust pre{\hypertarget{ref-xu2015spatio}{}}%
 Xu, Jiaqi, and Hong Shu. 2015. {``Spatio-Temporal Kriging Based on the

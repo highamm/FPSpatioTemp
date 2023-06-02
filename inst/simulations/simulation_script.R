@@ -188,14 +188,14 @@ sim_parm_df <- tibble::tribble(~sp_de, ~sp_ie, ~t_de, ~t_ie, ~spt_de, ~spt_ie,
                 sqrt(2), 1e-10, 500, "poisson")
 
 
-sim_parm_df <- tibble::tribble(~sp_de, ~sp_ie, ~t_de, ~t_ie, ~spt_de, ~spt_ie,
-                               ~sp_range, ~t_range, ~n, ~resp_type,
-                               0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-                               sqrt(2), 1, 100, "normal",
-                               0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-                               sqrt(2), 1, 100, "lognormal",
-                               0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
-                               sqrt(2), 1, 100, "poisson")
+# sim_parm_df <- tibble::tribble(~sp_de, ~sp_ie, ~t_de, ~t_ie, ~spt_de, ~spt_ie,
+#                                ~sp_range, ~t_range, ~n, ~resp_type,
+#                                0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
+#                                sqrt(2), 1, 100, "normal",
+#                                0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
+#                                sqrt(2), 1, 100, "lognormal",
+#                                0.5, 0.1675, 0.5, 0.1675, 0.5, 0.1675,
+#                                sqrt(2), 1, 100, "poisson")
 
 
 sim_output_df <- pmap_dfr(sim_parm_df, sim_fun,
