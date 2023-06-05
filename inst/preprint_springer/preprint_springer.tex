@@ -165,9 +165,9 @@ point using data collected in a subset of the region of interest at the
 most recent time point and in past time points. Often, the region of
 interest is divided into a finite number of areal sampling units and
 data is collected on a subset of these areal sampling units, leaving the
-remaining sampling units unsampled. We refer to the goal of predicting
-abundance in the most recent time point as \emph{spatio-temporal
-abundance prediction}.
+remaining units unsampled. We refer to the goal of predicting abundance
+in the most recent time point as \emph{spatio-temporal abundance
+prediction}.
 
 Conn et al. (2015) offer a review of methods and issues with
 spatio-temporal abundance prediction, comparing Bayesian formulations of
@@ -207,21 +207,6 @@ the spatio-temporal context, appropriately adjusting the finite
 population prediction variance correction and allowing for the
 covariance matrix of the response vector to include spatio-temporal
 structure.
-
-Conn et al. (2015) perils: bottom-right of page 239 and bottom-left of
-page 237
-
-MENTION EXPERT KNOWLEDGE IN BAYESIAN APPROACH: IMPROPER UNIFORM PRIOR ON
-COVARIANCE PARAMETER DOES NOT TRANSLATE TO LOG SCALE, FOR EXAMPLE. Ver
-Hoef upper bound on harbor seal abundance blow up.
-
-Clarification on Finite correction N = 10, n = 8, generated iid normal
-with unknown mean \(\mu\) and known variance \(\sigma^2 = 4\). If we
-care about the mean generating the process, then we use a standard error
-of sqrt(4) / 8 and our point estimate is the sample mean. If we care
-about the realized mean (as we do in most monitoring scenarios), then we
-use a standard error with a correction factor but our point estimate is
-still the sample mean.
 
 \hypertarget{motivating-example}{%
 \subsection{Motivating Example}\label{motivating-example}}
@@ -278,9 +263,10 @@ future research.
 \section{Methods}\label{section:Methods}}
 
 We now give details on the development of the spatio-temporal model and
-subsequently use this model to develop a finite population correction
-factor to give a Best-Linear-Unbiased-Predictor (BLUP) and its
-prediction variance for any linear function of the response vector.
+subsequently use this model to extend the approach of Ver Hoef (2008),
+developing a finite population correction factor to give a
+Best-Linear-Unbiased-Predictor (BLUP) and its prediction variance for
+any linear function of the response vector.
 
 \hypertarget{spatio-temporal-model}{%
 \subsection{Spatio-temporal Model}\label{spatio-temporal-model}}
@@ -362,11 +348,11 @@ error variance (or spatio-temporal nugget).
 
 Though there are a few types of models for the errors that can be built
 from equation \ref{equation:basicmod} by setting certain error variances
-to 0 (e.g.~a sum-with-error model sets \(\sigma^2_{\omega} = 0\) while a
-separable model sets all covariance parameters equal to \(0\) except
+to 0 (e.g.~a sum-with-error model sets \(\sigma^2_{\omega} = 0\)) and/or
+by allowing \(\mathbf{R}_{st}\) to take certain forms (e.g.~a separable
+model sets all covariance parameters equal to \(0\) except
 \(\sigma^2_{\omega}\) and uses the structure for \(\mathbf{R}_{st}\)
-given in equation \ref{equation:Rst} below) and/or by allowing
-\(\mathbf{R}_{st}\) to take certain forms, we focus only on the
+given in equation \ref{equation:Rst} below), we focus only on the
 product-sum model (De Cesare, Myers, and Posa 2001; Sandra De Iaco,
 Myers, and Posa 2001). In a common formulation of the product-sum model,
 \(\mathbf{R}_{st}\) is \mbox{} \begin{equation}
@@ -587,18 +573,19 @@ Cressie and Lahiri 1993).
 However, REML estimation can be computationally burdensome, particularly
 for large spatio-temporal data sets with many observed sites and time
 points. To speed up estimation of \(\bm{\theta}\), Dumelle et al. (2021)
-iteratively apply the Sherman-Morrison-Woodbury formula Woodbury (1950)
-on the Stegle eigendecomposition (Stegle et al. 2011) of \(\bm{\Sigma}\)
-to more quickly obtain \(\bm{\Sigma}^{-1}\) during the optimization
-process. When the response is not observed in at least one space-time
-point combination, Helmert-Wolf blocking (Wolf 1979) is also
-incorporated to retain computational efficiency during estimation. To
-give a rough idea of the computational efficiency gained, Dumelle et al.
-(2021) found that the computation time for a single matrix inversion for
-13,000 data points was about 60 seconds with their methodology, compared
-to over 1000 seconds for an inversion computed with the standard
-Cholesky decomposition. We use these developments in the application,
-the simulations described in the next section, and the accompanying
+iteratively apply the Sherman-Morrison-Woodbury formula (Sherman and
+Morrison 1950; Woodbury 1950) on the Stegle eigendecomposition (Stegle
+et al. 2011) of \(\bm{\Sigma}\) to more quickly obtain
+\(\bm{\Sigma}^{-1}\) during the optimization process. When the response
+is not observed in at least one space-time point combination,
+Helmert-Wolf blocking (Wolf 1979) is also incorporated to retain
+computational efficiency during estimation. To give a rough idea of the
+computational efficiency gained, Dumelle et al. (2021) found that the
+computation time for a single matrix inversion for 13,000 data points
+was about 60 seconds with their methodology, compared to over 1000
+seconds for an inversion computed with the standard Cholesky
+decomposition. We use these developments in the application, the
+simulations described in the next section, and the accompanying
 \texttt{R} package to speed up estimation of \(\bm{\theta}\).
 
 \hypertarget{section:Application}{%
@@ -645,18 +632,18 @@ The stratification scheme therefore can change from year to year, though
 the majority of spatial sites are classified into the same stratum in
 every year. Biologists then randomly select some of the 381 sites to
 survey, and subsequently select a few additional sites non-randomly in
-such a way that there are no large areas without a sampled site. The
-non-randomly selected sites are a small proportion of the overall sample
-size (about 10\% of the sites are selected non-randomly), and these
-sites are not selected preferentially by the number of expected moose or
-observed moose counts in previous survey years. The total number of
-sites that were selected varies from a low of 76 in the year 2019 to a
-high of 90 in the year 2020. Throughout the 7 unique years, some sites
-were sampled as many as five different times while others were never
-sampled at all. The number of units sampled throughout all survey years,
-\(n\), was 487 units. Figure \ref{fig:sitepredmap} and all remaining
-figure graphics are constructed with the \(\texttt{ggplot2 R}\) package
-(Wickham 2016).
+such a way that there are no large areas in the region of interest
+without a sampled site. The non-randomly selected sites are a small
+proportion of the overall sample size (about 10\% of the sites are
+selected non-randomly), and these sites are not selected preferentially
+by the number of expected moose or observed moose counts in previous
+survey years. The total number of sites that were selected varies from a
+low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout
+the 7 unique years, some sites were sampled as many as five different
+times while others were never sampled at all. The number of units
+sampled throughout all survey years, \(n\), was 487 units. Figure
+\ref{fig:sitepredmap} and all remaining figure graphics are constructed
+with the \(\texttt{ggplot2 R}\) package (Wickham 2016).
 
 The goal of the following analysis is to predict the total abundance of
 moose across all sites in the year 2020, the most recent year of the
@@ -681,9 +668,10 @@ structure defined in equation \ref{equation:tempcov} so that the
 application correlation structure matches that of the simulations in
 \ref{section:Simulation} (which are easier to conceptualize when both
 the spatial and temporal correlations decay according to the same
-function). Additionally, the AIC value for this model was within four
-points of the best model, indicating that the quality of the model fits
-are not too different anyway.
+function). Additionally, the AIC value for this ``exponential spatial -
+exponential temporal'' model was within four points of the best model,
+indicating that the quality of the model fits are not too different
+anyway.
 
 Table \ref{tab:paramest} gives the estimated parameters from the model
 fit with the exponential correlation structures.
@@ -749,7 +737,7 @@ to other combinations of correlation functions to model the spatial and
 the temporal correlation, with the prediction never deviating from 3001
 by more than 100 moose for any of the other 8 spatial and temporal
 correlation function combinations discussed at the beginning of
-Subsection \ref{#subsection:modelfit}.
+Subsection \ref{subsection:modelfit}.
 
 A 90\% normal-based prediction interval for the total abundance in 2020
 (with the exponential spatial and temporal correlation) is (2644, 3357)
@@ -1063,43 +1051,66 @@ the drop in efficiency from sampling every other year is worth the cost
 of completing those surveys annually.
 
 We would also like to give our perception of the benefits and drawbacks
-of our approach with that of Schmidt et al. (2022), who use a
-hierarchical Bayesian model with spatial radial basis functions that are
-estimated per year and with time as a trend component in the fixed
-effects to make predictions for finite populations. The benefits of our
-approach include a faster fitting time, as there is no need to construct
-and implement the time-consuming Markov chain Monte Carlo sampler. The
-moose application model in Section \ref{section:Application} takes about
-10 minutes to fit. There is a trade-off here between how many surveys to
-incorporate into the model (the Alaska Department of Fish and Game has
-done surveys with this structure since the late 1990's) and how long the
-model will take to fit. We expect there to be diminishing returns in
-precision when incorporating older surveys, though the rate at which the
-returns diminish is dependent upon the application at hand.
+of our approach with using a Bayesian hierarchical model. For example,
+Schmidt et al. (2022) use a Bayesian hierarchical model with spatial
+radial basis functions that are estimated per year and with time as a
+trend component in the fixed effects to make predictions for moose
+abundance. We argue that our approach is both simpler for practitioners
+and less likely to yield an unreasonable abundance prediction than a
+Bayesian hierarchical model is. In general, fitting a Bayesian
+hierarchical model with a complex covariance structure on the link scale
+requires careful thought in formulating the model and the prior
+distributions used for all of the covariance parameters used to model
+covariance on the link scale (Conn et al. 2015).
 
-Because of the shorter fitting time, our approach is easier to assess in
-a simulation study, which would be too time-prohibitive for the Bayesian
-model. Biometricians could also use simulation with our approach to
-answer various questions given proposed values of covariance parameters
-like how much efficiency would drop if a survey was only conducted every
-other year. We argue that our approach is simpler overall for a
-practitioner to use and could be integrated more readily with the
-current GSPE software. Finally, our approach allows for temporal
-interpolation and forecasting while the estimation of the spatial radial
-basis functions in Schmidt et al. (2022) for each time point does not
-allow for inference outside of the time points observed.
+Conn et al. (2015) also note that the need to tailor the model used to
+the richness of the particular data set at hand is especially important
+when using the log link function, as abundance estimates can become
+unrealistically large when back-transforming. Indeed, Ver Hoef et al.
+(2021) fit a Bayesian hierarchical model to marine mammal counts using a
+truncated normal distribution for the random errors on the log scale
+instead of the typical normal distribution. Applying a Bayesian
+hierarchical model to this data set with normally distributed random
+errors on the link scale and non-informative prior distributions
+resulted in predicted counts well above what any biologist familiar with
+the region would consider reasonable. Conn et al. (2014) and Ver Hoef
+and Jansen (2007) provide more evidence that applying a hierarchical
+model with a log link function could result in unrealistically high
+predictions, particularly when a small proportion of the region of
+interest is sampled. All of these examples indicate that a Bayesian
+hierarchical model may need significant adjustment based on the
+particular data set at hand.
 
-The Bayesian approach by Schmidt et al. (2022), however, offers features
-that would be harder to implement in our approach. Their method allows
-for incorporation of more levels in the Bayesian hierarchical model,
-including allowing for imperfect detection of animals from a separate
-detectability survey. Additionally, the Bayesian hierarchical model can
-use a Poisson or negative binomial model for the counts. Therefore, an
-appropriate prediction interval for the response on one particular site
-could be constructed. On the other hand, for our approach, we rely on
-the central limit theorem for dependent data to form a prediction
-interval for the total, which would not apply to a prediction interval
-for the response on just one site.
+Another benefit of our approach is a faster fitting time, as there is no
+need to construct and implement the time-consuming Markov chain Monte
+Carlo sampler. The moose application model in Section
+\ref{section:Application} takes about 10 minutes to fit. There is a
+trade-off here between how many surveys to incorporate into the model
+(the Alaska Department of Fish and Game has done surveys with this
+structure since the late 1990's) and how long the model will take to
+fit. We expect there to be diminishing returns in precision when
+incorporating older surveys, though the rate at which the returns
+diminish is dependent upon the application at hand. Additionally, with
+the shorter fitting time and the supplementary \texttt{R} package
+provided to fit the models, integrating this approach with the current
+GSPE software is much more reasonable. Finally, our approach is easier
+to assess in a simulation study, which would be too time-prohibitive for
+the Bayesian model. Biometricians could use simulation with our approach
+to answer various questions given proposed values of covariance
+parameters like how much efficiency would drop if a survey was only
+conducted every other year.
+
+Bayesian hierarchical models, including the model by Schmidt et al.
+(2022), however, offer features that would be harder to implement in our
+approach. These models allow for incorporation of more levels in the
+model structure, allowing, for example, for imperfect detection of
+animals from a separate detectability survey. Additionally, the Bayesian
+hierarchical model can use a Poisson or negative binomial model for the
+counts. Therefore, an appropriate prediction interval for the response
+on one particular site could be constructed. On the other hand, for our
+approach, we rely on the central limit theorem for dependent data to
+form a prediction interval for the total, which would not apply to a
+prediction interval for the response on just one site.
 
 We have developed a finite population block kriging predictor for
 spatio-temporal data, which adjusts the variance of the predictor to be
@@ -1388,6 +1399,13 @@ London, and Peter L Boveng. 2015. {``Using Spatiotemporal Statistical
 Models to Estimate Animal Abundance and Infer Ecological Dynamics from
 Survey Counts.''} \emph{Ecological Monographs} 85 (2): 235--52.
 
+\leavevmode\vadjust pre{\hypertarget{ref-conn2014estimating}{}}%
+Conn, Paul B, Jay M Ver Hoef, Brett T McClintock, Erin E Moreland, Josh
+M London, Michael F Cameron, Shawn P Dahle, and Peter L Boveng. 2014.
+{``Estimating Multispecies Abundance Using Automated Detection Systems:
+Ice-Associated Seals in the Bering Sea.''} \emph{Methods in Ecology and
+Evolution} 5 (12): 1280--93.
+
 \leavevmode\vadjust pre{\hypertarget{ref-cressie2015statistics}{}}%
 Cressie, Noel. 2015. \emph{Statistics for Spatial Data - Revised
 Edition}. John Wiley \& Sons.
@@ -1544,6 +1562,11 @@ Ver Hoef, Jay M, and John K Jansen. 2007. {``Space---Time Zero-Inflated
 Count Models of Harbor Seals.''} \emph{Environmetrics: The Official
 Journal of the International Environmetrics Society} 18 (7): 697--712.
 
+\leavevmode\vadjust pre{\hypertarget{ref-ver2021species}{}}%
+Ver Hoef, Jay M, Devin Johnson, Robyn Angliss, and Matt Higham. 2021.
+{``Species Density Models from Opportunistic Citizen Science Data.''}
+\emph{Methods in Ecology and Evolution} 12 (10): 1911--25.
+
 \leavevmode\vadjust pre{\hypertarget{ref-wickham2016data}{}}%
 Wickham, Hadley. 2016. {``Data Analysis.''} In \emph{Ggplot2}, 189--201.
 Springer.
@@ -1553,7 +1576,7 @@ Wikle, Christopher K, Andrew Zammit-Mangion, and Noel Cressie. 2019.
 \emph{Spatio-Temporal Statistics with r}. Chapman; Hall/CRC.
 
 \leavevmode\vadjust pre{\hypertarget{ref-wolf1979helmert}{}}%
-Wolf, Helmut. 1979. {``THE HELMERT BLOCK METHOD ITS ORIGIN.''} In
+Wolf, Helmut. 1979. {``The Helmert Block Method and Its Origin.''} In
 \emph{Proceedings: Second International Symposium on Problems Related to
 the Redefinition of North American Geodetic Networks, Held at the
 Marriott Hotel, Arlington, Virginia, April 24 to 28, 1978}, 55:319.
