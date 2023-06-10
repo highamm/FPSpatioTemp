@@ -75,7 +75,16 @@ library(here)
 
 Spatio-temporal data are indexed by both a spatial index, which we will refer to as a "site," and by a temporal index, which we will refer to as a "time point." Common examples of spatio-temporal data include infections from a disease in a country or region collected over a time period [e.g. @martinez2008autoregressive; @sahu2022bayesian] or climate variables that are recorded through time at multiple locations [@lemos2009spatio]. 
 
-Models for spatio-temporal data have applications in a wide variety of scientific fields [see @wikle2019spatio for many examples]. One such application is ecological monitoring of a particular resource, such as animal or plant abundance, rainfall, concentration of a compound in soil samples, etc. A common goal of ecological monitoring is to predict the total abundance of a resource at the most recent time point using data collected in a subset of the region of interest at the most recent time point and in past time points. Often, the region of interest is divided into a finite number of areal sampling units and data is collected on a subset of these areal sampling units, leaving the remaining units unsampled. We refer to the goal of predicting abundance in the most recent time point as _spatio-temporal abundance prediction_. 
+Models for spatio-temporal data have applications in a wide variety of scientific fields [see @wikle2019spatio for many examples], and these models also have various ways to model covariance. A few common formulations include the product model, the sum model, and the product-sum model. If we consider $\text{Cov}(\mathbf{h}_s, h_t)$ to be the covariance between two data points with spatial separation $\mathbf{h}_s$ and temporal separation $h_t$, then a product model for this covariance (also known as a "separable" model) is $\text{Cov}_s(\mathbf{h}_s) \text{Cov}_t(h_t)$, where $\text{Cov}_s(\mathbf{h}_s)$ only depends on the spatial separation and $\text{Cov}_t(h_t)$ only depends on the temporal separation [@posa1993simple]. On the other hand, a sum model for $\text{Cov}(\mathbf{h}_s, h_t)$ adds together the spatial and temporal covariance as $\text{Cov}_s(\mathbf{h}_s) + \text{Cov}_t(h_t)$ [@rouhani1989space]. A product-sum model for combines the product model and the sum model: 
+\mbox{}
+\begin{equation}
+\text{Cov}(\mathbf{h}_s, h_t) = w_1\text{Cov}_s(\mathbf{h}_s) \text{Cov}_t(h_t) + w_2\text{Cov}_s(\mathbf{h}_s) + w_3\text{Cov}_t(h_t),
+\end{equation}
+
+\noindent
+where $w_1$, $w_2$, and $w_3$ are non-negative weights [@de2001product; @de2002nonseparable]. In general, the product-sum model is more flexible than the product model and the sum model. @stein2005space examine some properties of these models, among others, while @chen2021space provide a review for general modeling of spatio-temporal data. 
+
+One application of spatio-temporal modeling is ecological monitoring of a particular resource, such as animal or plant abundance, rainfall, concentration of a compound in soil samples, etc. A common goal of ecological monitoring is to predict the total abundance of a resource at the most recent time point using data collected in a subset of the region of interest at the most recent time point and in past time points. Often, the region of interest is divided into a finite number of areal sampling units and data is collected on a subset of these areal sampling units, leaving the remaining units unsampled. We refer to the goal of predicting abundance in the most recent time point as _spatio-temporal abundance prediction_. 
 
 @conn2015using offer a review of methods and issues with spatio-temporal abundance prediction, comparing Bayesian formulations of a few different hierarchical models. Bayesian hierarchical models have been used for spatio-temporal abundance prediction by @ver2007space for Harbor seals in Alaska, @sauer2011analysis for birds in North America, @davy2021estimation for bats in Canada, @adde2020predicting for waterfowl in Canada, and @schmidt2022bayesian for moose in Alaska. While a Bayesian hierarchical model allows for a large amount of flexibility in the model formulation and are thus powerful tools for statistical inference, @conn2015using note that "care must be taken to tailor models to match the study population and survey data available." We discuss Bayesian hierarchical models for abundance prediction more in Section \ref{section:Discussion}.
 
@@ -545,7 +554,7 @@ gridExtra::grid.arrange(p2, p1, nrow = 1)
 
 ```
 
-In each year of the survey, a team of biologists stratifies all of the spatial sites into a "High" stratum and a "Low" stratum based on wildlife biologist knowledge of moose density in the region, which sites have land cover more suitable to moose habitat, and informal aerial surveys done prior to the moose survey (Figure \ref{fig:sitepredmap}). The stratification scheme therefore can change from year to year, though the majority of spatial sites are classified into the same stratum in every year. Biologists then randomly select some of the `r nspat` sites to survey, and subsequently select a few additional sites non-randomly in such a way that there are no large areas in the region of interest without a sampled site. The non-randomly selected sites are a small proportion of the overall sample size (about 10% of the sites are selected non-randomly), and these sites are not selected preferentially by the number of expected moose or observed moose counts in previous survey years. The total number of sites that were selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites were sampled as many as five different times while others were never sampled at all. The number of units sampled throughout all survey years, $n$, was `r sum(!is.na(moose_final_all$totalmoosena))` units. Figure \ref{fig:sitepredmap} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data]. 
+In each year of the survey, a team of biologists stratifies all of the spatial sites into a "High" stratum and a "Low" stratum based on wildlife biologist knowledge of moose density in the region and counts from previous surveys, which sites have land cover more suitable to moose habitat, and, in some years, stratification flights done on a portion of the region of interest prior to that year's survey (Figure \ref{fig:sitepredmap}). The stratification scheme therefore can change from year to year, though the majority of spatial sites are classified into the same stratum in every year. Biologists then randomly select some of the `r nspat` sites to survey, and subsequently select a few additional sites non-randomly in such a way that there are no large areas in the region of interest without a sampled site. The non-randomly selected sites are a small proportion of the overall sample size (about 10-15% of the sites are selected non-randomly), and these sites are not selected preferentially by the number of expected moose or observed moose counts in previous survey years. The operations manual by @kellie_geospatial_2006 provides more details about how sites are selected for a survey in a particular year. The total number of sites that were selected varies from a low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout the `r ntime` unique years, some sites were sampled as many as five different times while others were never sampled at all. The number of units sampled throughout all survey years, $n$, was `r sum(!is.na(moose_final_all$totalmoosena))` units. Figure \ref{fig:sitepredmap} and all remaining figure graphics are constructed with the $\texttt{ggplot2 R}$ package [@wickham2016data]. 
 
 The goal of the following analysis is to predict the total abundance of moose across all sites in the year 2020, the most recent year of the survey, using stratum as a covariate in the spatio-temporal model.
 
@@ -1055,7 +1064,7 @@ knitr::kable(rmspe_tab, caption = "root-mean-squared-prediction-error (rMSPE) fo
   ##print(sanitize.text.function = function(x){x}) |> 
   add_header_above(c("Simulation Setting" = 3, "rMSPE"=3))  |>
     kable_styling(latex_options = "HOLD_position") |>
-  row_spec(c(3, 6, 9), hline_after = TRUE)
+  row_spec(c(3, 6, 9, 12, 15), hline_after = TRUE)
 ```
 
 ```{r}
@@ -1074,7 +1083,7 @@ knitr::kable(bias_tab, caption = "Bias (Realized Current Total - Predicted Curre
              booktabs = TRUE, linesep = "", align = "c") |>
   add_header_above(c("Simulation Setting" = 3, "Bias"=3))  |>
     kable_styling(latex_options = "HOLD_position") |>
-  row_spec(c(3, 6, 9), hline_after = TRUE)
+  row_spec(c(3, 6, 9, 12, 15), hline_after = TRUE)
 ```
 
 ```{r}
@@ -1094,7 +1103,7 @@ knitr::kable(pi_tab, caption = "Prediction interval coverage for the ST-FPBK pre
   ##print(sanitize.text.function = function(x){x}) |> 
   add_header_above(c("Simulation Setting" = 3, "Coverage"=3))  |>
     kable_styling(latex_options = "HOLD_position") |>
-  row_spec(c(3, 6, 9), hline_after = TRUE)
+  row_spec(c(3, 6, 9, 12, 15), hline_after = TRUE)
 ```
 
 \subsection{Supplementary Analysis}

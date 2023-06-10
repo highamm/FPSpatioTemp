@@ -157,17 +157,41 @@ time at multiple locations (Lemos and Sansó 2009).
 
 Models for spatio-temporal data have applications in a wide variety of
 scientific fields (see Wikle, Zammit-Mangion, and Cressie 2019 for many
-examples). One such application is ecological monitoring of a particular
-resource, such as animal or plant abundance, rainfall, concentration of
-a compound in soil samples, etc. A common goal of ecological monitoring
-is to predict the total abundance of a resource at the most recent time
-point using data collected in a subset of the region of interest at the
-most recent time point and in past time points. Often, the region of
-interest is divided into a finite number of areal sampling units and
-data is collected on a subset of these areal sampling units, leaving the
-remaining units unsampled. We refer to the goal of predicting abundance
-in the most recent time point as \emph{spatio-temporal abundance
-prediction}.
+examples), and these models also have various ways to model covariance.
+A few common formulations include the product model, the sum model, and
+the product-sum model. If we consider \(\text{Cov}(\mathbf{h}_s, h_t)\)
+to be the covariance between two data points with spatial separation
+\(\mathbf{h}_s\) and temporal separation \(h_t\), then a product model
+for this covariance (also known as a ``separable'' model) is
+\(\text{Cov}_s(\mathbf{h}_s) \text{Cov}_t(h_t)\), where
+\(\text{Cov}_s(\mathbf{h}_s)\) only depends on the spatial separation
+and \(\text{Cov}_t(h_t)\) only depends on the temporal separation (Posa
+1993). On the other hand, a sum model for
+\(\text{Cov}(\mathbf{h}_s, h_t)\) adds together the spatial and temporal
+covariance as \(\text{Cov}_s(\mathbf{h}_s) + \text{Cov}_t(h_t)\)
+(Rouhani and Hall 1989). A product-sum model for combines the product
+model and the sum model: \mbox{} \begin{equation}
+\text{Cov}(\mathbf{h}_s, h_t) = w_1\text{Cov}_s(\mathbf{h}_s) \text{Cov}_t(h_t) + w_2\text{Cov}_s(\mathbf{h}_s) + w_3\text{Cov}_t(h_t),
+\end{equation}
+
+\noindent where \(w_1\), \(w_2\), and \(w_3\) are non-negative weights
+(De Cesare, Myers, and Posa 2001; S. De Iaco, Myers, and Posa 2002). In
+general, the product-sum model is more flexible than the product model
+and the sum model. Stein (2005) examine some properties of these models,
+among others, while Chen, Genton, and Sun (2021) provide a review for
+general modeling of spatio-temporal data.
+
+One application of spatio-temporal modeling is ecological monitoring of
+a particular resource, such as animal or plant abundance, rainfall,
+concentration of a compound in soil samples, etc. A common goal of
+ecological monitoring is to predict the total abundance of a resource at
+the most recent time point using data collected in a subset of the
+region of interest at the most recent time point and in past time
+points. Often, the region of interest is divided into a finite number of
+areal sampling units and data is collected on a subset of these areal
+sampling units, leaving the remaining units unsampled. We refer to the
+goal of predicting abundance in the most recent time point as
+\emph{spatio-temporal abundance prediction}.
 
 Conn et al. (2015) offer a review of methods and issues with
 spatio-temporal abundance prediction, comparing Bayesian formulations of
@@ -625,25 +649,28 @@ sampled in 2020.}
 
 In each year of the survey, a team of biologists stratifies all of the
 spatial sites into a ``High'' stratum and a ``Low'' stratum based on
-wildlife biologist knowledge of moose density in the region, which sites
-have land cover more suitable to moose habitat, and informal aerial
-surveys done prior to the moose survey (Figure \ref{fig:sitepredmap}).
-The stratification scheme therefore can change from year to year, though
-the majority of spatial sites are classified into the same stratum in
-every year. Biologists then randomly select some of the 381 sites to
-survey, and subsequently select a few additional sites non-randomly in
-such a way that there are no large areas in the region of interest
-without a sampled site. The non-randomly selected sites are a small
-proportion of the overall sample size (about 10\% of the sites are
-selected non-randomly), and these sites are not selected preferentially
-by the number of expected moose or observed moose counts in previous
-survey years. The total number of sites that were selected varies from a
-low of 76 in the year 2019 to a high of 90 in the year 2020. Throughout
-the 7 unique years, some sites were sampled as many as five different
-times while others were never sampled at all. The number of units
-sampled throughout all survey years, \(n\), was 487 units. Figure
-\ref{fig:sitepredmap} and all remaining figure graphics are constructed
-with the \(\texttt{ggplot2 R}\) package (Wickham 2016).
+wildlife biologist knowledge of moose density in the region and counts
+from previous surveys, which sites have land cover more suitable to
+moose habitat, and, in some years, stratification flights done on a
+portion of the region of interest prior to that year's survey (Figure
+\ref{fig:sitepredmap}). The stratification scheme therefore can change
+from year to year, though the majority of spatial sites are classified
+into the same stratum in every year. Biologists then randomly select
+some of the 381 sites to survey, and subsequently select a few
+additional sites non-randomly in such a way that there are no large
+areas in the region of interest without a sampled site. The non-randomly
+selected sites are a small proportion of the overall sample size (about
+10-15\% of the sites are selected non-randomly), and these sites are not
+selected preferentially by the number of expected moose or observed
+moose counts in previous survey years. The operations manual by Kellie
+and DeLong (2006) provides more details about how sites are selected for
+a survey in a particular year. The total number of sites that were
+selected varies from a low of 76 in the year 2019 to a high of 90 in the
+year 2020. Throughout the 7 unique years, some sites were sampled as
+many as five different times while others were never sampled at all. The
+number of units sampled throughout all survey years, \(n\), was 487
+units. Figure \ref{fig:sitepredmap} and all remaining figure graphics
+are constructed with the \(\texttt{ggplot2 R}\) package (Wickham 2016).
 
 The goal of the following analysis is to predict the total abundance of
 moose across all sites in the year 2020, the most recent year of the
@@ -1208,9 +1235,11 @@ all-dev & 250 & skewed & 21.42 & 19.10 & 16.19\\
 spt-iev & 500 & skewed & 14.86 & 15.01 & 10.91\\
 t-iev & 500 & skewed & 7.45 & 6.84 & 6.80\\
 all-dev & 500 & skewed & 11.75 & 10.71 & 8.68\\
+\midrule
 spt-iev & 250 & poisson & 33.63 & 34.57 & 20.19\\
 t-iev & 250 & poisson & 24.39 & 25.84 & 24.73\\
 all-dev & 250 & poisson & 30.78 & 29.32 & 27.14\\
+\midrule
 spt-iev & 500 & poisson & 18.60 & 18.84 & 14.21\\
 t-iev & 500 & poisson & 14.13 & 14.09 & 13.82\\
 all-dev & 500 & poisson & 17.12 & 16.99 & 15.90\\
@@ -1243,9 +1272,11 @@ all-dev & 250 & skewed & -0.19 & -0.74 & -0.47\\
 spt-iev & 500 & skewed & -0.44 & -0.69 & -0.15\\
 t-iev & 500 & skewed & -0.23 & -0.33 & -0.30\\
 all-dev & 500 & skewed & 0.18 & -0.08 & -0.01\\
+\midrule
 spt-iev & 250 & poisson & -0.72 & -1.79 & -0.03\\
 t-iev & 250 & poisson & -0.70 & -1.25 & -1.01\\
 all-dev & 250 & poisson & -0.52 & -1.34 & -0.67\\
+\midrule
 spt-iev & 500 & poisson & -0.28 & -0.43 & 0.07\\
 t-iev & 500 & poisson & -0.61 & -0.69 & -0.61\\
 all-dev & 500 & poisson & 0.57 & 0.30 & 0.61\\
@@ -1278,9 +1309,11 @@ all-dev & 250 & skewed & 0.86 & 0.86 & 0.89\\
 spt-iev & 500 & skewed & 0.86 & 0.86 & 0.90\\
 t-iev & 500 & skewed & 0.89 & 0.88 & 0.92\\
 all-dev & 500 & skewed & 0.89 & 0.86 & 0.90\\
+\midrule
 spt-iev & 250 & poisson & 0.86 & 0.84 & 0.91\\
 t-iev & 250 & poisson & 0.89 & 0.87 & 0.90\\
 all-dev & 250 & poisson & 0.87 & 0.86 & 0.85\\
+\midrule
 spt-iev & 500 & poisson & 0.88 & 0.87 & 0.90\\
 t-iev & 500 & poisson & 0.89 & 0.88 & 0.91\\
 all-dev & 500 & poisson & 0.87 & 0.86 & 0.88\\
@@ -1393,6 +1426,11 @@ Brus, Dick J. 2021. {``Statistical Approaches for Spatial Sample Survey:
 Persistent Misconceptions and New Developments.''} \emph{European
 Journal of Soil Science} 72 (2): 686--703.
 
+\leavevmode\vadjust pre{\hypertarget{ref-chen2021space}{}}%
+Chen, Wanfang, Marc G Genton, and Ying Sun. 2021. {``Space-Time
+Covariance Structures and Models.''} \emph{Annual Review of Statistics
+and Its Application} 8: 191--215.
+
 \leavevmode\vadjust pre{\hypertarget{ref-conn2015using}{}}%
 Conn, Paul B, Devin S Johnson, Jay M Ver Hoef, Mevin B Hooten, Joshua M
 London, and Peter L Boveng. 2015. {``Using Spatiotemporal Statistical
@@ -1431,6 +1469,11 @@ Environmetrics Society} 12 (1): 11--23.
 De Iaco, Sandra, Donald E Myers, and Donato Posa. 2001. {``Space--Time
 Analysis Using a General Product--Sum Model.''} \emph{Statistics \&
 Probability Letters} 52 (1): 21--28.
+
+\leavevmode\vadjust pre{\hypertarget{ref-de2002nonseparable}{}}%
+De Iaco, S, Donald E Myers, and D Posa. 2002. {``Nonseparable Space-Time
+Covariance Models: Some Parametric Families.''} \emph{Mathematical
+Geology} 34: 23--42.
 
 \leavevmode\vadjust pre{\hypertarget{ref-de2015spatio}{}}%
 De Iaco, S, M Palma, and D Posa. 2015. {``Spatio-Temporal Geostatistical
@@ -1510,10 +1553,20 @@ Webb, Mike Russell, Curtis Stambaugh, and Robert B Anderson. 2014.
 Sightability in West-Central Alberta, Canada.''} \emph{Wildlife Society
 Bulletin} 38 (3): 639--49.
 
+\leavevmode\vadjust pre{\hypertarget{ref-posa1993simple}{}}%
+Posa, D. 1993. {``A Simple Description of Spatial-Temporal Processes.''}
+\emph{Computational Statistics \& Data Analysis} 15 (4): 425--37.
+
 \leavevmode\vadjust pre{\hypertarget{ref-ross2012accessible}{}}%
 Ross, Beth E, Mevin B Hooten, and David N Koons. 2012. {``An Accessible
 Method for Implementing Hierarchical Models with Spatio-Temporal
 Abundance Data.''} \emph{PLoS One} 7 (11): e49395.
+
+\leavevmode\vadjust pre{\hypertarget{ref-rouhani1989space}{}}%
+Rouhani, Shahrokh, and Timothy J Hall. 1989. {``Space-Time Kriging of
+Groundwater Data.''} In \emph{Geostatistics: Proceedings of the Third
+International Geostatistics Congress September 5--9, 1988, Avignon,
+France}, 639--50. Springer.
 
 \leavevmode\vadjust pre{\hypertarget{ref-sahu2022bayesian}{}}%
 Sahu, Sujit K, and Dankmar Böhning. 2022. {``Bayesian Spatio-Temporal
@@ -1551,6 +1604,11 @@ Stegle, Oliver, Christoph Lippert, Joris M Mooij, Neil Lawrence, and
 Karsten Borgwardt. 2011. {``Efficient Inference in Matrix-Variate
 Gaussian Models with\(\backslash\)iid Observation Noise.''}
 \emph{Advances in Neural Information Processing Systems} 24.
+
+\leavevmode\vadjust pre{\hypertarget{ref-stein2005space}{}}%
+Stein, Michael L. 2005. {``Space--Time Covariance Functions.''}
+\emph{Journal of the American Statistical Association} 100 (469):
+310--21.
 
 \leavevmode\vadjust pre{\hypertarget{ref-ver2008spatial}{}}%
 Ver Hoef, Jay M. 2008. {``Spatial Methods for Plot-Based Sampling of
