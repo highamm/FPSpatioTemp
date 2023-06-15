@@ -160,15 +160,14 @@ Porcu, Furrer, and Nychka 2021).
 
 One such application is ecological monitoring of a particular resource,
 such as animal or plant counts, rainfall, concentration of a compound in
-soil samples, etc, through time. A common goal of ecological monitoring
-is to predict the total abundance of a resource at the most recent time
-point using data collected in a subset of the region of interest at the
-most recent time point and in past time points. Often, the region of
-interest is divided into a finite number of areal sampling units and
-data is collected everywhere within a subset of these areal sampling
-units. The remaining areal units are then left unsampled. We refer to
-the goal of predicting abundance in the most recent time point as
-\emph{spatio-temporal abundance prediction}.
+soil samples, etc. A common goal of ecological monitoring is to predict
+the total abundance of a resource at the most recent time point using
+data collected in subsets of the region at multiple time points. Often,
+the region of interest is divided into a finite number of areal sampling
+units and data is collected everywhere within a subset of these areal
+sampling units at each time point. The remaining areal units are then
+left unsampled. We refer to the goal of predicting abundance in the most
+recent time point as \emph{spatio-temporal abundance prediction}.
 
 Classical sampling techniques can be used for spatio-temporal abundance
 prediction: inference in classical sampling is based on the mechanism in
@@ -202,8 +201,8 @@ and the sum model: \mbox{} \begin{equation}
 \noindent where \(w_1\), \(w_2\), and \(w_3\) are non-negative weights
 (De Cesare, Myers, and Posa 2001; S. De Iaco, Myers, and Posa 2002). In
 general, the product-sum model is more flexible than the product model
-and the sum model. Chen, Genton, and Sun (2021) provide a review for
-general modeling of spatio-temporal data.
+and the sum model. Chen, Genton, and Sun (2021) provide a general review
+for modeling spatio-temporal data.
 
 These spatio-temporal models can be used for abundance prediction in a
 Bayesian framework as well as in a frequentist framework. Within the
@@ -219,7 +218,7 @@ et al. (2020) for waterfowl in Canada, and Schmidt et al. (2022) for
 moose in Alaska. Additionally, Ross, Hooten, and Koons (2012) use
 Integrated Nested Laplace Approximation (INLA) to model spatio-temporal
 abundance data in a hierarchical framework. While a Bayesian
-hierarchical model allows for a large amount of flexibility in the model
+hierarchical models allow for a large amount of flexibility in the model
 formulation and are thus powerful tools for statistical inference, Conn
 et al. (2015) note that ``care must be taken to tailor models to match
 the study population and survey data available.'' We discuss Bayesian
@@ -296,9 +295,9 @@ population prediction to develop the Best-Linear-Unbiased-Predictor
 response variable, including the total abundance across all sites at a
 particular time point. We call this predictor the ST-FPBK
 (spatio-temporal Finite Population Block Kriging) predictor. In Section
-\ref{section:Application}, we apply the ST-FPBK to a moose data set in
-the east-central region of Alaska. In Section \ref{section:Simulation},
-we conduct a simulation study to examine the properties of the ST-FPBK
+\ref{section:Application}, we apply ST-FPBK to a moose data set in the
+east-central region of Alaska. In Section \ref{section:Simulation}, we
+conduct a simulation study to examine the properties of the ST-FPBK
 predictor and compare its performance to a predictor from a purely
 spatial model and a simple random sample design-based estimator.
 Finally, in Section \ref{section:Discussion}, we offer additional
@@ -432,37 +431,36 @@ defined as follows. For observations at time points \(j\) and \(j'\) at
 \label{equation:tempcov}
 \text{exp}(-m_{jj'} / \rho),
 \end{equation} \noindent where \(\rho\) is a temporal range parameter
-controlling the decay rate of the covariance as time units between two
-data points increases. Note that the exponential form of
+controlling the decay rate of the covariance as the number of time units
+between two data points increases. Note that the exponential form of
 \(\mathbf{R}_t\) is equivalent to an AR(1) time series model if the time
 points are equally spaced and the correlation parameter in the AR(1)
 series is greater than zero (Schabenberger and Gotway 2017).
 
-The product-sum model for \(\mathbf{y}(\mathbf{s}_{i}, t_j)\) is then
-\mbox{} \begin{equation} \label{equation:model}
-\mathbf{y}(\mathbf{s}_{i}, t_j) = \mathbf{X} \bm{\beta} + \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu},
+The product-sum model for \(\mathbf{y}\) is then \mbox{}
+\begin{equation} \label{equation:model}
+\mathbf{y} = \mathbf{X} \bm{\beta} + \mathbf{Z}_{s} \bm{\delta} + \mathbf{Z}_{s} \bm{\gamma} + \mathbf{Z}_t \bm{\tau} + \mathbf{Z}_t \bm{\eta} + \bm{\omega} + \bm{\nu},
 \end{equation}
 
 \noindent where \(\bm{\delta}\), \(\bm{\gamma}\), \(\bm{\tau}\),
 \(\bm{\eta}\), \(\bm{\omega}\), and \(\bm{\nu}\) are mutually
-independent, \(\mathbf{y}(\mathbf{s}_{i}, t_j)\) has mean
-\(\mathbf{X} \bm{\beta}\), and \(\mathbf{y}(\mathbf{s}_{i}, t_j)\) has
-covariance \mbox{} \begin{equation}
+independent, \(\mathbf{y}\) has mean \(\mathbf{X} \bm{\beta}\), and
+\(\mathbf{y}\) has covariance \mbox{} \begin{equation}
 \label{equation:var}
 \mathop{\mathrm{{var}}}(\mathbf{y}) \equiv \bm{\Sigma} = \sigma^2_{\delta} \mathbf{Z}_{s} \mathbf{R}_{s} \mathbf{Z}_{s}' + \sigma^2_{\gamma} \mathbf{Z}_{s} \mathbf{I}_{s} \mathbf{Z}_{s}' + \sigma^2_{\tau} \mathbf{Z}_t \mathbf{R}_t \mathbf{Z}_t'+ \sigma^2_{\eta} \mathbf{Z}_t \mathbf{I}_t \mathbf{Z}_t' + \sigma^2_{\omega} \mathbf{R}_{st} + \sigma^2_{\nu} \mathbf{I}_{st}.
 \end{equation}
 
-\noindent There are a few reasons for why we choose to solely focus on
-the product-sum model. First, as long as \(\mathbf{R}_s\) and
+\noindent There are a few reasons why we choose to solely focus on the
+product-sum model. First, as long as \(\mathbf{R}_s\) and
 \(\mathbf{R}_t\) are positive definite and either
 \(\sigma^2_{\omega} > 0\) or \(\sigma^2_{\nu} > 0\), then the covariance
 matrix in equation \ref{equation:var} is also positive definite (De
 Cesare, Myers, and Posa 2001; Sandra De Iaco, Myers, and Posa 2001).
-Also, the product-sum model is non-separable, giving it considerably
-more flexibility than a separable model for the covariance (S. De Iaco,
-Palma, and Posa 2015; Dumelle et al. 2021). Xu and Shu (2015) claim that
-the product-sum model is the most widely used spatio-temporal model used
-in practical applications.
+Also, the product-sum model is non-separable, giving it more flexibility
+than a separable (product) model for the covariance (S. De Iaco, Palma,
+and Posa 2015; Dumelle et al. 2021). Xu and Shu (2015) claim that the
+product-sum model is the most widely used spatio-temporal model used in
+practical applications.
 
 \hypertarget{subsection:fpbk}{%
 \subsection{Finite Population Block Kriging}\label{subsection:fpbk}}
@@ -486,12 +484,12 @@ equation \ref{equation:model} to find optimal weights \(\mathbf{q}'\) to
 apply to the observed realizations of \(\mathbf{y}_o\) such that
 \(\mathbf{q}' \mathbf{y}_o\) is the Best Linear Unbiased Predictor
 (BLUP) for \(\mathbf{b}_a' \mathbf{y}_a\), a linear function of
-\(\mathbf{y}_a\). The \(N\)-length vector \(\mathbf{b}_a'\) is, for
-example, a vector of \(1\)'s, in which case we would be predicting the
-total response across all sites and all time points. More typical would
-be the case where \(\mathbf{b}_a\) has \(1\)'s for all sites in the
-current time point, and all other elements are \(0\), in which case we
-would be predicting the total response in the current time point.
+\(\mathbf{y}_a\). The \(N\)-length vector \(\mathbf{b}_a'\) might be,
+for example, a vector of \(1\)'s, in which case we would be predicting
+the total response across all sites and all time points. More typical
+would be the case where \(\mathbf{b}_a\) has \(1\)'s for all sites in
+the current time point and all other elements are \(0\), in which case
+we would be predicting the total response in the current time point.
 
 Unbiasedness implies that
 \(E(\mathbf{q'}\mathbf{y}_o) = E(\mathbf{b}_a'\mathbf{y}_a)\) for all
@@ -558,8 +556,8 @@ We can see then that the predictor multiplies the observed data
 and then adds in the kriged predictions \(\mathbf{\hat{y}}_{u}\)
 multiplied with relevant weights from the \(\mathbf{b}_u\) vector.
 
-The prediction variance of the predictor in equation \ref{equation:blup}
-is \mbox{} \begin{equation} \label{equation:predvar}
+The finite-population-corrected- variance of the BLUP in equation
+\ref{equation:blup} is \mbox{} \begin{equation} \label{equation:predvar}
 E((\bm{\lambda}_o'\mathbf{y}_o - \mathbf{b}_a'\mathbf{y}_a)^2) = \\
 \bm{\lambda}_o'\bm{\Sigma}_{o, o}\bm{\lambda}_o - 2 \mathbf{b}_a' \bm{\Sigma}_{a, o} \bm{\lambda}_o + \mathbf{b}_a' \bm{\Sigma}_{a, a} \mathbf{b}_a.
 \end{equation}
@@ -586,14 +584,14 @@ in the current survey, respectively.
 
 Though we are interested in predicting \(\mathbf{b}_a ' \mathbf{y}_a\)
 in the development above so that we are predicting a single quantity of
-interest and obtaining a single prediction variance, we can also predict
-for multiple quantities of interest and obtain a prediction covariance
-matrix with \(\mathbf{B}' \mathbf{y}_a\), where \(\mathbf{B}\) is an
-\(N \times n_{pred}\) matrix and \(n_{pred}\) is the number of different
-quantities we wish to predict. One setting where such development is
-potentially useful is predicting the total abundance for each time point
-in the study, as is done in Section \ref{section:Application} in Figure
-\ref{fig:trend}.
+interest and obtaining a single finite-population-corrected-prediction
+variance, we can also predict for multiple quantities of interest and
+obtain a prediction covariance matrix with \(\mathbf{B}' \mathbf{y}_a\),
+where \(\mathbf{B}\) is an \(N \times n_{pred}\) matrix and \(n_{pred}\)
+is the number of different quantities we wish to predict. One setting
+where such development is potentially useful is predicting the total
+abundance for each time point in the study, as is done in Section
+\ref{section:Application} in Figure \ref{fig:trend}.
 
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}
@@ -631,7 +629,7 @@ seconds with their methodology, compared to over 1500 seconds for an
 inversion computed with the standard Cholesky decomposition. Note,
 however, that in REML optimization, many matrix inversions take place
 during the optimization process and the total number of iterations
-during optimization can vary from application to application. We the
+during optimization can vary from application to application. We use the
 developments from Dumelle et al. (2021) in the application, the
 simulations described in the next section, and the accompanying
 \texttt{R} package to speed up estimation of \(\bm{\theta}\).
@@ -711,14 +709,14 @@ combinations of the exponential, spherical, and gaussian spatial
 correlation structures (Cressie 2015) and the exponential, spherical,
 and gaussian temporal correlation structures to assess model fit. The
 combination with the lowest AIC was the ``gaussian spatial - exponential
-temporal'' model. However, in this application, we opted to use the
+temporal'' model. However, in this application, we opt to use the
 ``exponential spatial - exponential temporal'' model, with the
 exponential spatial correlation structure defined in equation
 \ref{equation:spatcov} and the exponential temporal correlation
 structure defined in equation \ref{equation:tempcov} so that the
 application correlation structure matches that of the simulations in
-\ref{section:Simulation} (which are easier to conceptualize when both
-the spatial and temporal correlations decay according to the same
+Section \ref{section:Simulation} (which are easier to conceptualize when
+both the spatial and temporal correlations decay according to the same
 function). Additionally, the AIC value for this ``exponential spatial -
 exponential temporal'' model was within four points of the best model,
 indicating that the quality of the model fits are not too different
@@ -744,14 +742,15 @@ $\hat{\sigma}^2_{\delta}$ & $\hat{\sigma}^2_{\gamma}$ & $\hat{\phi}$ & $\hat{\si
 
 To help interpret what some of these fitted covariance parameter
 estimates mean, we can construct a fitted covariance plot (Figure
-\ref{fig:covplot}). As the spatial distance between two sites increases
-(dark colour to light colour), the covariance of two random errors
-decreases to 0, with the \(\hat{\phi}\) parameter estimate controlling
-the rate of decay. In fact, the model estimates the covariance to be
-nearly 0 when the centroids of two sites are 20 or more kilometers
-apart, no matter what the temporal distance is. The covariance between
-two errors that are six years apart is still estimated to be positive if
-the two errors come from the same site or from adjacent sites.
+\ref{fig:covplot}). As the spatial distance between the centroids of two
+sites increases (dark colour to light colour), the covariance of two
+random errors decreases to 0, with the \(\hat{\phi}\) parameter estimate
+controlling the rate of decay. In fact, the model estimates the
+covariance to be nearly 0 when the centroids of two sites are 20 or more
+kilometers apart, no matter what the temporal distance is. The
+covariance between two errors that are six years apart is still
+estimated to be positive if the two errors come from the same site or
+from adjacent sites.
 
 \begin{figure}
 \centering
@@ -904,17 +903,17 @@ spt-iev & 0.0 & 0.00 & 0.00 & 0.0 & 0.00 & 0.00 & 0.00 & 2.00\\
 \end{tabular}
 \end{table}
 
-The three scenarios in the table correspond to (1) \textbf{all-dev}: a
-scenario where a substantial proportion of the overall variance comes
-from the spatial, temporal, and spatio-temporal dependent error variance
-parameters \(\sigma^2_{\delta}, \sigma^2_{\tau},\) and
-\(\sigma^2_{\omega}\); (2) \textbf{t-iev}: a scenario where there the
-overall variance is dominated by the temporal independent error variance
-parameter, \(\sigma^2_{\eta}\); and (3) \textbf{spt-iev}: a scenario
-where all of the variability comes from \(\sigma^2_{\nu}\) so that
-errors are independent regardless of spatial and time indices. In all
-scenarios, summing all six variance parameters gives a total variance
-equal to two.
+The three scenarios in Table \ref{tab:simparmtab} correspond to (1)
+\textbf{all-dev}: a scenario where a substantial proportion of the
+overall variance comes from the spatial, temporal, and spatio-temporal
+dependent error variance parameters
+\(\sigma^2_{\delta}, \sigma^2_{\tau},\) and \(\sigma^2_{\omega}\); (2)
+\textbf{t-iev}: a scenario where there the overall variance is dominated
+by the temporal independent error variance parameter,
+\(\sigma^2_{\eta}\); and (3) \textbf{spt-iev}: a scenario where all of
+the variability comes from \(\sigma^2_{\nu}\) so that errors are
+independent regardless of spatial and time indices. In all scenarios,
+summing all six variance parameters gives a total variance equal to two.
 
 Both \(\mathbf{R}_{s}\) and \(\mathbf{R}_t\) are generated from the
 exponential correlation function with \(\phi\) and \(\rho\) as the range
@@ -1020,7 +1019,7 @@ prediction interval.
 
 Tables \ref{tab:simrmspetab}, \ref{tab:simbiastab}, and
 \ref{tab:simpitab} in the \protect\hyperlink{appendix}{Appendix} give
-the rMSPE, bias, and interval coverage of the three methods in all 12
+the rMSPE, bias, and interval coverage of the three methods in all 18
 simulation settings. In Figure \ref{fig:rmspe}, we see that the ST-FPBK
 predictor outperforms both the purely spatial FPBK predictor and the
 simple random sample design-based estimator in all of the ``all-dev''
@@ -1080,7 +1079,8 @@ design-based estimator in many settings. The ST-FPBK predictor is less
 beneficial when the temporal independent error variance contributes a
 large proportion to the overall variance. Additionally, the ST-FPBK
 predictor maintains appropriate interval coverage in all settings
-tested, even when the covariance for the errors is mis-specified.
+tested, even when the covariance for the errors is mis-specified or the
+response is discrete.
 
 An additional possible benefit of using the ST-FPBK predictor compared
 to a purely spatial FPBK predictor is the potential for forecasting
@@ -1369,8 +1369,8 @@ from sites in different strata are not correlated), then the BLUP for
 \widehat{\mathbf{b}'_a \mathbf{y}_a} = \bm{\lambda}_{o, l}' \mathbf{y}_{o, l} + \bm{\lambda}_{o, h}' \mathbf{y}_{o, h},
 \end{equation}
 
-where \(\bm{\lambda}_{o, l}\) and \(\bm{\lambda}_{o, h}'\) are the
-kriging weights for the Low and High strata, respectively (equation
+\noindent where \(\bm{\lambda}_{o, l}\) and \(\bm{\lambda}_{o, h}'\) are
+the kriging weights for the Low and High strata, respectively (equation
 \ref{equation:blup}), and \(\mathbf{y}_{o, l}\) and
 \(\mathbf{y}_{o, h}\) are the vectors of observed responses for the Low
 and High strata, respectively.
