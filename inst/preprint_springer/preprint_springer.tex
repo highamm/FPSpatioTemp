@@ -108,25 +108,25 @@ Abundance Prediction }
 \begin{abstract}
 Spatio-temporal models can be used to analyze data collected at various
 spatial locations throughout multiple time points. However, even with a
-finite number of spatial locations, there may be a lack of resources to
-collect data from every spatial location at every time point. We develop
-a spatio-temporal finite-population block kriging (ST-FPBK) method to
-predict a quantity of interest, such as a mean or total, across a finite
-number of spatial locations. This ST-FPBK predictor incorporates an
-appropriate variance reduction for sampling from a finite population.
-Through an application to moose surveys in the east-central region of
-Alaska, we show that the predictor has a substantially smaller standard
-error compared to a predictor from the purely spatial model that is
-currently used to analyze moose surveys in the region. We also show how
-the model can be used to forecast a prediction for abundance in a time
-point for which spatial locations have not yet been surveyed. A separate
-simulation study shows that the spatio-temporal predictor is unbiased
-and that prediction intervals from the ST-FPBK predictor attain
-appropriate coverage. For ecological monitoring surveys completed with
-some regularity through time, use of ST-FPBK could improve precision. We
-also give an \texttt{R} package that ecologists and resource managers
-could use to incorporate data from past surveys in predicting a quantity
-from a current survey.
+finite number of spatial locations, there may be insufficient resources
+to collect data from every spatial location at every time point. We
+develop a spatio-temporal finite-population block kriging (ST-FPBK)
+method to predict a quantity of interest, such as a mean or total,
+across a finite number of spatial locations. This ST-FPBK predictor
+incorporates an appropriate variance reduction for sampling from a
+finite population. Through an application to moose surveys in the
+east-central region of Alaska, we show that the predictor has a
+substantially smaller standard error compared to a predictor from the
+purely spatial model that is currently used to analyze moose surveys in
+the region. We also show how the model can be used to forecast a
+prediction for abundance in a time point for which spatial locations
+have not yet been surveyed. A separate simulation study shows that the
+spatio-temporal predictor is unbiased and that prediction intervals from
+the ST-FPBK predictor attain appropriate coverage. For ecological
+monitoring surveys completed with some regularity through time, use of
+ST-FPBK could improve precision. We also give an \texttt{R} package that
+ecologists and resource managers could use to incorporate data from past
+surveys in predicting a quantity from a current survey.
 \\
 \keywords{
         forecast; kriging; resource monitoring; spatial; temporal;
@@ -156,7 +156,7 @@ Sahu and Böhning 2022) or climate variables that are recorded through
 time at multiple locations (Lemos and Sansó 2009). Models for
 spatio-temporal data have applications in a wide variety of scientific
 fields (Cressie and Wikle 2015; Wikle, Zammit-Mangion, and Cressie 2019;
-Porcu, Furrer, and Nychka 2021).
+Chen, Genton, and Sun 2021; Porcu, Furrer, and Nychka 2021).
 
 One such application is ecological monitoring of a particular resource,
 such as animal or plant counts, rainfall, concentration of a compound in
@@ -201,8 +201,7 @@ and the sum model: \mbox{} \begin{equation}
 \noindent where \(w_1\), \(w_2\), and \(w_3\) are non-negative weights
 (De Cesare, Myers, and Posa 2001; S. De Iaco, Myers, and Posa 2002). In
 general, the product-sum model is more flexible than the product model
-and the sum model. Chen, Genton, and Sun (2021) provide a general review
-for modeling spatio-temporal data.
+and the sum model.
 
 These spatio-temporal models can be used for abundance prediction in a
 Bayesian framework as well as in a frequentist framework. Within the
@@ -265,15 +264,15 @@ harvest regulations (Kellie, Colson, and Reynolds 2019). The region of
 interest is divided into a finite number of areal polygons. Because of
 time and money constraints, only some polygons, or sites, in the region
 of interest are selected to be in the survey at a particular time point.
-Biologists fly to these selected sites, count the number of moose, and
-then use FPBK to find a prediction for the abundance for that year. Note
-that the interest is in predicting the realized total abundance so that,
-if there were enough resources to survey every site in a year, we would
-know the abundance in that year exactly. These surveys are historically
-analyzed with the ``WinfoNet'' site developed by DeLong (2006), which
-calculates the ``GeoSpatial Population Estimator'' (GSPE) for a given
-survey. The GSPE is an application of the FPBK predictor developed by
-Ver Hoef (2008).
+Biologists fly to these selected polygons, count the number of moose,
+and then use FPBK to find a prediction for the abundance for that year.
+Note that the interest is in predicting the realized total abundance so
+that, if there were enough resources to survey every site in a year, we
+would know the abundance in that year exactly. These surveys are
+historically analyzed with the ``WinfoNet'' site developed by DeLong
+(2006), which calculates the ``GeoSpatial Population Estimator'' (GSPE)
+for a given survey. The GSPE is an application of the FPBK predictor
+developed by Ver Hoef (2008).
 
 Though many of these surveys are completed regularly, most are analyzed
 completely independently of surveys from previous years (e.g. Gasaway et
@@ -435,7 +434,8 @@ controlling the decay rate of the covariance as the number of time units
 between two data points increases. Note that the exponential form of
 \(\mathbf{R}_t\) is equivalent to an AR(1) time series model if the time
 points are equally spaced and the correlation parameter in the AR(1)
-series is greater than zero (Schabenberger and Gotway 2017).
+series is greater than zero (Hamilton 2020; Ver Hoef, London, and Boveng
+2010).
 
 The product-sum model for \(\mathbf{y}\) is then \mbox{}
 \begin{equation} \label{equation:model}
@@ -459,8 +459,7 @@ Cesare, Myers, and Posa 2001; Sandra De Iaco, Myers, and Posa 2001).
 Also, the product-sum model is non-separable, giving it more flexibility
 than a separable (product) model for the covariance (S. De Iaco, Palma,
 and Posa 2015; Dumelle et al. 2021). Xu and Shu (2015) claim that the
-product-sum model is the most widely used spatio-temporal model used in
-practical applications.
+product-sum model is widely used in practical applications.
 
 \hypertarget{subsection:fpbk}{%
 \subsection{Finite Population Block Kriging}\label{subsection:fpbk}}
@@ -609,18 +608,18 @@ we will refer to as \(\bm{\theta} \equiv\) \([\sigma^2_{\delta}\),
 \(\sigma^2_{\eta}\), \(\rho\), \(\sigma^2_{\omega}\),
 \(\sigma^2_{\nu}]^\prime\) (Patterson and Thompson 1971; Harville 1977).
 Even if \(\mathbf{y}_a\) is not multivariate normal, the REML estimator
-for the parameter vector \(\bm{\theta}\) is still unbiased (Heyde 1994;
-Cressie and Lahiri 1993).
+for the parameter vector \(\bm{\theta}\) is formed from a set of
+unbiased estimating equations (Heyde 1994; Cressie and Lahiri 1993).
 
 However, REML estimation can be computationally burdensome, particularly
 for large spatio-temporal data sets with many observed sites and time
-points. To speed up estimation of \(\bm{\theta}\), Dumelle et al. (2021)
-iteratively apply the Sherman-Morrison-Woodbury formula (Sherman and
-Morrison 1950; Woodbury 1950) on the Stegle eigendecomposition (Stegle
-et al. 2011) of \(\bm{\Sigma}\) to more quickly obtain
-\(\bm{\Sigma}^{-1}\) during the optimization process. When the response
-is not observed in at least one space-time point combination,
-Helmert-Wolf blocking (Wolf 1979) is also incorporated to retain
+points. To speed up estimation of \(\bm{\theta}\) when every site is
+observed at every time point, Dumelle et al. (2021) iteratively apply
+the Sherman-Morrison-Woodbury formula (Sherman and Morrison 1950;
+Woodbury 1950) on the Stegle eigendecomposition (Stegle et al. 2011) of
+\(\bm{\Sigma}\) to more quickly obtain \(\bm{\Sigma}^{-1}\) during the
+optimization process. When every site is not observed at every time
+point, Helmert-Wolf blocking (Wolf 1979) is also incorporated to retain
 computational efficiency during estimation. To give a rough idea of the
 computational efficiency gained, Dumelle et al. (2021) found that the
 computation time for a single matrix inversion for a particular
@@ -629,10 +628,11 @@ seconds with their methodology, compared to over 1500 seconds for an
 inversion computed with the standard Cholesky decomposition. Note,
 however, that in REML optimization, many matrix inversions take place
 during the optimization process and the total number of iterations
-during optimization can vary from application to application. We use the
-developments from Dumelle et al. (2021) in the application, the
-simulations described in the next section, and the accompanying
-\texttt{R} package to speed up estimation of \(\bm{\theta}\).
+during optimization can vary from setting to setting. We use the
+developments from Dumelle et al. (2021) in the application in Section
+\ref{section:Application}, the simulations described in Section
+\ref{section:Simulation}, and the accompanying \texttt{R} package to
+speed up estimation of \(\bm{\theta}\).
 
 \hypertarget{section:Application}{%
 \section{Application}\label{section:Application}}
@@ -650,10 +650,10 @@ area for moose hunters. Within the Taylor Corridor, abundance surveys
 for moose are performed annually so that biologists can assess annual
 abundance and monitor the moose population size. In particular, surveys
 were conducted from 2014 through 2020 in every year except 2016, during
-which there was not sufficient snow cover to perform a survey. The
-spatial sampling frame for our study area consists of 381 sites. There
-are a total of 7 unique time points represented in the data, including
-the missing year of 2016. Therefore, \(N\) is 2667.
+which sightability of moose was low due to a lack of snow cover in the
+area. The spatial sampling frame for our study area consists of 381
+sites. There are a total of 7 unique time points represented in the
+data, including the missing year of 2016. Therefore, \(N\) is 2667.
 
 \begin{figure}
 \centering
@@ -876,7 +876,7 @@ the same scheme used in 2015 and 2020, respectively.}
 \hypertarget{description}{%
 \subsection{Description}\label{description}}
 
-To evaluate performance of the ST-FPBK predictor, we conduct a
+To further evaluate performance of the ST-FPBK predictor, we conduct a
 simulation study. We simulate a response vector \(\mathbf{y}\) of length
 \(N = 1000\) on a \(10 \times 10\) grid of 100 spatial sites on the unit
 square (\([0, 1] \times [0, 1]\)) and 10 equally-spaced time points in
@@ -920,13 +920,13 @@ exponential correlation function with \(\phi\) and \(\rho\) as the range
 parameters in equations \ref{equation:spatcov} and
 \ref{equation:tempcov}. The values \(0.471\) and \(0.3333\) are chosen
 for \(\phi\) and \(\rho\), respectively, so that the effective ranges,
-\(3 \phi\) and \(3 \rho\), are equal to the maximum distance between two
-data points in space (\(\sqrt2 = 1.414\)) and the maximum distance
-between two data points in time (\(1\)). A value of 0 for \(\phi\) (or
-\(\rho\)) sets the \(\mathbf{R}_{s}\) (or the \(\mathbf{R}_t\)) matrix
-to the identity matrix. Figure \ref{fig:simcovplot} shows the model
-covariance of the errors used to generate data for the ``all-dev''
-scenario.
+\(3 \phi\) and \(3 \rho\), are equal to the maximum possible distance
+between two data points in space (\(\sqrt2 = 1.414\)) and the maximum
+possible distance between two data points in time (\(1\)). A value of 0
+for \(\phi\) (or \(\rho\)) sets the \(\mathbf{R}_{s}\) (or the
+\(\mathbf{R}_t\)) matrix to the identity matrix. Figure
+\ref{fig:simcovplot} shows the model covariance of the errors used to
+generate data for the ``all-dev'' scenario.
 
 \begin{figure}
 \centering
@@ -1029,16 +1029,17 @@ the smaller sample size.
 We see little gains in rMSPE for the ST-FPBK predictor in the ``t-iev''
 scenario. This setting was chosen to explore how the spatio-temporal
 model would perform when most of the variability in the response comes
-from \(\sigma^2_{\eta}\). In this scenario, the mean of the response,
-conditional on the random effects, can fluctuate drastically from time
-point to time point. Therefore, in a model without any fixed effects,
-the realized total is susceptible to time point to time point increases
-and decreases more than the realized total is in the other scenarios. As
-expected, the ST-FPBK predictor performs no better than a purely spatial
-model or the SRS design-based estimator for the ``t-iev'' scenario
-because the information from data in other time points is not as useful.
-However, we can also say that the added complexity of the
-spatio-temporal model is not detrimental.
+from \(\sigma^2_{\eta}\), the temporal independent error variance. In
+this scenario, the mean of the response, conditional on the random
+effects, can fluctuate drastically from time point to time point.
+Therefore, in a model without any fixed effects, the realized total is
+susceptible to time point to time point increases and decreases more
+than the realized total is in the other scenarios. As expected, the
+ST-FPBK predictor performs no better than a purely spatial model or the
+SRS design-based estimator for the ``t-iev'' scenario because the
+information from data in other time points is not as useful. However, we
+can also say that the added complexity of the spatio-temporal model is
+not detrimental.
 
 \begin{figure}
 \centering
@@ -1111,8 +1112,8 @@ and less likely to yield an unreasonable abundance prediction, compared
 to a Bayesian hierarchical model. In general, fitting a Bayesian
 hierarchical model with a complex covariance structure on the link scale
 requires careful thought in formulating the model and the prior
-distributions used for all of the covariance parameters used to model
-covariance on the link scale (Conn et al. 2015).
+distributions used for all of the covariance parameters (Conn et al.
+2015).
 
 Conn et al. (2015) also note that the need to tailor the model used to
 the richness of the particular data set at hand is especially important
@@ -1135,22 +1136,27 @@ particular data set at hand.
 Another benefit of our approach is a faster fitting time, as there is no
 need to construct and implement the time-consuming Markov chain Monte
 Carlo sampler. The moose application model in Section
-\ref{section:Application} takes about 10 minutes to fit. There is a
-trade-off here between how many surveys to incorporate into the model
-(the Alaska Department of Fish and Game has done surveys with this
+\ref{section:Application} takes about 10 minutes to fit. The shorter
+fitting time allows us to fit and compare models with different
+underlying spatial and temporal covariances and/or with different fixed
+effects structures, which would be much more time-consuming in the
+Bayesian framework. For both our approach and a Bayesian approach, there
+is a trade-off here between how many surveys to incorporate into the
+model (the Alaska Department of Fish and Game has done surveys with this
 structure since the late 1990's) and how long the model will take to
 fit. We expect there to be diminishing returns in precision when
 incorporating older surveys, though the rate at which the returns
-diminish is dependent upon the application at hand. Additionally, with
-the shorter fitting time and the supplementary \texttt{R} package
-provided to fit the models, integrating this approach with the current
-GSPE software would be more reasonable and would also allow scientists
-other than statisticians to perform the analysis. Finally, our approach
-is easier to assess in a simulation study, which would be too
-time-prohibitive for the Bayesian model. Biometricians could use
-simulation with our approach to answer various questions given proposed
-values of covariance parameters like how much efficiency would drop if a
-survey was only conducted every other year.
+diminish is dependent upon the application at hand.
+
+Additionally, with the shorter fitting time and the supplementary
+\texttt{R} package provided to fit the models, integrating this approach
+with the current GSPE software would be more reasonable and would also
+allow scientists other than statisticians to perform the analysis.
+Finally, our approach is easier to assess in a simulation study, which
+would be too time-prohibitive for the Bayesian model. Biometricians
+could use simulation with our approach to answer various questions given
+proposed values of covariance parameters like how much efficiency would
+drop if a survey was only conducted every other year.
 
 Bayesian hierarchical models, including the model by Schmidt et al.
 (2022), however, offer features that would be harder to implement in our
@@ -1161,8 +1167,9 @@ hierarchical model can use a Poisson or negative binomial model for the
 counts. Therefore, an appropriate prediction interval for the response
 on one particular site could be constructed. On the other hand, for our
 approach, we rely on the central limit theorem for dependent data to
-form a prediction interval for the total, which would not apply to a
-prediction interval for the response on just one site.
+form a prediction interval for the total. Therefore, constructing a
+prediction interval for a single response on one unobserved site would
+not be sensible with our approach.
 
 We have developed a finite population block kriging predictor for
 spatio-temporal data, which adjusts the variance of the predictor to be
@@ -1537,6 +1544,10 @@ Gasaway, William C, Stephen D DuBois, Daniel J Reed, and Samuel J Harbo.
 1986. {``Estimating Moose Population Parameters from Aerial Surveys.''}
 University of Alaska. Institute of Arctic Biology.
 
+\leavevmode\vadjust pre{\hypertarget{ref-hamilton2020time}{}}%
+Hamilton, James Douglas. 2020. \emph{Time Series Analysis}. Princeton
+university press.
+
 \leavevmode\vadjust pre{\hypertarget{ref-harville1977maximum}{}}%
 Harville, David A. 1977. {``Maximum Likelihood Approaches to Variance
 Component Estimation and to Related Problems.''} \emph{Journal of the
@@ -1622,11 +1633,6 @@ Sauer, John R, and William A Link. 2011. {``Analysis of the North
 American Breeding Bird Survey Using Hierarchical Models.''} \emph{The
 Auk} 128 (1): 87--98.
 
-\leavevmode\vadjust pre{\hypertarget{ref-schabenberger2017statistical}{}}%
-Schabenberger, Oliver, and Carol A Gotway. 2017. \emph{Statistical
-Methods for Spatial Data Analysis: Texts in Statistical Science}.
-Chapman; Hall/CRC.
-
 \leavevmode\vadjust pre{\hypertarget{ref-schmidt2022bayesian}{}}%
 Schmidt, Joshua H, Matthew D Cameron, Kyle Joly, Jordan M Pruszenski,
 Joel H Reynolds, and Mathew S Sorum. 2022. {``Bayesian Spatial Modeling
@@ -1680,6 +1686,11 @@ Journal of the International Environmetrics Society} 18 (7): 697--712.
 Ver Hoef, Jay M, Devin Johnson, Robyn Angliss, and Matt Higham. 2021.
 {``Species Density Models from Opportunistic Citizen Science Data.''}
 \emph{Methods in Ecology and Evolution} 12 (10): 1911--25.
+
+\leavevmode\vadjust pre{\hypertarget{ref-ver2010fast}{}}%
+Ver Hoef, Jay M, Josh M London, and Peter L Boveng. 2010. {``Fast
+Computing of Some Generalized Linear Mixed Pseudo-Models with Temporal
+Autocorrelation.''} \emph{Computational Statistics} 25: 39--55.
 
 \leavevmode\vadjust pre{\hypertarget{ref-wang2019spatiotemporal}{}}%
 Wang, Zhonglei, and Zhengyuan Zhu. 2019. {``Spatiotemporal Balanced
