@@ -150,13 +150,14 @@ total \and
 Spatio-temporal data are indexed by both a spatial index, which we will
 refer to as a ``site,'' and by a temporal index, which we will refer to
 as a ``time point.'' Common examples of spatio-temporal data include
-infections from a disease in a country or region collected over a time
-period (e.g. Martínez-Beneito, López-Quilez, and Botella-Rocamora 2008;
-Sahu and Böhning 2022) or climate variables that are recorded through
-time at multiple locations (Lemos and Sansó 2009). Models for
-spatio-temporal data have applications in a wide variety of scientific
-fields (Cressie and Wikle 2015; Wikle, Zammit-Mangion, and Cressie 2019;
-Chen, Genton, and Sun 2021; Porcu, Furrer, and Nychka 2021).
+infections from a disease in a region collected over a time period (e.g.
+Martínez-Beneito, López-Quilez, and Botella-Rocamora 2008; Sahu and
+Böhning 2022) or climate variables that are recorded through time at
+multiple locations (Lemos and Sansó 2009). Models for spatio-temporal
+data can incorporate rich dependence structures and have applications in
+a wide variety of scientific fields (Cressie and Wikle 2015; Montero,
+Fernández-Avilés, and Mateu 2015; Wikle, Zammit-Mangion, and Cressie
+2019; Chen, Genton, and Sun 2021; Porcu, Furrer, and Nychka 2021).
 
 One such application is ecological monitoring of a particular resource,
 such as animal or plant counts, rainfall, concentration of a compound in
@@ -190,11 +191,12 @@ as a ``separable'' model) is
 \(\text{Cov}_s(\mathbf{h}_s) \text{Cov}_t(h_t)\), where
 \(\text{Cov}_s(\mathbf{h}_s)\) only depends on the spatial separation
 and \(\text{Cov}_t(h_t)\) only depends on the temporal separation (Posa
-1993; Stein 2005). On the other hand, a sum model for
-\(\text{Cov}(\mathbf{h}_s, h_t)\) adds together the spatial and temporal
-covariance as \(\text{Cov}_s(\mathbf{h}_s) + \text{Cov}_t(h_t)\)
-(Rouhani and Hall 1989). A product-sum model combines the product model
-and the sum model: \mbox{} \begin{equation}
+1993; Stein 2005; Gneiting, Genton, and Guttorp 2006). On the other
+hand, a sum model for \(\text{Cov}(\mathbf{h}_s, h_t)\) adds together
+the spatial and temporal covariance as
+\(\text{Cov}_s(\mathbf{h}_s) + \text{Cov}_t(h_t)\) (Rouhani and Hall
+1989). A product-sum model combines the product model and the sum model:
+\mbox{} \begin{equation}
 \text{Cov}(\mathbf{h}_s, h_t) = w_1\text{Cov}_s(\mathbf{h}_s) \text{Cov}_t(h_t) + w_2\text{Cov}_s(\mathbf{h}_s) + w_3\text{Cov}_t(h_t),
 \end{equation}
 
@@ -1544,6 +1546,12 @@ Gasaway, William C, Stephen D DuBois, Daniel J Reed, and Samuel J Harbo.
 1986. {``Estimating Moose Population Parameters from Aerial Surveys.''}
 University of Alaska. Institute of Arctic Biology.
 
+\leavevmode\vadjust pre{\hypertarget{ref-gneiting2006geostatistical}{}}%
+Gneiting, Tilmann, Marc G Genton, and Peter Guttorp. 2006.
+{``Geostatistical Space-Time Models, Stationarity, Separability, and
+Full Symmetry.''} \emph{Monographs On Statistics and Applied
+Probability} 107: 151.
+
 \leavevmode\vadjust pre{\hypertarget{ref-hamilton2020time}{}}%
 Hamilton, James Douglas. 2020. \emph{Time Series Analysis}. Princeton
 university press.
@@ -1590,6 +1598,11 @@ Hall/CRC.
 Martínez-Beneito, Miguel A, Antonio López-Quilez, and Paloma
 Botella-Rocamora. 2008. {``An Autoregressive Approach to Spatio-Temporal
 Disease Mapping.''} \emph{Statistics in Medicine} 27 (15): 2874--89.
+
+\leavevmode\vadjust pre{\hypertarget{ref-montero2015spatial}{}}%
+Montero, José-María, Gema Fernández-Avilés, and Jorge Mateu. 2015.
+\emph{Spatial and Spatio-Temporal Geostatistical Modeling and Kriging}.
+John Wiley \& Sons.
 
 \leavevmode\vadjust pre{\hypertarget{ref-patterson1971recovery}{}}%
 Patterson, H Desmond, and Robin Thompson. 1971. {``Recovery of
