@@ -151,7 +151,7 @@ mod_strat
 
 `mod_strat` could then be passed to `predict()` to obtain a prediction for the total abundance using a model with `strata` as a covariate.
 
-Two other optional arguments to `stlmfit()` include `cor_model_sp` and `cor_model_t`, which control the correlation function to be used for the spatial and temporal model components, respectively. Options for `cor_model_sp` and `cor_model_t` include `"exponential"` (the default for both), `"spherical"`, `"gaussian"`, and `"tent"`, among others. The model below uses `strata` as a covariate, a `"spherical"` correlation structure for the spatial correlation, and a `"spherical"` correlation structure for the temporal correlation.
+Two other optional arguments to `stlmfit()` include `cor_model_sp` and `cor_model_t`, which control the correlation function to be used for the spatial and temporal model components, respectively. Options for `cor_model_sp` and `cor_model_t` include `"exponential"` (the default for both), `"spherical"`, and `"gaussian"`. The model below uses `strata` as a covariate, a `"spherical"` correlation structure for the spatial correlation, and a `"spherical"` correlation structure for the temporal correlation.
 
 ```{r}
 mod_corr <- stlmfit(formula = count ~ strata,
